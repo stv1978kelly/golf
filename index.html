@@ -308,74 +308,39 @@ function setMode(m){
   $('mStable').className='btn-sm'+(m==='stableford'?' on':'');
 }
 
-// ── COURSE SEARCH via live API ──
 var DF=[],DI=0,DO=false,searchTimer=null;
 function ddFilter(q){
-  clearTimeout(searchTimer);
-  var dl=$('ddlist');
-  if(!q||q.trim().length<2){DF=[];dl.style.display='none';return;}
-  dl.style.display='block';
-  dl.innerHTML='<div style="padding:12px 16px;font-size:13px;color:#6b7280">Searching...</div>';
-  searchTimer=setTimeout(function(){
-    fetch('https://api.anthropic.com/v1/messages',{
-      method:'POST',
-      headers:{'Content-Type':'application/json'},
-      body:JSON.stringify({
-        model:'claude-sonnet-4-20250514',
-        max_tokens:1000,
-        system:'You are a UK golf course search assistant. When given a search term, return ONLY a JSON array of up to 10 matching UK golf clubs. Format: [{"id":"slug","name":"Full Club Name","county":"County"}]. Return only JSON, no markdown, no explanation.',
-        messages:[{role:'user',content:'Find UK golf clubs matching: '+q.trim()}]
-      })
-    })
-    .then(function(r){
-      if(!r.ok)throw new Error('HTTP '+r.status+' '+r.statusText);
-      return r.json();
-    })
-    .then(function(d){
-      if(d.error)throw new Error(JSON.stringify(d.error));
-      var text=d.content.map(function(b){return b.text||''}).join('');
-      DF=JSON.parse(text.replace(/```json|```/g,'').trim());
-      DI=0;ddRender();
-    })
-    .catch(function(e){
-      dl.innerHTML='<div style="padding:12px 16px;font-size:13px;color:#ef4444">Error: '+e.message+'</div>';
-    });
-  },400);
+  var lq=q.trim().toLowerCase();
+  DF=lq?COURSES.filter(function(c){return c.toLowerCase().indexOf(lq)>=0}).slice(0,60):COURSES.slice(0,50);
+  DI=0;ddRender();
 }
-function ddOpen(){DO=true;}
+function ddOpen(){DO=true;ddFilter($('courseIn').value);}
 function ddRender(){
   var dl=$('ddlist');
-  if(!DF.length){dl.innerHTML='<div style="padding:12px 16px;font-size:13px;color:#6b7280">No courses found</div>';return;}
+  if(!DO||!DF.length){dl.style.display='none';return;}
   dl.style.display='block';
   var html='';
   DF.forEach(function(c,i){
-    var nm=c.name||c.club_name||'';
-    var rg=(c.county||c.region||c.country||'');
-    html+='<div class="dditem'+(i===DI?' hi':'')+'" onmousedown="ddPick(\''+JSON.stringify(c).replace(/'/g,"&#39;").replace(/"/g,'&quot;')+'\')">'
+    var pts=c.split(',');var nm=pts[0];var rg=pts.slice(1).join(',').trim();
+    html+='<div class="dditem'+(i===DI?' hi':'')+'" onmousedown="ddPick(\''+c.replace(/\\/g,'\\\\').replace(/'/g,"\\'")+'\')">'
       +'<span class="dn">'+nm+'</span>'+(rg?'<span class="dr">'+rg+'</span>':'')+'</div>';
   });
-  html+='<div class="ddfoot">'+DF.length+' results from UK Golf API</div>';
+  html+='<div class="ddfoot">'+DF.length+' of '+COURSES.length+' courses</div>';
   dl.innerHTML=html;
 }
 function ddKey(e){
   if(!DO)return;
   if(e.key==='ArrowDown'){e.preventDefault();DI=Math.min(DI+1,DF.length-1);ddRender();}
   else if(e.key==='ArrowUp'){e.preventDefault();DI=Math.max(DI-1,0);ddRender();}
-  else if(e.key==='Enter'&&DF[DI])ddPickObj(DF[DI]);
+  else if(e.key==='Enter'&&DF[DI])ddPick(DF[DI]);
   else if(e.key==='Escape'){DO=false;$('ddlist').style.display='none';}
 }
 document.addEventListener('click',function(e){if($('ddwrap')&&!$('ddwrap').contains(e.target)){DO=false;if($('ddlist'))$('ddlist').style.display='none';}});
-
-function ddPick(json){
-  try{var c=JSON.parse(json.replace(/&quot;/g,'"').replace(/&#39;/g,"'"));ddPickObj(c);}catch(e){console.log(e);}
-}
-function ddPickObj(c){
-  var nm=c.name||c.club_name||'';
-  S.course=nm; S.curl=''; S.clubId=c.id;
-  $('courseIn').value=nm;
-  DO=false; $('ddlist').style.display='none';
-  lookupSite(nm);
-  loadCourseCard(c);
+function ddPick(name){
+  S.course=name;S.curl='';
+  $('courseIn').value=name;DO=false;$('ddlist').style.display='none';
+  lookupSite(name);
+  loadCourseCard({name:name,county:name.split(',').slice(1).join(',').trim()});
 }
 
 function loadCourseCard(club){
