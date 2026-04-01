@@ -336,6 +336,7 @@ function ddPick(name){
   S.course=name;S.curl='';
   $('courseIn').value=name;DO=false;$('ddlist').style.display='none';
   lookupSite(name);
+  lookupCourseCard(name);
 }
 function lookupSite(name){
   var wr=$('wsrow');wr.style.display='flex';
@@ -354,18 +355,66 @@ function setNoSite(){$('wsdot').style.background='#9ca3af';$('wstext').textConte
 function openUrl(){if(S.curl)window.open(S.curl,'_blank')}
 function openCourseUrl(){if(R&&R.curl)window.open(R.curl,'_blank')}
 
+function lookupCourseCard(name){
+  var ci=$('courseInfo');
+  if(!ci){
+    var d=document.createElement('div');
+    d.id='courseInfo';
+    d.style='padding:10px 14px;background:#f0fdf4;border-radius:8px;border:1px solid #bbf7d0;margin-bottom:12px;font-size:13px;color:#166534;display:none';
+    $('wsrow').parentNode.insertBefore(d,$('wsrow').nextSibling);
+  }
+  ci=$('courseInfo');
+  ci.style.display='block';
+  ci.textContent='Loading course card for '+name.split(',')[0]+'...';
+  fetch('https://api.anthropic.com/v1/messages',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({
+    model:'claude-sonnet-4-20250514',max_tokens:800,
+    system:'You are a golf course database. Return ONLY a JSON object with no markdown, no explanation. Format: {"par":[4,4,3,4,5,3,4,4,5,4,4,3,4,5,3,4,4,5],"si":[7,11,15,3,1,17,9,13,5,8,12,16,4,2,18,10,14,6],"found":true} where par is array of 18 par values and si is array of 18 stroke index values for the named course. If you do not know the exact values for this specific course, set found to false and return default values.',
+    messages:[{role:'user',content:'What are the exact par values and stroke index for each of the 18 holes at: '+name}]
+  })})
+  .then(function(r){return r.json()})
+  .then(function(d){
+    var text=d.content.map(function(b){return b.text||''}).join('');
+    var p=JSON.parse(text.replace(/```json|```/g,'').trim());
+    if(p.found&&p.par&&p.si&&p.par.length===18&&p.si.length===18){
+      S.pars=p.par;S.si=p.si;
+      buildSetup();
+      ci.textContent='Course card loaded for '+name.split(',')[0]+' — par and stroke index updated!';
+      ci.style.background='#f0fdf4';ci.style.borderColor='#bbf7d0';ci.style.color='#166534';
+    } else {
+      ci.textContent='Exact course card not found — using default values. You can edit manually.';
+      ci.style.background='#fffbeb';ci.style.borderColor='#fde68a';ci.style.color='#92400e';
+    }
+  })
+  .catch(function(){
+    ci.textContent='Could not load course card — using default values. You can edit manually.';
+    ci.style.background='#fffbeb';ci.style.borderColor='#fde68a';ci.style.color='#92400e';
+  });
+}
+
 function doCreate(){
   $('setupErr').style.display='none';
+  $('setupErr').textContent='';
   var code=genCode();
   var r={course:S.course||$('courseIn').value,curl:S.curl,np:S.np,mode:S.mode,
     names:S.names.slice(0,S.np),hcps:S.hcps.slice(0,S.np),
     pars:S.pars.slice(),si:S.si.slice(),
     scores:Array(16).fill(0).map(function(){return Array(18).fill(0)}),
     ts:Date.now()};
-  fbPut('rounds/'+code,r).then(function(){
+  var url=FB+'/rounds/'+code+'.json';
+  $('setupErr').textContent='Connecting to: '+url;
+  $('setupErr').style.display='block';
+  fetch(url,{method:'PUT',body:JSON.stringify(r)})
+  .then(function(res){
+    $('setupErr').textContent='HTTP status: '+res.status;
+    if(!res.ok)throw new Error('HTTP '+res.status);
+    return res.json();
+  })
+  .then(function(){
+    $('setupErr').style.display='none';
     RC=code;R=r;startPlay();
-  }).catch(function(e){
-    $('setupErr').textContent='Error: '+e.message+'. Check your internet connection.';
+  })
+  .catch(function(e){
+    $('setupErr').textContent='FAILED: '+e.toString()+' | URL was: '+url;
     $('setupErr').style.display='block';
   });
 }
