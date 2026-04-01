@@ -241,6 +241,11 @@ thead th:first-child{background:#f3f4f6}
 <script>
 var FB='https://rogs-9f527-default-rtdb.europe-west1.firebasedatabase.app';
 var KNOWN={"carlisle golf club":"https://www.carlislegolfclub.org/the-course","pollok golf club":"https://pollokgolf.com/"};
+var RAPIDAPI_KEY='f8df13357amsha8624aaa181b5aep1421c5jsn9143711ad0ff';
+var API_BASE='https://uk-golf-api.vercel.app';
+var API_HEADERS={'X-RapidAPI-Key':RAPIDAPI_KEY,'X-RapidAPI-Host':'uk-golf-course-data-api.p.rapidapi.com'};
+function apiGet(path){return fetch(API_BASE+path,{headers:API_HEADERS}).then(function(r){if(!r.ok)throw new Error(r.status);return r.json();});}
+var clubCache={};
 var COURSES=["Aberdovey Golf Club, Wales","Aldeburgh Golf Club, Suffolk","Alwoodley Golf Club, Leeds","Archerfield Links - Fidra Course, East Lothian","Ardglass Golf Club, County Down","Ashburnham Golf Club, Wales","Bamburgh Castle Golf Club, Northumberland","Ballyliffin Golf Club - Glashedy Links","Belvoir Park Golf Club, Belfast","Blairgowrie Golf Club - Rosemount, Perthshire","Brora Golf Club, Highland","Burnham and Berrow Golf Club, Somerset","Camberley Heath Golf Club, Surrey","Carlisle Golf Club, Cumbria","Carnoustie Golf Links - Championship, Angus","Carnoustie Golf Links - Burnside, Angus","Castle Stuart Golf Links, Highland","Celtic Manor Resort - Twenty Ten Course, Wales","Chart Hills Golf Club, Kent","Clandeboye Golf Club - Ava, County Down","Close House Golf Club, Newcastle","Conwy Golf Club, Wales","Crail Golfing Society - Balcomie Links, Fife","Cruden Bay Golf Club, Aberdeenshire","Dumbarnie Links, Fife","Dunbar Golf Club, East Lothian","Dundonald Links, Ayrshire","East Sussex National - East Course","Edgbaston Golf Club, Birmingham","Elie Golf Club, Fife","Fairmont St Andrews, Fife","Ferndown Golf Club, Dorset","Formby Golf Club, Merseyside","Fulford Golf Club, York","Galgorm Castle Golf Club, County Antrim","Ganton Golf Club, Yorkshire","Gleneagles - Kings Course, Perthshire","Gleneagles - Queens Course, Perthshire","Gleneagles - PGA Centenary, Perthshire","Gog Magog Golf Club, Cambridge","Golspie Golf Club, Highland","Gullane Golf Club No.1, East Lothian","Gullane Golf Club No.2, East Lothian","Hillside Golf Club, Southport","Huddersfield Golf Club, Fixby","Hunstanton Golf Club, Norfolk","Ilkley Golf Club, Yorkshire","Inverness Golf Club, Highland","Kingsbarns Golf Links, Fife","La Moye Golf Club, Jersey","Ladybank Golf Club, Fife","Lindrick Golf Club, Yorkshire","Loch Lomond Golf Club, Dumbartonshire","London Golf Club, Kent","Lundin Golf Club, Fife","Machrie Hotel and Golf Links, Islay","Malone Golf Club, Belfast","Minchinhampton Golf Club, Gloucestershire","Moor Park Golf Club, Hertfordshire","Moortown Golf Club, Leeds","Moseley Golf Club, Birmingham","Muirfield, East Lothian","Murcar Links Golf Club, Aberdeen","Nairn Golf Club, Highland","Nefyn and District Golf Club, Wales","North Berwick Golf Club, East Lothian","Notts Golf Club Hollinwell, Nottinghamshire","Pannal Golf Club, Harrogate","Parkstone Golf Club, Dorset","Pennard Golf Club, Wales","Penrith Golf Club, Cumbria","Pollok Golf Club, Glasgow","Portstewart Golf Club, County Londonderry","Prestwick Golf Club, Ayrshire","Princes Golf Club, Sandwich","Queenwood Golf Club, Surrey","Remedy Oak Golf Club, Dorset","Royal Aberdeen Golf Club, Aberdeenshire","Royal Belfast Golf Club, Holywood","Royal Birkdale Golf Club, Southport","Royal County Down Golf Club","Royal Dornoch Golf Club, Highland","Royal Guernsey Golf Club","Royal Jersey Golf Club","Royal Liverpool Golf Club, Hoylake","Royal Lytham and St Annes Golf Club","Royal North Devon Golf Club, Westward Ho","Royal Portrush Golf Club - Dunluce Links","Royal Portrush Golf Club - Valley Links","Royal Porthcawl Golf Club, Wales","Royal St Davids Golf Club, Harlech","Royal St Georges Golf Club, Sandwich","Royal Troon Golf Club, Ayrshire","Royal West Norfolk Golf Club, Brancaster","Rye Golf Club, East Sussex","St Andrews Links - Old Course, Fife","St Andrews Links - New Course, Fife","St Andrews Links - Jubilee Course, Fife","St Enodoc Golf Club, Cornwall","St Georges Hill Golf Club, Surrey","Saunton Golf Club - East Course, Devon","Scotscraig Golf Club, Fife","Seaton Carew Golf Club, Durham","Sherwood Forest Golf Club, Nottinghamshire","Silloth on Solway Golf Club, Cumbria","Slaley Hall Golf Resort, Northumberland","Southerndown Golf Club, Wales","Southport and Ainsdale Golf Club","Stoke Park Club, Buckinghamshire","Sunningdale Golf Club - Old Course, Surrey","Sunningdale Golf Club - New Course, Surrey","Swinley Forest Golf Club, Berkshire","Tenby Golf Club, Wales","The Belfry - Brabazon Course, Warwickshire","The Grove, Hertfordshire","Trevose Golf and Country Club, Cornwall","Trump International Golf Links, Aberdeenshire","Trump Turnberry - Ailsa Course, Ayrshire","Walton Heath Golf Club, Surrey","Wentworth Club - West Course, Surrey","West Lancashire Golf Club","Western Gailes Golf Club, Ayrshire","Windermere Golf Club, Cumbria","Woburn Golf Club - Dukes Course, Buckinghamshire","Woburn Golf Club - Marquess Course, Buckinghamshire","Woodbridge Golf Club, Suffolk","Woodhall Spa Golf Club, Lincolnshire"].sort();
 var DPARS=[4,4,3,4,5,3,4,4,5,4,4,3,4,5,3,4,4,5];
 var DSI=[7,11,15,3,1,17,9,13,5,8,12,16,4,2,18,10,14,6];
@@ -303,40 +308,108 @@ function setMode(m){
   $('mStable').className='btn-sm'+(m==='stableford'?' on':'');
 }
 
-// dropdown
-var DF=[],DI=0,DO=false;
+// ── COURSE SEARCH via live API ──
+var DF=[],DI=0,DO=false,searchTimer=null;
 function ddFilter(q){
-  var lq=q.trim().toLowerCase();
-  DF=lq?COURSES.filter(function(c){return c.toLowerCase().indexOf(lq)>=0}).slice(0,60):COURSES.slice(0,50);
-  DI=0;ddRender();
+  clearTimeout(searchTimer);
+  var dl=$('ddlist');
+  if(!q||q.trim().length<2){
+    DF=[];dl.style.display='none';return;
+  }
+  dl.style.display='block';
+  dl.innerHTML='<div style="padding:12px 16px;font-size:13px;color:#6b7280">Searching...</div>';
+  searchTimer=setTimeout(function(){
+    apiGet('/clubs?name='+encodeURIComponent(q.trim())+'&per_page=40')
+    .then(function(d){
+      DF=(d.clubs||d.data||d||[]).slice(0,40);
+      DI=0;ddRender();
+    })
+    .catch(function(){
+      dl.innerHTML='<div style="padding:12px 16px;font-size:13px;color:#ef4444">Search failed — check connection</div>';
+    });
+  },400);
 }
-function ddOpen(){DO=true;ddFilter($('courseIn').value)}
+function ddOpen(){DO=true;}
 function ddRender(){
   var dl=$('ddlist');
-  if(!DO||!DF.length){dl.style.display='none';return}
+  if(!DF.length){dl.innerHTML='<div style="padding:12px 16px;font-size:13px;color:#6b7280">No courses found</div>';return;}
   dl.style.display='block';
   var html='';
   DF.forEach(function(c,i){
-    var pts=c.split(',');var nm=pts[0];var rg=pts.slice(1).join(',').trim();
-    html+='<div class="dditem'+(i===DI?' hi':'')+'" onmousedown="ddPick(\''+c.replace(/'/g,"\\'")+'\')">'
+    var nm=c.name||c.club_name||'';
+    var rg=(c.county||c.region||c.country||'');
+    html+='<div class="dditem'+(i===DI?' hi':'')+'" onmousedown="ddPick(\''+JSON.stringify(c).replace(/'/g,"&#39;").replace(/"/g,'&quot;')+'\')">'
       +'<span class="dn">'+nm+'</span>'+(rg?'<span class="dr">'+rg+'</span>':'')+'</div>';
   });
-  html+='<div class="ddfoot">'+DF.length+' of '+COURSES.length+' courses</div>';
+  html+='<div class="ddfoot">'+DF.length+' results from UK Golf API</div>';
   dl.innerHTML=html;
 }
 function ddKey(e){
   if(!DO)return;
-  if(e.key==='ArrowDown'){e.preventDefault();DI=Math.min(DI+1,DF.length-1);ddRender()}
-  else if(e.key==='ArrowUp'){e.preventDefault();DI=Math.max(DI-1,0);ddRender()}
-  else if(e.key==='Enter'&&DF[DI])ddPick(DF[DI]);
-  else if(e.key==='Escape'){DO=false;$('ddlist').style.display='none'}
+  if(e.key==='ArrowDown'){e.preventDefault();DI=Math.min(DI+1,DF.length-1);ddRender();}
+  else if(e.key==='ArrowUp'){e.preventDefault();DI=Math.max(DI-1,0);ddRender();}
+  else if(e.key==='Enter'&&DF[DI])ddPickObj(DF[DI]);
+  else if(e.key==='Escape'){DO=false;$('ddlist').style.display='none';}
 }
-document.addEventListener('click',function(e){if(!$('ddwrap').contains(e.target)){DO=false;$('ddlist').style.display='none'}});
-function ddPick(name){
-  S.course=name;S.curl='';
-  $('courseIn').value=name;DO=false;$('ddlist').style.display='none';
-  lookupSite(name);
-  lookupCourseCard(name);
+document.addEventListener('click',function(e){if($('ddwrap')&&!$('ddwrap').contains(e.target)){DO=false;if($('ddlist'))$('ddlist').style.display='none';}});
+
+function ddPick(json){
+  try{var c=JSON.parse(json.replace(/&quot;/g,'"').replace(/&#39;/g,"'"));ddPickObj(c);}catch(e){console.log(e);}
+}
+function ddPickObj(c){
+  var nm=c.name||c.club_name||'';
+  S.course=nm; S.curl=''; S.clubId=c.id;
+  $('courseIn').value=nm;
+  DO=false; $('ddlist').style.display='none';
+  lookupSite(nm);
+  loadCourseCard(c);
+}
+
+function loadCourseCard(club){
+  var ci=$('courseInfo');
+  if(!ci){
+    var d=document.createElement('div');d.id='courseInfo';
+    d.style='padding:10px 14px;border-radius:8px;border:1px solid #bbf7d0;margin-bottom:12px;font-size:13px;display:none';
+    $('wsrow').parentNode.insertBefore(d,$('wsrow').nextSibling);
+    ci=$('courseInfo');
+  }
+  ci.style.display='block';
+  ci.style.background='#f0fdf4';ci.style.borderColor='#bbf7d0';ci.style.color='#166534';
+  ci.textContent='Loading scorecard for '+(club.name||'course')+'...';
+
+  // get courses list for this club
+  apiGet('/clubs/'+club.id+'/courses')
+  .then(function(d){
+    var courses=d.courses||d.data||d||[];
+    if(!courses.length)throw new Error('no courses');
+    // use first course
+    var course=courses[0];
+    return apiGet('/courses/'+course.id+'/scorecard');
+  })
+  .then(function(d){
+    var holes=d.holes||d.data||d||[];
+    if(!holes||!holes.length)throw new Error('no holes');
+    // sort by hole number
+    holes.sort(function(a,b){return(a.hole_number||a.number||0)-(b.hole_number||b.number||0);});
+    var newPars=[],newSI=[];
+    holes.slice(0,18).forEach(function(h){
+      newPars.push(parseInt(h.par)||4);
+      newSI.push(parseInt(h.stroke_index||h.si||h.handicap||0)||0);
+    });
+    // fill to 18 if needed
+    while(newPars.length<18){newPars.push(4);newSI.push(newPars.length);}
+    // fix SI if all zeros
+    var siSum=newSI.reduce(function(a,b){return a+b},0);
+    if(siSum===0)newSI=DPARS.map(function(_,i){return i+1;});
+    S.pars=newPars; S.si=newSI;
+    buildSetup();
+    ci.textContent='Scorecard loaded from UK Golf API — par and stroke index updated!';
+    ci.style.background='#f0fdf4';ci.style.borderColor='#bbf7d0';ci.style.color='#166534';
+  })
+  .catch(function(err){
+    ci.textContent='Scorecard not available for this course — using defaults. Edit manually if needed.';
+    ci.style.background='#fffbeb';ci.style.borderColor='#fde68a';ci.style.color='#92400e';
+  });
 }
 function lookupSite(name){
   var wr=$('wsrow');wr.style.display='flex';
@@ -350,46 +423,10 @@ function lookupSite(name){
     if(p.found)setSite(p.url);else setNoSite();
   }).catch(setNoSite);
 }
-function setSite(url){S.curl=url;$('wsdot').style.background='#10b981';$('wstext').textContent=url.replace('https://','').replace(/\/$/,'');$('wsbtn').style.display='inline-block'}
-function setNoSite(){$('wsdot').style.background='#9ca3af';$('wstext').textContent='No website found'}
-function openUrl(){if(S.curl)window.open(S.curl,'_blank')}
-function openCourseUrl(){if(R&&R.curl)window.open(R.curl,'_blank')}
-
-function lookupCourseCard(name){
-  var ci=$('courseInfo');
-  if(!ci){
-    var d=document.createElement('div');
-    d.id='courseInfo';
-    d.style='padding:10px 14px;background:#f0fdf4;border-radius:8px;border:1px solid #bbf7d0;margin-bottom:12px;font-size:13px;color:#166534;display:none';
-    $('wsrow').parentNode.insertBefore(d,$('wsrow').nextSibling);
-  }
-  ci=$('courseInfo');
-  ci.style.display='block';
-  ci.textContent='Loading course card for '+name.split(',')[0]+'...';
-  fetch('https://api.anthropic.com/v1/messages',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({
-    model:'claude-sonnet-4-20250514',max_tokens:800,
-    system:'You are a golf course database. Return ONLY a JSON object with no markdown, no explanation. Format: {"par":[4,4,3,4,5,3,4,4,5,4,4,3,4,5,3,4,4,5],"si":[7,11,15,3,1,17,9,13,5,8,12,16,4,2,18,10,14,6],"found":true} where par is array of 18 par values and si is array of 18 stroke index values for the named course. If you do not know the exact values for this specific course, set found to false and return default values.',
-    messages:[{role:'user',content:'What are the exact par values and stroke index for each of the 18 holes at: '+name}]
-  })})
-  .then(function(r){return r.json()})
-  .then(function(d){
-    var text=d.content.map(function(b){return b.text||''}).join('');
-    var p=JSON.parse(text.replace(/```json|```/g,'').trim());
-    if(p.found&&p.par&&p.si&&p.par.length===18&&p.si.length===18){
-      S.pars=p.par;S.si=p.si;
-      buildSetup();
-      ci.textContent='Course card loaded for '+name.split(',')[0]+' — par and stroke index updated!';
-      ci.style.background='#f0fdf4';ci.style.borderColor='#bbf7d0';ci.style.color='#166534';
-    } else {
-      ci.textContent='Exact course card not found — using default values. You can edit manually.';
-      ci.style.background='#fffbeb';ci.style.borderColor='#fde68a';ci.style.color='#92400e';
-    }
-  })
-  .catch(function(){
-    ci.textContent='Could not load course card — using default values. You can edit manually.';
-    ci.style.background='#fffbeb';ci.style.borderColor='#fde68a';ci.style.color='#92400e';
-  });
-}
+function setSite(url){S.curl=url;$('wsdot').style.background='#10b981';$('wstext').textContent=url.replace('https://','').replace(/\/$/,'');$('wsbtn').style.display='inline-block';}
+function setNoSite(){$('wsdot').style.background='#9ca3af';$('wstext').textContent='No website found';}
+function openUrl(){if(S.curl)window.open(S.curl,'_blank');}
+function openCourseUrl(){if(R&&R.curl)window.open(R.curl,'_blank');}
 
 function doCreate(){
   $('setupErr').style.display='none';
