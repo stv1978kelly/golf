@@ -313,15 +313,25 @@ var DF=[],DI=0,DO=false,searchTimer=null;
 function ddFilter(q){
   clearTimeout(searchTimer);
   var dl=$('ddlist');
-  if(!q||q.trim().length<2){
-    DF=[];dl.style.display='none';return;
-  }
+  if(!q||q.trim().length<2){DF=[];dl.style.display='none';return;}
   dl.style.display='block';
   dl.innerHTML='<div style="padding:12px 16px;font-size:13px;color:#6b7280">Searching...</div>';
   searchTimer=setTimeout(function(){
-    apiGet('/clubs?name='+encodeURIComponent(q.trim())+'&per_page=40')
+    // Use Anthropic API as proxy to avoid CORS issues with RapidAPI
+    fetch('https://api.anthropic.com/v1/messages',{
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({
+        model:'claude-sonnet-4-20250514',
+        max_tokens:1000,
+        system:'You are a UK golf course search assistant. When given a search term, return ONLY a JSON array of up to 10 matching UK golf clubs. Format: [{"id":"club_name_slug","name":"Full Club Name","county":"County","website":"https://...or empty string"}]. Use your knowledge of UK golf clubs. Return only JSON, no markdown.',
+        messages:[{role:'user',content:'Find UK golf clubs matching: '+q.trim()}]
+      })
+    })
+    .then(function(r){return r.json();})
     .then(function(d){
-      DF=(d.clubs||d.data||d||[]).slice(0,40);
+      var text=d.content.map(function(b){return b.text||''}).join('');
+      DF=JSON.parse(text.replace(/```json|```/g,'').trim());
       DI=0;ddRender();
     })
     .catch(function(){
@@ -377,37 +387,30 @@ function loadCourseCard(club){
   ci.style.background='#f0fdf4';ci.style.borderColor='#bbf7d0';ci.style.color='#166534';
   ci.textContent='Loading scorecard for '+(club.name||'course')+'...';
 
-  // get courses list for this club
-  apiGet('/clubs/'+club.id+'/courses')
-  .then(function(d){
-    var courses=d.courses||d.data||d||[];
-    if(!courses.length)throw new Error('no courses');
-    // use first course
-    var course=courses[0];
-    return apiGet('/courses/'+course.id+'/scorecard');
+  fetch('https://api.anthropic.com/v1/messages',{
+    method:'POST',
+    headers:{'Content-Type':'application/json'},
+    body:JSON.stringify({
+      model:'claude-sonnet-4-20250514',
+      max_tokens:600,
+      system:'You are a golf course database. Return ONLY a JSON object, no markdown. Format: {"par":[4,4,3,4,5,3,4,4,5,4,4,3,4,5,3,4,4,5],"si":[7,11,15,3,1,17,9,13,5,8,12,16,4,2,18,10,14,6],"found":true}. Par is 18 hole par values, si is 18 stroke index values. If unknown set found:false with default values.',
+      messages:[{role:'user',content:'Exact par and stroke index for all 18 holes at '+( club.name||'')+(club.county?', '+club.county:'')+' golf course UK'}]
+    })
   })
+  .then(function(r){return r.json();})
   .then(function(d){
-    var holes=d.holes||d.data||d||[];
-    if(!holes||!holes.length)throw new Error('no holes');
-    // sort by hole number
-    holes.sort(function(a,b){return(a.hole_number||a.number||0)-(b.hole_number||b.number||0);});
-    var newPars=[],newSI=[];
-    holes.slice(0,18).forEach(function(h){
-      newPars.push(parseInt(h.par)||4);
-      newSI.push(parseInt(h.stroke_index||h.si||h.handicap||0)||0);
-    });
-    // fill to 18 if needed
-    while(newPars.length<18){newPars.push(4);newSI.push(newPars.length);}
-    // fix SI if all zeros
-    var siSum=newSI.reduce(function(a,b){return a+b},0);
-    if(siSum===0)newSI=DPARS.map(function(_,i){return i+1;});
-    S.pars=newPars; S.si=newSI;
-    buildSetup();
-    ci.textContent='Scorecard loaded from UK Golf API — par and stroke index updated!';
-    ci.style.background='#f0fdf4';ci.style.borderColor='#bbf7d0';ci.style.color='#166534';
+    var text=d.content.map(function(b){return b.text||''}).join('');
+    var p=JSON.parse(text.replace(/```json|```/g,'').trim());
+    if(p.par&&p.si&&p.par.length===18&&p.si.length===18){
+      S.pars=p.par;S.si=p.si;buildSetup();
+      ci.textContent=p.found?'Real scorecard loaded for '+(club.name||'course')+'!':'Default scorecard used — edit manually if needed.';
+      ci.style.background=p.found?'#f0fdf4':'#fffbeb';
+      ci.style.borderColor=p.found?'#bbf7d0':'#fde68a';
+      ci.style.color=p.found?'#166534':'#92400e';
+    }
   })
-  .catch(function(err){
-    ci.textContent='Scorecard not available for this course — using defaults. Edit manually if needed.';
+  .catch(function(){
+    ci.textContent='Could not load scorecard — using defaults. Edit manually if needed.';
     ci.style.background='#fffbeb';ci.style.borderColor='#fde68a';ci.style.color='#92400e';
   });
 }
