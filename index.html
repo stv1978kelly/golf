@@ -2,609 +2,559 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8"/>
-<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0"/>
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1"/>
 <title>Golf Scorecard</title>
 <style>
-  *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent;}
-  body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;background:#f3f4f6;color:#111827;min-height:100vh;}
-  .screen{display:none;padding:1.5rem 1rem;max-width:520px;margin:0 auto;}
-  .screen.active{display:block;}
-  h1{font-size:24px;font-weight:600;margin-bottom:6px;}
-  h2{font-size:20px;font-weight:600;margin-bottom:16px;}
-  .sub{font-size:14px;color:#6b7280;margin-bottom:28px;}
-  .card{background:#fff;border-radius:12px;padding:1.25rem;margin-bottom:14px;border:1px solid #e5e7eb;}
-  .card h3{font-size:16px;font-weight:600;margin-bottom:6px;}
-  .card p{font-size:13px;color:#6b7280;margin-bottom:14px;}
-  input{width:100%;padding:11px 14px;border:1.5px solid #d1d5db;border-radius:8px;font-size:15px;background:#fff;color:#111827;outline:none;}
-  input:focus{border-color:#1f2937;}
-  label{font-size:13px;color:#6b7280;display:block;margin-bottom:5px;margin-top:14px;}
-  .btn{display:block;width:100%;padding:13px;border-radius:8px;border:none;font-size:15px;font-weight:600;cursor:pointer;text-align:center;}
-  .btn-dark{background:#1f2937;color:#fff;}
-  .btn-outline{background:#fff;color:#1f2937;border:1.5px solid #d1d5db;margin-top:8px;}
-  .btn-sm{display:inline-block;width:auto;padding:6px 14px;font-size:13px;font-weight:500;border-radius:6px;}
-  .btn-row{display:flex;gap:8px;margin-top:8px;}
-  .btn-row .btn{flex:1;}
-  .error{color:#ef4444;font-size:13px;padding:9px 12px;background:#fef2f2;border-radius:6px;margin:10px 0;border:1px solid #fecaca;}
-  .banner{background:#1f2937;color:#fff;border-radius:10px;padding:12px 16px;margin-bottom:14px;display:flex;justify-content:space-between;align-items:center;gap:8px;flex-wrap:wrap;}
-  .room-code{font-size:28px;font-weight:700;letter-spacing:6px;font-family:monospace;}
-  .live-dot{font-size:12px;font-weight:600;}
-  .live-dot.on{color:#34d399;}
-  .live-dot.off{color:#f59e0b;}
-  .tabs{display:flex;gap:6px;margin-bottom:14px;flex-wrap:wrap;}
-  .tab{padding:7px 16px;border-radius:8px;border:1px solid #d1d5db;background:#fff;font-size:13px;cursor:pointer;font-weight:500;}
-  .tab.active{background:#1f2937;color:#fff;border-color:#1f2937;}
-  .tab-panel{display:none;}
-  .tab-panel.active{display:block;}
-  .player-btns,.hole-btns{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:14px;}
-  .pbtn{padding:8px 14px;border-radius:8px;border:1px solid #d1d5db;background:#fff;font-size:13px;cursor:pointer;font-weight:500;}
-  .pbtn.active{background:#1f2937;color:#fff;border-color:#1f2937;}
-  .hole-grid{display:grid;grid-template-columns:repeat(9,1fr);gap:5px;margin-bottom:14px;}
-  .hbtn{padding:6px 2px;border-radius:6px;border:1px solid #d1d5db;background:#fff;font-size:12px;cursor:pointer;text-align:center;font-weight:500;}
-  .hbtn.active{background:#1f2937;color:#fff;border-color:#1f2937;}
-  .entry-card{background:#f9fafb;border-radius:12px;padding:1rem 1.25rem;margin-bottom:14px;border:1px solid #e5e7eb;}
-  .score-display{display:flex;align-items:center;gap:16px;margin:14px 0;}
-  .score-num{font-size:44px;font-weight:700;min-width:56px;text-align:center;}
-  .pm-btn{font-size:24px;padding:4px 18px;border-radius:8px;border:1px solid #d1d5db;background:#fff;cursor:pointer;font-weight:600;}
-  .num-btns{display:flex;gap:5px;flex-wrap:wrap;}
-  .nbtn{padding:9px 13px;border-radius:7px;border:1px solid #d1d5db;background:#fff;font-size:15px;cursor:pointer;font-weight:500;}
-  .nbtn.active{background:#1f2937;color:#fff;border-color:#1f2937;}
-  .scorecard-wrap{overflow-x:auto;}
-  table{border-collapse:collapse;font-size:11px;table-layout:fixed;min-width:540px;width:100%;}
-  th,td{padding:5px 3px;text-align:center;}
-  th:first-child,td:first-child{text-align:left;padding:5px 8px;position:sticky;left:0;width:80px;}
-  thead tr:first-child{background:#f3f4f6;}
-  thead tr:first-child th:first-child{background:#f3f4f6;}
-  .lb-row{display:flex;align-items:center;gap:12px;padding:12px 16px;margin-bottom:8px;border-radius:10px;border:1px solid #e5e7eb;background:#fff;}
-  .lb-row.first{background:#fffbeb;border:2px solid #f59e0b;}
-  .lb-rank{font-size:16px;font-weight:600;min-width:36px;color:#9ca3af;}
-  .lb-row.first .lb-rank{color:#b45309;}
-  .lb-score{text-align:right;}
-  .lb-score .big{font-size:22px;font-weight:700;}
-  .stat-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-bottom:14px;}
-  .stat-box{background:#f9fafb;border-radius:8px;padding:10px 12px;border:1px solid #e5e7eb;}
-  .stat-box .sl{font-size:11px;color:#6b7280;margin-bottom:4px;}
-  .stat-box .sv{font-size:20px;font-weight:700;}
-  .stat3{grid-template-columns:repeat(3,1fr);}
-  .hole-row{display:flex;align-items:center;gap:10px;padding:8px 12px;margin-bottom:5px;border-radius:8px;background:#f9fafb;border:1px solid #e5e7eb;}
-  .dropdown{position:relative;}
-  .drop-list{position:absolute;top:100%;left:0;right:0;background:#fff;border:2px solid #1f2937;border-top:1px solid #e5e7eb;border-radius:0 0 10px 10px;max-height:260px;overflow-y:auto;z-index:999;box-shadow:0 8px 24px rgba(0,0,0,0.15);}
-  .drop-item{padding:12px 16px;cursor:pointer;display:flex;justify-content:space-between;align-items:center;border-bottom:1px solid #f3f4f6;}
-  .drop-item:hover,.drop-item.hi{background:#1f2937;}
-  .drop-item:hover span,.drop-item.hi span{color:#fff!important;}
-  .drop-footer{padding:7px 16px;font-size:11px;color:#6b7280;background:#f9fafb;border-top:1px solid #e5e7eb;}
-  .par-grid{display:grid;grid-template-columns:repeat(9,1fr);gap:4px;margin-top:6px;}
-  .par-cell{text-align:center;}
-  .par-cell span{font-size:10px;color:#6b7280;display:block;margin-bottom:2px;}
-  .par-cell input{padding:4px 2px;text-align:center;font-size:12px;}
-  .website-row{display:flex;align-items:center;gap:10px;padding:10px 14px;background:#f9fafb;border-radius:8px;border:1px solid #e5e7eb;margin-top:8px;}
-  .dot{width:10px;height:10px;border-radius:50%;flex-shrink:0;}
-  .dot-green{background:#10b981;}
-  .dot-amber{background:#f59e0b;}
-  .dot-gray{background:#9ca3af;}
-  .birdie{background:#d1fae5;border:2px solid #10b981!important;}
-  .eagle{background:#fef3c7;border:2px solid #f59e0b!important;}
-  .bogey{background:#fee2e2;}
-  .double{background:#fecaca;}
-  .green{color:#10b981;}
-  .red{color:#ef4444;}
-  .amber{color:#f59e0b;}
-  .mode-row{display:flex;gap:8px;margin-top:6px;}
-  .mbtn{flex:1;padding:10px;border-radius:8px;border:1.5px solid #d1d5db;background:#fff;font-size:14px;font-weight:500;cursor:pointer;}
-  .mbtn.active{background:#1f2937;color:#fff;border-color:#1f2937;}
-  .num-row{display:flex;gap:8px;margin-top:6px;}
-  .num-row .mbtn{font-size:15px;font-weight:600;}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:-apple-system,BlinkMacSystemFont,sans-serif;background:#f3f4f6;min-height:100vh;padding:16px}
+.page{display:none}.page.on{display:block}
+.card{background:#fff;border-radius:12px;padding:20px;margin-bottom:14px;border:1px solid #e5e7eb}
+h1{font-size:22px;font-weight:700;margin-bottom:4px}
+h2{font-size:18px;font-weight:700;margin-bottom:16px}
+.sub{font-size:14px;color:#6b7280;margin-bottom:24px}
+input,select{width:100%;padding:12px;border:1.5px solid #d1d5db;border-radius:8px;font-size:15px;margin-bottom:10px;background:#fff;color:#111}
+input:focus{border-color:#1f2937;outline:none}
+.btn{width:100%;padding:14px;border-radius:8px;border:none;font-size:15px;font-weight:700;cursor:pointer;margin-bottom:8px}
+.btn-dark{background:#1f2937;color:#fff}
+.btn-white{background:#fff;color:#1f2937;border:1.5px solid #d1d5db}
+.btn-sm{width:auto;padding:7px 14px;font-size:13px;font-weight:600;border-radius:7px;border:1.5px solid #d1d5db;background:#fff;cursor:pointer}
+.btn-sm.on{background:#1f2937;color:#fff;border-color:#1f2937}
+.row{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:12px}
+.err{color:#ef4444;font-size:13px;padding:10px;background:#fef2f2;border-radius:8px;margin-bottom:10px;display:none}
+.banner{background:#1f2937;color:#fff;border-radius:10px;padding:14px 16px;margin-bottom:14px;display:flex;justify-content:space-between;align-items:center}
+.code{font-size:26px;font-weight:700;letter-spacing:5px;font-family:monospace}
+.live{font-size:12px;font-weight:600;color:#34d399}
+.offline{font-size:12px;font-weight:600;color:#f59e0b}
+.tabs{display:flex;gap:6px;margin-bottom:14px;flex-wrap:wrap}
+.tab{padding:8px 16px;border-radius:8px;border:1.5px solid #d1d5db;background:#fff;font-size:13px;font-weight:600;cursor:pointer}
+.tab.on{background:#1f2937;color:#fff;border-color:#1f2937}
+.panel{display:none}.panel.on{display:block}
+label{font-size:13px;color:#6b7280;display:block;margin-bottom:5px;margin-top:12px;font-weight:600}
+.grid9{display:grid;grid-template-columns:repeat(9,1fr);gap:4px;margin-bottom:12px}
+.grid9 .cell{text-align:center}
+.grid9 .cell span{font-size:10px;color:#9ca3af;display:block;margin-bottom:2px}
+.grid9 input{padding:5px 2px;font-size:12px;text-align:center;margin:0}
+.prow{display:grid;grid-template-columns:1fr 70px;gap:6px;margin-bottom:6px}
+.prow input{margin:0}
+.hgrid{display:grid;grid-template-columns:repeat(9,1fr);gap:5px;margin-bottom:14px}
+.hbtn{padding:8px 2px;border-radius:7px;border:1.5px solid #d1d5db;background:#fff;font-size:13px;font-weight:600;cursor:pointer;text-align:center}
+.hbtn.on{background:#1f2937;color:#fff;border-color:#1f2937}
+.hbtn.bir{background:#d1fae5;border-color:#10b981}
+.hbtn.eag{background:#fef3c7;border-color:#f59e0b}
+.hbtn.bog{background:#fee2e2}
+.hbtn.dbl{background:#fecaca}
+.entry-box{background:#f9fafb;border-radius:12px;padding:16px;margin-bottom:14px;border:1px solid #e5e7eb}
+.score-row{display:flex;align-items:center;gap:16px;margin:14px 0}
+.score-big{font-size:48px;font-weight:700;min-width:60px;text-align:center}
+.pm{font-size:28px;padding:6px 18px;border-radius:8px;border:1.5px solid #d1d5db;background:#fff;cursor:pointer;font-weight:700}
+.nrow{display:flex;gap:5px;flex-wrap:wrap}
+.nbtn{padding:10px 14px;border-radius:7px;border:1.5px solid #d1d5db;background:#fff;font-size:15px;font-weight:600;cursor:pointer}
+.nbtn.on{background:#1f2937;color:#fff;border-color:#1f2937}
+.scwrap{overflow-x:auto}
+table{border-collapse:collapse;min-width:520px;width:100%;font-size:11px}
+th,td{padding:5px 3px;text-align:center;border-bottom:1px solid #f3f4f6}
+th:first-child,td:first-child{text-align:left;padding-left:8px;min-width:75px;position:sticky;left:0;background:#fff}
+thead th{background:#f3f4f6;font-weight:700}
+thead th:first-child{background:#f3f4f6}
+.bir{background:#d1fae5}.eag{background:#fef3c7}.bog{background:#fee2e2}.dbl{background:#fecaca}
+.lbrow{display:flex;align-items:center;gap:12px;padding:13px 16px;margin-bottom:8px;border-radius:10px;border:1px solid #e5e7eb;background:#fff}
+.lbrow.gold{background:#fffbeb;border:2px solid #f59e0b}
+.rank{font-size:15px;font-weight:700;min-width:36px;color:#9ca3af}
+.gold .rank{color:#b45309}
+.lbscore{text-align:right}
+.lbscore .big{font-size:22px;font-weight:700}
+.sbox{background:#f9fafb;border-radius:8px;padding:10px 12px;border:1px solid #e5e7eb}
+.sbox .sl{font-size:11px;color:#6b7280;margin-bottom:3px}
+.sbox .sv{font-size:20px;font-weight:700}
+.g4{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-bottom:12px}
+.g3{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:14px}
+.hrow{display:flex;align-items:center;gap:10px;padding:9px 12px;margin-bottom:5px;border-radius:8px;border:1px solid #e5e7eb;background:#f9fafb}
+.green{color:#10b981}.red{color:#ef4444}.amber{color:#f59e0b}
+/* dropdown */
+.ddwrap{position:relative;margin-bottom:8px}
+.ddwrap input{margin-bottom:0;border-radius:8px}
+.ddlist{display:none;position:absolute;top:100%;left:0;right:0;background:#fff;border:2px solid #1f2937;border-top:1px solid #e5e7eb;border-radius:0 0 10px 10px;max-height:250px;overflow-y:auto;z-index:999;box-shadow:0 6px 20px rgba(0,0,0,0.15)}
+.dditem{padding:12px 16px;cursor:pointer;display:flex;justify-content:space-between;border-bottom:1px solid #f3f4f6}
+.dditem:active,.dditem.hi{background:#1f2937}
+.dditem:active .dn,.dditem.hi .dn{color:#fff}
+.dditem:active .dr,.dditem.hi .dr{color:#d1d5db}
+.dn{font-size:15px;font-weight:600;color:#111}
+.dr{font-size:12px;color:#6b7280;white-space:nowrap}
+.ddfoot{padding:7px 16px;font-size:11px;color:#9ca3af;background:#f9fafb}
+.wsrow{display:flex;align-items:center;gap:10px;padding:10px 14px;background:#f9fafb;border-radius:8px;border:1px solid #e5e7eb;margin-bottom:12px}
+.dot{width:10px;height:10px;border-radius:50%;flex-shrink:0}
 </style>
 </head>
 <body>
 
 <!-- HOME -->
-<div id="s-home" class="screen active">
+<div id="p-home" class="page on">
   <h1>Golf Scorecard</h1>
   <p class="sub">Live scoring — share with your group</p>
   <div class="card">
-    <h3>Start a new round</h3>
-    <p>Set up course, players and handicaps. You'll get a Room Code to share in WhatsApp.</p>
-    <button class="btn btn-dark" onclick="showScreen('s-setup')">Set up round</button>
+    <h2>Start a new round</h2>
+    <p style="font-size:13px;color:#6b7280;margin-bottom:14px">Set up course, players & handicaps. Get a Room Code to share in WhatsApp.</p>
+    <button class="btn btn-dark" onclick="goSetup()">Set up round</button>
   </div>
   <div class="card">
-    <h3>Join a round</h3>
-    <p>Enter the Room Code from your WhatsApp group.</p>
-    <input id="joinInput" placeholder="e.g. AB12CD" maxlength="6" oninput="this.value=this.value.toUpperCase()"
-      style="text-align:center;font-size:22px;font-weight:700;letter-spacing:6px;margin-bottom:10px;"/>
-    <div id="joinError" class="error" style="display:none"></div>
-    <button class="btn btn-dark" onclick="handleJoin()">Join round</button>
+    <h2>Join a round</h2>
+    <p style="font-size:13px;color:#6b7280;margin-bottom:14px">Enter the Room Code from your WhatsApp group.</p>
+    <input id="joinInput" placeholder="Room Code e.g. AB12CD" maxlength="6" style="text-align:center;font-size:22px;font-weight:700;letter-spacing:6px" oninput="this.value=this.value.toUpperCase()"/>
+    <div id="joinErr" class="err"></div>
+    <button class="btn btn-dark" onclick="doJoin()">Join round</button>
   </div>
 </div>
 
 <!-- SETUP -->
-<div id="s-setup" class="screen">
-  <button class="btn btn-outline btn-sm" onclick="showScreen('s-home')" style="margin-bottom:16px;width:auto">← Back</button>
+<div id="p-setup" class="page">
+  <button class="btn-sm" onclick="show('p-home')" style="margin-bottom:16px">← Back</button>
   <h2>Set up round</h2>
 
   <label>Golf course</label>
-  <div class="dropdown" id="courseDropdown">
-    <input id="courseInput" placeholder="Search 300+ UK courses..." autocomplete="off"
-      oninput="filterCourses(this.value)" onfocus="openDrop()" onkeydown="dropKey(event)"
-      style="border-radius:8px;font-size:15px;"/>
-    <div class="drop-list" id="dropList" style="display:none"></div>
+  <div class="ddwrap" id="ddwrap">
+    <input id="courseIn" placeholder="Search UK courses..." autocomplete="off"
+      oninput="ddFilter(this.value)" onfocus="ddOpen()" onkeydown="ddKey(event)"/>
+    <div class="ddlist" id="ddlist"></div>
   </div>
-  <div id="websiteRow" class="website-row" style="display:none">
-    <div class="dot dot-amber" id="wsDot"></div>
-    <span id="wsText" style="font-size:13px;flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap"></span>
-    <button class="btn btn-outline btn-sm" id="wsBtn" onclick="openWebsite()" style="display:none">Visit ↗</button>
+  <div id="wsrow" class="wsrow" style="display:none">
+    <div class="dot" id="wsdot" style="background:#f59e0b"></div>
+    <span id="wstext" style="font-size:13px;flex:1">Finding website...</span>
+    <button class="btn-sm" id="wsbtn" onclick="openUrl()" style="display:none">Visit ↗</button>
   </div>
 
   <label>Scoring mode</label>
-  <div class="mode-row">
-    <button class="mbtn active" id="mStroke" onclick="setMode('strokeplay')">Stroke play</button>
-    <button class="mbtn" id="mStable" onclick="setMode('stableford')">Stableford</button>
+  <div class="row">
+    <button class="btn-sm on" id="mStroke" onclick="setMode('strokeplay')">Stroke play</button>
+    <button class="btn-sm" id="mStable" onclick="setMode('stableford')">Stableford</button>
   </div>
 
   <label>Number of players</label>
-  <div class="num-row" id="numRow"></div>
+  <div class="row" id="npRow"></div>
 
-  <div id="playerFields"></div>
+  <label>Players & handicaps</label>
+  <div id="pFields"></div>
 
   <label>Par per hole</label>
-  <div class="par-grid" id="parGrid"></div>
+  <div class="grid9" id="parGrid"></div>
 
-  <label style="margin-top:16px">Stroke index (SI) per hole</label>
-  <div class="par-grid" id="siGrid"></div>
+  <label>Stroke index per hole</label>
+  <div class="grid9" id="siGrid"></div>
 
-  <div id="setupError" class="error" style="display:none;margin-top:14px"></div>
-  <button class="btn btn-dark" style="margin-top:20px" onclick="handleCreate()">Create round & get Room Code</button>
+  <div id="setupErr" class="err"></div>
+  <button class="btn btn-dark" style="margin-top:16px" onclick="doCreate()">Create round & get Room Code</button>
 </div>
 
 <!-- PLAY -->
-<div id="s-play" class="screen">
+<div id="p-play" class="page">
   <div class="banner">
     <div>
-      <div style="font-size:11px;color:#9ca3af;margin-bottom:3px">Room Code — share in WhatsApp</div>
-      <div class="room-code" id="roomCodeDisplay"></div>
+      <div style="font-size:11px;color:#9ca3af;margin-bottom:4px">Room Code — share in WhatsApp</div>
+      <div class="code" id="codeDisp"></div>
     </div>
     <div style="text-align:right">
-      <div class="live-dot off" id="liveStatus">⏳ Connecting...</div>
-      <div style="font-size:11px;color:#9ca3af;margin-top:2px" id="syncTime"></div>
+      <div id="liveDisp" class="offline">⏳ Syncing...</div>
+      <div id="timeDisp" style="font-size:11px;color:#9ca3af;margin-top:2px"></div>
     </div>
   </div>
-  <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:12px">
+  <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px">
     <div>
       <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap">
-        <span style="font-size:17px;font-weight:600" id="playCourseName"></span>
-        <button class="btn btn-outline btn-sm" id="playCourseBtn" onclick="openCourseWebsite()" style="display:none">Website ↗</button>
+        <span style="font-size:17px;font-weight:700" id="playName"></span>
+        <button class="btn-sm" id="playWebBtn" onclick="openCourseUrl()" style="display:none">Website ↗</button>
       </div>
       <div style="font-size:13px;color:#6b7280;margin-top:2px" id="playMeta"></div>
     </div>
-    <button class="btn btn-outline btn-sm" onclick="endRound()">End</button>
+    <button class="btn-sm" onclick="doEnd()">End</button>
   </div>
   <div class="tabs">
-    <button class="tab active" onclick="switchTab('entry')">Entry</button>
-    <button class="tab" onclick="switchTab('scorecard')">Scorecard</button>
-    <button class="tab" onclick="switchTab('summary')">Summary</button>
-    <button class="tab" onclick="switchTab('leaderboard')">Leaderboard</button>
+    <button class="tab on" onclick="switchTab('entry',this)">Entry</button>
+    <button class="tab" onclick="switchTab('scorecard',this)">Scorecard</button>
+    <button class="tab" onclick="switchTab('summary',this)">Summary</button>
+    <button class="tab" onclick="switchTab('leaderboard',this)">Leaderboard</button>
   </div>
 
   <!-- ENTRY -->
-  <div class="tab-panel active" id="tab-entry">
-    <div style="font-size:13px;color:#6b7280;margin-bottom:6px">Player</div>
-    <div class="player-btns" id="playerBtns"></div>
-    <div style="font-size:13px;color:#6b7280;margin-bottom:6px">Hole</div>
-    <div class="hole-grid" id="holeGrid"></div>
-    <div class="entry-card">
+  <div id="tab-entry" class="panel on">
+    <label>Player</label>
+    <div class="row" id="pBtns"></div>
+    <label>Hole</label>
+    <div class="hgrid" id="hBtns"></div>
+    <div class="entry-box">
       <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:8px">
         <div>
-          <div style="font-size:14px;font-weight:600" id="entryTitle"></div>
-          <div style="font-size:12px;color:#6b7280;margin-top:2px" id="entryMeta"></div>
+          <div style="font-size:15px;font-weight:700" id="eTitle"></div>
+          <div style="font-size:12px;color:#6b7280;margin-top:3px" id="eMeta"></div>
         </div>
-        <div style="text-align:right" id="entryLabel"></div>
+        <div style="text-align:right" id="eLabel"></div>
       </div>
-      <div class="score-display">
-        <button class="pm-btn" onclick="adjustScore(-1)">−</button>
-        <div class="score-num" id="scoreNum">—</div>
-        <button class="pm-btn" onclick="adjustScore(1)">+</button>
+      <div class="score-row">
+        <button class="pm" onclick="adj(-1)">−</button>
+        <div class="score-big" id="eBig">—</div>
+        <button class="pm" onclick="adj(1)">+</button>
       </div>
-      <div class="num-btns">
-        <button class="nbtn" onclick="setScoreVal(1)">1</button>
-        <button class="nbtn" onclick="setScoreVal(2)">2</button>
-        <button class="nbtn" onclick="setScoreVal(3)">3</button>
-        <button class="nbtn" onclick="setScoreVal(4)">4</button>
-        <button class="nbtn" onclick="setScoreVal(5)">5</button>
-        <button class="nbtn" onclick="setScoreVal(6)">6</button>
-        <button class="nbtn" onclick="setScoreVal(7)">7</button>
-        <button class="nbtn" onclick="setScoreVal(8)">8</button>
-        <button class="nbtn" onclick="setScoreVal(9)">9</button>
-        <button class="nbtn" onclick="setScoreVal(10)">10</button>
-        <button class="nbtn" onclick="setScoreVal('')" style="color:#9ca3af">Clear</button>
+      <div class="nrow">
+        <button class="nbtn" onclick="setVal(1)">1</button>
+        <button class="nbtn" onclick="setVal(2)">2</button>
+        <button class="nbtn" onclick="setVal(3)">3</button>
+        <button class="nbtn" onclick="setVal(4)">4</button>
+        <button class="nbtn" onclick="setVal(5)">5</button>
+        <button class="nbtn" onclick="setVal(6)">6</button>
+        <button class="nbtn" onclick="setVal(7)">7</button>
+        <button class="nbtn" onclick="setVal(8)">8</button>
+        <button class="nbtn" onclick="setVal(9)">9</button>
+        <button class="nbtn" onclick="setVal(10)">10</button>
+        <button class="nbtn" style="color:#9ca3af" onclick="setVal(0)">Clear</button>
       </div>
     </div>
-    <div class="btn-row">
-      <button class="btn btn-outline" id="prevBtn" onclick="prevHole()">← Prev</button>
-      <button class="btn btn-dark" id="nextBtn" onclick="nextHole()">Next →</button>
+    <div style="display:flex;gap:8px">
+      <button class="btn btn-white" id="prevBtn" onclick="prevH()" style="display:none">← Prev</button>
+      <button class="btn btn-dark" id="nextBtn" onclick="nextH()" style="display:none">Next →</button>
     </div>
   </div>
 
   <!-- SCORECARD -->
-  <div class="tab-panel" id="tab-scorecard">
-    <div class="scorecard-wrap"><table id="scorecardTable"></table></div>
-    <div style="margin-top:8px;display:flex;gap:14px;font-size:11px;color:#6b7280;flex-wrap:wrap">
+  <div id="tab-scorecard" class="panel">
+    <div class="scwrap"><table id="scTable"></table></div>
+    <div style="display:flex;gap:12px;font-size:11px;color:#6b7280;flex-wrap:wrap;margin-top:8px">
       <span><span style="display:inline-block;width:12px;height:12px;background:#d1fae5;border:2px solid #10b981;border-radius:2px;vertical-align:middle"></span> Birdie</span>
       <span><span style="display:inline-block;width:12px;height:12px;background:#fef3c7;border:2px solid #f59e0b;border-radius:2px;vertical-align:middle"></span> Eagle</span>
       <span><span style="display:inline-block;width:12px;height:12px;background:#fee2e2;border-radius:2px;vertical-align:middle"></span> Bogey</span>
-      <span style="color:#10b981;font-weight:700">•</span> = hcp stroke
     </div>
   </div>
 
   <!-- SUMMARY -->
-  <div class="tab-panel" id="tab-summary">
-    <div class="player-btns" id="summaryPlayerBtns"></div>
-    <div id="summaryContent"></div>
+  <div id="tab-summary" class="panel">
+    <div class="row" id="sBtns"></div>
+    <div id="sContent"></div>
   </div>
 
   <!-- LEADERBOARD -->
-  <div class="tab-panel" id="tab-leaderboard">
+  <div id="tab-leaderboard" class="panel">
     <div id="lbContent"></div>
-    <div id="lbBanner" style="display:none;margin-top:8px;padding:14px 16px;background:#1f2937;border-radius:10px;text-align:center">
+    <div id="lbFooter" style="display:none;background:#1f2937;border-radius:10px;padding:14px;text-align:center;margin-top:8px">
       <div style="font-size:12px;color:#9ca3af;margin-bottom:4px">Share in WhatsApp for live scores</div>
-      <div class="room-code" id="lbCode"></div>
+      <div class="code" id="lbCode"></div>
     </div>
   </div>
 </div>
 
 <script>
-const FB = "https://rogs-9f527-default-rtdb.firebaseio.com";
-const KNOWN_URLS = {"carlisle golf club":"https://www.carlislegolfclub.org/the-course"};
-const UK_COURSES = ["Aberdovey Golf Club, Wales","Aldeburgh Golf Club, Suffolk","Alwoodley Golf Club, Leeds","Archerfield Links – Fidra Course, East Lothian","Ardglass Golf Club, County Down","Ashburnham Golf Club, Wales","Bamburgh Castle Golf Club, Northumberland","Ballyliffin Golf Club – Glashedy Links","Belvoir Park Golf Club, Belfast","Blairgowrie Golf Club – Rosemount, Perthshire","Brora Golf Club, Highland","Burnham & Berrow Golf Club, Somerset","Camberley Heath Golf Club, Surrey","Carlisle Golf Club, Cumbria","Carnoustie Golf Links – Championship, Angus","Carnoustie Golf Links – Burnside, Angus","Castle Stuart Golf Links, Highland","Celtic Manor Resort – Twenty Ten Course, Wales","Chart Hills Golf Club, Kent","Clandeboye Golf Club – Ava, County Down","Close House Golf Club, Newcastle","Conwy Golf Club, Wales","Crail Golfing Society – Balcomie Links, Fife","Cruden Bay Golf Club, Aberdeenshire","Dumbarnie Links, Fife","Dunbar Golf Club, East Lothian","Dundonald Links, Ayrshire","East Sussex National – East Course","Edgbaston Golf Club, Birmingham","Elie Golf Club, Fife","Fairmont St Andrews – Torrance Course, Fife","Ferndown Golf Club, Dorset","Formby Golf Club, Merseyside","Fulford Golf Club, York","Galgorm Castle Golf Club, County Antrim","Ganton Golf Club, Yorkshire","Gleneagles – King's Course, Perthshire","Gleneagles – PGA Centenary Course, Perthshire","Gleneagles – Queen's Course, Perthshire","Gog Magog Golf Club – Old Course, Cambridge","Golspie Golf Club, Highland","Gullane Golf Club – No.1 Course, East Lothian","Gullane Golf Club – No.2 Course, East Lothian","Hillside Golf Club, Southport","Huddersfield Golf Club, Fixby","Hunstanton Golf Club, Norfolk","Ilkley Golf Club, Yorkshire","Inverness Golf Club, Highland","Kingsbarns Golf Links, Fife","La Moye Golf Club, Jersey","Ladybank Golf Club, Fife","Lindrick Golf Club, Yorkshire","Loch Lomond Golf Club, Dumbartonshire","London Golf Club – International, Kent","Lundin Golf Club, Fife","Machrie Hotel & Golf Links, Islay","Malone Golf Club, Belfast","Minchinhampton Golf Club, Gloucestershire","Moor Park Golf Club – High Course, Hertfordshire","Moortown Golf Club, Leeds","Moseley Golf Club, Birmingham","Muirfield, East Lothian","Murcar Links Golf Club, Aberdeen","Nairn Golf Club, Highland","Nefyn & District Golf Club, Wales","North Berwick Golf Club – West Links, East Lothian","Notts Golf Club – Hollinwell, Nottinghamshire","Pannal Golf Club, Harrogate","Parkstone Golf Club, Dorset","Pennard Golf Club, Wales","Penrith Golf Club, Cumbria","Portstewart Golf Club – Strand Course","Prestwick Golf Club, Ayrshire","Prince's Golf Club, Sandwich","Queenwood Golf Club, Surrey","Remedy Oak Golf Club, Dorset","Royal Aberdeen Golf Club – Balgownie, Aberdeenshire","Royal Belfast Golf Club, Holywood","Royal Birkdale Golf Club, Southport","Royal County Down Golf Club – Championship","Royal Dornoch Golf Club – Championship, Highland","Royal Guernsey Golf Club","Royal Jersey Golf Club","Royal Liverpool Golf Club, Hoylake","Royal Lytham & St Annes Golf Club","Royal North Devon Golf Club, Westward Ho!","Royal Portrush Golf Club – Dunluce Links","Royal Portrush Golf Club – Valley Links","Royal Porthcawl Golf Club, Wales","Royal St David's Golf Club, Harlech","Royal St George's Golf Club, Sandwich","Royal Troon – Old Course, Ayrshire","Royal West Norfolk Golf Club, Brancaster","Rye Golf Club, East Sussex","St Andrews Links – Old Course, Fife","St Andrews Links – New Course, Fife","St Andrews Links – Jubilee Course, Fife","St Enodoc Golf Club – Church Course, Cornwall","St George's Hill Golf Club, Surrey","Saunton Golf Club – East Course, Devon","Scotscraig Golf Club, Fife","Seaton Carew Golf Club, Durham","Sherwood Forest Golf Club, Nottinghamshire","Silloth on Solway Golf Club, Cumbria","Slaley Hall Golf Resort, Northumberland","Southerndown Golf Club, Wales","Southport & Ainsdale Golf Club","Stoke Park Club, Buckinghamshire","Sunningdale Golf Club – Old Course, Surrey","Sunningdale Golf Club – New Course, Surrey","Swinley Forest Golf Club, Berkshire","Tenby Golf Club, Wales","The Belfry – Brabazon Course, Warwickshire","The Grove, Hertfordshire","Trevose Golf & Country Club, Cornwall","Trump International Golf Links, Aberdeenshire","Trump Turnberry – Ailsa Course, Ayrshire","Walton Heath Golf Club – Old Course, Surrey","Wentworth Club – West Course, Surrey","West Lancashire Golf Club","Western Gailes Golf Club, Ayrshire","Windermere Golf Club, Cumbria","Woburn Golf Club – Duke's Course, Buckinghamshire","Woburn Golf Club – Marquess Course, Buckinghamshire","Woodbridge Golf Club, Suffolk","Woodhall Spa Golf Club – Hotchkin, Lincolnshire"].sort();
+var FB='https://rogs-9f527-default-rtdb.firebaseio.com';
+var KNOWN={"carlisle golf club":"https://www.carlislegolfclub.org/the-course"};
+var COURSES=["Aberdovey Golf Club, Wales","Aldeburgh Golf Club, Suffolk","Alwoodley Golf Club, Leeds","Archerfield Links - Fidra Course, East Lothian","Ardglass Golf Club, County Down","Ashburnham Golf Club, Wales","Bamburgh Castle Golf Club, Northumberland","Ballyliffin Golf Club - Glashedy Links","Belvoir Park Golf Club, Belfast","Blairgowrie Golf Club - Rosemount, Perthshire","Brora Golf Club, Highland","Burnham and Berrow Golf Club, Somerset","Camberley Heath Golf Club, Surrey","Carlisle Golf Club, Cumbria","Carnoustie Golf Links - Championship, Angus","Carnoustie Golf Links - Burnside, Angus","Castle Stuart Golf Links, Highland","Celtic Manor Resort - Twenty Ten Course, Wales","Chart Hills Golf Club, Kent","Clandeboye Golf Club - Ava, County Down","Close House Golf Club, Newcastle","Conwy Golf Club, Wales","Crail Golfing Society - Balcomie Links, Fife","Cruden Bay Golf Club, Aberdeenshire","Dumbarnie Links, Fife","Dunbar Golf Club, East Lothian","Dundonald Links, Ayrshire","East Sussex National - East Course","Edgbaston Golf Club, Birmingham","Elie Golf Club, Fife","Fairmont St Andrews, Fife","Ferndown Golf Club, Dorset","Formby Golf Club, Merseyside","Fulford Golf Club, York","Galgorm Castle Golf Club, County Antrim","Ganton Golf Club, Yorkshire","Gleneagles - Kings Course, Perthshire","Gleneagles - Queens Course, Perthshire","Gleneagles - PGA Centenary, Perthshire","Gog Magog Golf Club, Cambridge","Golspie Golf Club, Highland","Gullane Golf Club No.1, East Lothian","Gullane Golf Club No.2, East Lothian","Hillside Golf Club, Southport","Huddersfield Golf Club, Fixby","Hunstanton Golf Club, Norfolk","Ilkley Golf Club, Yorkshire","Inverness Golf Club, Highland","Kingsbarns Golf Links, Fife","La Moye Golf Club, Jersey","Ladybank Golf Club, Fife","Lindrick Golf Club, Yorkshire","Loch Lomond Golf Club, Dumbartonshire","London Golf Club, Kent","Lundin Golf Club, Fife","Machrie Hotel and Golf Links, Islay","Malone Golf Club, Belfast","Minchinhampton Golf Club, Gloucestershire","Moor Park Golf Club, Hertfordshire","Moortown Golf Club, Leeds","Moseley Golf Club, Birmingham","Muirfield, East Lothian","Murcar Links Golf Club, Aberdeen","Nairn Golf Club, Highland","Nefyn and District Golf Club, Wales","North Berwick Golf Club, East Lothian","Notts Golf Club Hollinwell, Nottinghamshire","Pannal Golf Club, Harrogate","Parkstone Golf Club, Dorset","Pennard Golf Club, Wales","Penrith Golf Club, Cumbria","Portstewart Golf Club, County Londonderry","Prestwick Golf Club, Ayrshire","Princes Golf Club, Sandwich","Queenwood Golf Club, Surrey","Remedy Oak Golf Club, Dorset","Royal Aberdeen Golf Club, Aberdeenshire","Royal Belfast Golf Club, Holywood","Royal Birkdale Golf Club, Southport","Royal County Down Golf Club","Royal Dornoch Golf Club, Highland","Royal Guernsey Golf Club","Royal Jersey Golf Club","Royal Liverpool Golf Club, Hoylake","Royal Lytham and St Annes Golf Club","Royal North Devon Golf Club, Westward Ho","Royal Portrush Golf Club - Dunluce Links","Royal Portrush Golf Club - Valley Links","Royal Porthcawl Golf Club, Wales","Royal St Davids Golf Club, Harlech","Royal St Georges Golf Club, Sandwich","Royal Troon Golf Club, Ayrshire","Royal West Norfolk Golf Club, Brancaster","Rye Golf Club, East Sussex","St Andrews Links - Old Course, Fife","St Andrews Links - New Course, Fife","St Andrews Links - Jubilee Course, Fife","St Enodoc Golf Club, Cornwall","St Georges Hill Golf Club, Surrey","Saunton Golf Club - East Course, Devon","Scotscraig Golf Club, Fife","Seaton Carew Golf Club, Durham","Sherwood Forest Golf Club, Nottinghamshire","Silloth on Solway Golf Club, Cumbria","Slaley Hall Golf Resort, Northumberland","Southerndown Golf Club, Wales","Southport and Ainsdale Golf Club","Stoke Park Club, Buckinghamshire","Sunningdale Golf Club - Old Course, Surrey","Sunningdale Golf Club - New Course, Surrey","Swinley Forest Golf Club, Berkshire","Tenby Golf Club, Wales","The Belfry - Brabazon Course, Warwickshire","The Grove, Hertfordshire","Trevose Golf and Country Club, Cornwall","Trump International Golf Links, Aberdeenshire","Trump Turnberry - Ailsa Course, Ayrshire","Walton Heath Golf Club, Surrey","Wentworth Club - West Course, Surrey","West Lancashire Golf Club","Western Gailes Golf Club, Ayrshire","Windermere Golf Club, Cumbria","Woburn Golf Club - Dukes Course, Buckinghamshire","Woburn Golf Club - Marquess Course, Buckinghamshire","Woodbridge Golf Club, Suffolk","Woodhall Spa Golf Club, Lincolnshire"].sort();
+var DPARS=[4,4,3,4,5,3,4,4,5,4,4,3,4,5,3,4,4,5];
+var DSI=[7,11,15,3,1,17,9,13,5,8,12,16,4,2,18,10,14,6];
 
-const DEFAULT_PARS = [4,4,3,4,5,3,4,4,5,4,4,3,4,5,3,4,4,5];
-const DEFAULT_SI   = [7,11,15,3,1,17,9,13,5,8,12,16,4,2,18,10,14,6];
+var S={np:4,mode:'strokeplay',course:'',curl:'',names:Array(16).fill(0).map(function(_,i){return'Player '+(i+1)}),hcps:Array(16).fill(0),pars:DPARS.slice(),si:DSI.slice()};
+var R=null,RC='',AP=0,AH=0,PT=null,LS=null;
 
-let state = {
-  numPlayers:4, mode:"strokeplay", selectedCourse:"", courseUrl:"",
-  playerNames:Array(16).fill("").map((_,i)=>`Player ${i+1}`),
-  handicaps:Array(16).fill(0),
-  pars:[...DEFAULT_PARS], si:[...DEFAULT_SI]
-};
-let round = null, roomCode = "", activeP = 0, activeH = 0, pollTimer = null, lastSynced = null;
+function $(id){return document.getElementById(id)}
+function show(id){document.querySelectorAll('.page').forEach(function(p){p.classList.remove('on')});$(id).classList.add('on');window.scrollTo(0,0)}
+function genCode(){return Math.random().toString(36).substring(2,8).toUpperCase()}
 
-// ── UTILS ──
-const $=id=>document.getElementById(id);
-const genCode=()=>Math.random().toString(36).substring(2,8).toUpperCase();
-const fbRead=async p=>{const r=await fetch(`${FB}/${p}.json`);if(!r.ok)throw new Error(await r.text());return r.json();};
-const fbWrite=async(p,d)=>{const r=await fetch(`${FB}/${p}.json`,{method:"PUT",body:JSON.stringify(d)});if(!r.ok)throw new Error(await r.text());return r.json();};
-const fbPatch=async(p,d)=>{const r=await fetch(`${FB}/${p}.json`,{method:"PATCH",body:JSON.stringify(d)});if(!r.ok)throw new Error(await r.text());return r.json();};
+function fbGet(path){return fetch(FB+'/'+path+'.json').then(function(r){if(!r.ok)throw new Error(r.status);return r.json()})}
+function fbPut(path,d){return fetch(FB+'/'+path+'.json',{method:'PUT',body:JSON.stringify(d)}).then(function(r){if(!r.ok)throw new Error(r.status);return r.json()})}
+function fbPatch(path,d){return fetch(FB+'/'+path+'.json',{method:'PATCH',body:JSON.stringify(d)}).then(function(r){if(!r.ok)throw new Error(r.status);return r.json()})}
 
-const hcpS=(hcp,si)=>{if(hcp<=0)return 0;if(hcp>=36)return 2;return si<=hcp?1:0;};
-const stablefordPts=(s,par,hs)=>{if(!s)return 0;const d=s-hs-par;if(d>=2)return 0;if(d===1)return 1;if(d===0)return 2;if(d===-1)return 3;if(d===-2)return 4;return 5;};
-const scoreLabel=(s,par)=>{if(!s)return{t:"-",c:"#9ca3af"};const d=s-par;if(s===1)return{t:"Hole in one!",c:"#8b5cf6"};if(d<=-2)return{t:"Eagle",c:"#f59e0b"};if(d===-1)return{t:"Birdie",c:"#10b981"};if(d===0)return{t:"Par",c:"#6b7280"};if(d===1)return{t:"Bogey",c:"#ef4444"};if(d===2)return{t:"Dbl Bogey",c:"#dc2626"};return{t:`+${d}`,c:"#991b1b"};};
-const cellBg=(s,par)=>{if(!s)return"";const d=s-par;if(d<=-2)return"eagle";if(d===-1)return"birdie";if(d===1)return"bogey";if(d>=2)return"double";return"";};
+function hcpS(h,si){if(h<=0)return 0;if(h>=36)return 2;return si<=h?1:0}
+function sbPts(s,par,hs){if(!s)return 0;var d=s-hs-par;if(d>=2)return 0;if(d===1)return 1;if(d===0)return 2;if(d===-1)return 3;if(d===-2)return 4;return 5}
+function sLabel(s,par){if(!s)return{t:'-',c:'#9ca3af'};var d=s-par;if(s===1)return{t:'Hole in one!',c:'#8b5cf6'};if(d<=-2)return{t:'Eagle',c:'#f59e0b'};if(d===-1)return{t:'Birdie',c:'#10b981'};if(d===0)return{t:'Par',c:'#6b7280'};if(d===1)return{t:'Bogey',c:'#ef4444'};if(d===2)return{t:'Dbl Bogey',c:'#dc2626'};return{t:'+'+d,c:'#991b1b'}}
+function sCls(s,par){if(!s)return'';var d=s-par;if(d<=-2)return'eag';if(d===-1)return'bir';if(d===1)return'bog';if(d>=2)return'dbl';return''}
 
-function showScreen(id){
-  document.querySelectorAll(".screen").forEach(s=>s.classList.remove("active"));
-  $(id).classList.add("active");
-  window.scrollTo(0,0);
+// ── SETUP ──
+function goSetup(){
+  buildSetup();
+  show('p-setup');
 }
 
-// ── SETUP SCREEN ──
-function initSetup(){
+function buildSetup(){
   // num players
-  const nr=$("numRow"); nr.innerHTML="";
-  [2,3,4,6,8,10,12,14,16].forEach(n=>{
-    const b=document.createElement("button");
-    b.className="mbtn"+(n===state.numPlayers?" active":"");
-    b.textContent=n; b.onclick=()=>{state.numPlayers=n;initSetup();};
+  var nr=$('npRow');nr.innerHTML='';
+  [2,3,4,6,8,10,12,14,16].forEach(function(n){
+    var b=document.createElement('button');
+    b.className='btn-sm'+(n===S.np?' on':'');
+    b.textContent=n;
+    b.onclick=function(){S.np=n;buildSetup()};
     nr.appendChild(b);
   });
   // player fields
-  const pf=$("playerFields"); pf.innerHTML="";
-  const hdr=document.createElement("div");
-  hdr.style="display:grid;grid-template-columns:1fr 80px;gap:6px 8px;margin-top:14px;align-items:center";
-  hdr.innerHTML='<label style="margin:0">Name</label><label style="margin:0;text-align:center">HCP</label>';
-  pf.appendChild(hdr);
-  for(let i=0;i<state.numPlayers;i++){
-    const row=document.createElement("div");
-    row.style="display:grid;grid-template-columns:1fr 80px;gap:6px 8px;margin-top:6px";
-    row.innerHTML=`<input placeholder="Player ${i+1}" value="${state.playerNames[i]||""}" oninput="state.playerNames[${i}]=this.value"/>
-    <input type="number" min=0 max=36 value="${state.handicaps[i]||0}" style="text-align:center" oninput="state.handicaps[${i}]=parseInt(this.value)||0"/>`;
-    pf.appendChild(row);
+  var pf=$('pFields');pf.innerHTML='<div class="prow" style="margin-bottom:2px"><span style="font-size:11px;color:#9ca3af;font-weight:600">Name</span><span style="font-size:11px;color:#9ca3af;font-weight:600;text-align:center">HCP</span></div>';
+  for(var i=0;i<S.np;i++){
+    var r=document.createElement('div');r.className='prow';
+    r.innerHTML='<input placeholder="Player '+(i+1)+'" value="'+S.names[i]+'" data-pi="'+i+'" oninput="S.names[this.dataset.pi]=this.value"/>'
+      +'<input type="number" min="0" max="36" value="'+S.hcps[i]+'" data-pi="'+i+'" style="text-align:center" oninput="S.hcps[this.dataset.pi]=parseInt(this.value)||0"/>';
+    pf.appendChild(r);
   }
   // par grid
-  const pg=$("parGrid"); pg.innerHTML="";
-  for(let i=0;i<18;i++){
-    pg.innerHTML+=`<div class="par-cell"><span>${i+1}</span><input type="number" min=3 max=6 value="${state.pars[i]}" oninput="state.pars[${i}]=parseInt(this.value)||4"/></div>`;
+  var pg=$('parGrid');pg.innerHTML='';
+  for(var i=0;i<18;i++){
+    pg.innerHTML+='<div class="cell"><span>'+(i+1)+'</span><input type="number" min="3" max="6" value="'+S.pars[i]+'" data-i="'+i+'" oninput="S.pars[this.dataset.i]=parseInt(this.value)||4"/></div>';
   }
   // si grid
-  const sg=$("siGrid"); sg.innerHTML="";
-  for(let i=0;i<18;i++){
-    sg.innerHTML+=`<div class="par-cell"><span>${i+1}</span><input type="number" min=1 max=18 value="${state.si[i]}" oninput="state.si[${i}]=parseInt(this.value)||${i+1}"/></div>`;
+  var sg=$('siGrid');sg.innerHTML='';
+  for(var i=0;i<18;i++){
+    sg.innerHTML+='<div class="cell"><span>'+(i+1)+'</span><input type="number" min="1" max="18" value="'+S.si[i]+'" data-i="'+i+'" oninput="S.si[this.dataset.i]=parseInt(this.value)||'+(i+1)+'"/></div>';
   }
 }
 
 function setMode(m){
-  state.mode=m;
-  $("mStroke").className="mbtn"+(m==="strokeplay"?" active":"");
-  $("mStable").className="mbtn"+(m==="stableford"?" active":"");
+  S.mode=m;
+  $('mStroke').className='btn-sm'+(m==='strokeplay'?' on':'');
+  $('mStable').className='btn-sm'+(m==='stableford'?' on':'');
 }
 
-// Course dropdown
-let dropOpen=false, dropIdx=0, dropFiltered=[];
-function filterCourses(q){
-  const lq=q.trim().toLowerCase();
-  dropFiltered=lq?UK_COURSES.filter(c=>c.toLowerCase().includes(lq)).slice(0,60):UK_COURSES.slice(0,50);
-  renderDrop();
+// dropdown
+var DF=[],DI=0,DO=false;
+function ddFilter(q){
+  var lq=q.trim().toLowerCase();
+  DF=lq?COURSES.filter(function(c){return c.toLowerCase().indexOf(lq)>=0}).slice(0,60):COURSES.slice(0,50);
+  DI=0;ddRender();
 }
-function openDrop(){ dropOpen=true; filterCourses($("courseInput").value); }
-function renderDrop(){
-  const dl=$("dropList");
-  if(!dropOpen||!dropFiltered.length){dl.style.display="none";return;}
-  dl.style.display="block";
-  dl.innerHTML=dropFiltered.map((c,i)=>{
-    const [name,...rest]=c.split(","); const region=rest.join(",").trim();
-    return `<div class="drop-item${i===dropIdx?" hi":""}" onmousedown="selectCourse('${c.replace(/'/g,"\\'")}')">
-      <span style="font-size:15px;font-weight:500;color:#111827">${name}</span>
-      ${region?`<span style="font-size:12px;color:#6b7280;white-space:nowrap">${region}</span>`:""}
-    </div>`;
-  }).join("")+`<div class="drop-footer">${dropFiltered.length} of ${UK_COURSES.length} courses</div>`;
+function ddOpen(){DO=true;ddFilter($('courseIn').value)}
+function ddRender(){
+  var dl=$('ddlist');
+  if(!DO||!DF.length){dl.style.display='none';return}
+  dl.style.display='block';
+  var html='';
+  DF.forEach(function(c,i){
+    var pts=c.split(',');var nm=pts[0];var rg=pts.slice(1).join(',').trim();
+    html+='<div class="dditem'+(i===DI?' hi':'')+'" onmousedown="ddPick(\''+c.replace(/'/g,"\\'")+'\')">'
+      +'<span class="dn">'+nm+'</span>'+(rg?'<span class="dr">'+rg+'</span>':'')+'</div>';
+  });
+  html+='<div class="ddfoot">'+DF.length+' of '+COURSES.length+' courses</div>';
+  dl.innerHTML=html;
 }
-function dropKey(e){
-  if(!dropOpen)return;
-  if(e.key==="ArrowDown"){e.preventDefault();dropIdx=Math.min(dropIdx+1,dropFiltered.length-1);renderDrop();}
-  else if(e.key==="ArrowUp"){e.preventDefault();dropIdx=Math.max(dropIdx-1,0);renderDrop();}
-  else if(e.key==="Enter"&&dropFiltered[dropIdx]){selectCourse(dropFiltered[dropIdx]);}
-  else if(e.key==="Escape"){dropOpen=false;$("dropList").style.display="none";}
+function ddKey(e){
+  if(!DO)return;
+  if(e.key==='ArrowDown'){e.preventDefault();DI=Math.min(DI+1,DF.length-1);ddRender()}
+  else if(e.key==='ArrowUp'){e.preventDefault();DI=Math.max(DI-1,0);ddRender()}
+  else if(e.key==='Enter'&&DF[DI])ddPick(DF[DI]);
+  else if(e.key==='Escape'){DO=false;$('ddlist').style.display='none'}
 }
-document.addEventListener("mousedown",e=>{ if(!$("courseDropdown").contains(e.target)){dropOpen=false;$("dropList").style.display="none";} });
+document.addEventListener('click',function(e){if(!$('ddwrap').contains(e.target)){DO=false;$('ddlist').style.display='none'}});
+function ddPick(name){
+  S.course=name;S.curl='';
+  $('courseIn').value=name;DO=false;$('ddlist').style.display='none';
+  lookupSite(name);
+}
+function lookupSite(name){
+  var wr=$('wsrow');wr.style.display='flex';
+  $('wsdot').style.background='#f59e0b';$('wstext').textContent='Finding website...';$('wsbtn').style.display='none';
+  var k=name.toLowerCase();
+  for(var key in KNOWN){if(k.indexOf(key)>=0){setSite(KNOWN[key]);return}}
+  fetch('https://api.anthropic.com/v1/messages',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({model:'claude-sonnet-4-20250514',max_tokens:150,system:'Return ONLY JSON: {"url":"https://...","found":true} or {"url":"","found":false}',messages:[{role:'user',content:'Official website for UK golf course: '+name}]})})
+  .then(function(r){return r.json()}).then(function(d){
+    var t=d.content.map(function(b){return b.text||''}).join('');
+    var p=JSON.parse(t.replace(/```json|```/g,'').trim());
+    if(p.found)setSite(p.url);else setNoSite();
+  }).catch(setNoSite);
+}
+function setSite(url){S.curl=url;$('wsdot').style.background='#10b981';$('wstext').textContent=url.replace('https://','').replace(/\/$/,'');$('wsbtn').style.display='inline-block'}
+function setNoSite(){$('wsdot').style.background='#9ca3af';$('wstext').textContent='No website found'}
+function openUrl(){if(S.curl)window.open(S.curl,'_blank')}
+function openCourseUrl(){if(R&&R.curl)window.open(R.curl,'_blank')}
 
-function selectCourse(name){
-  state.selectedCourse=name; state.courseUrl="";
-  $("courseInput").value=name; dropOpen=false; $("dropList").style.display="none";
-  lookupWebsite(name);
-}
-function lookupWebsite(name){
-  const wr=$("websiteRow"); wr.style.display="flex";
-  $("wsDot").className="dot dot-amber"; $("wsText").textContent="Finding website..."; $("wsBtn").style.display="none";
-  const key=name.toLowerCase();
-  for(const [k,v] of Object.entries(KNOWN_URLS)){
-    if(key.includes(k)){setWebsite(v);return;}
-  }
-  fetch("https://api.anthropic.com/v1/messages",{method:"POST",headers:{"Content-Type":"application/json"},
-    body:JSON.stringify({model:"claude-sonnet-4-20250514",max_tokens:200,
-      system:`Return ONLY JSON: {"url":"https://...","found":true} or {"url":"","found":false} for the official website of this UK golf course.`,
-      messages:[{role:"user",content:`Official website for: ${name}`}]})
-  }).then(r=>r.json()).then(d=>{
-    const text=d.content?.map(b=>b.text||"").join("")||"";
-    const p=JSON.parse(text.replace(/```json|```/g,"").trim());
-    if(p.found)setWebsite(p.url); else setNoWebsite();
-  }).catch(()=>setNoWebsite());
-}
-function setWebsite(url){
-  state.courseUrl=url;
-  $("wsDot").className="dot dot-green";
-  $("wsText").textContent=url.replace("https://","").replace(/\/$/,"");
-  $("wsBtn").style.display="inline-block";
-}
-function setNoWebsite(){
-  $("wsDot").className="dot dot-gray";
-  $("wsText").textContent="No website found";
-}
-function openWebsite(){ if(state.courseUrl)window.open(state.courseUrl,"_blank"); }
-
-async function handleCreate(){
-  const code=genCode();
-  const r={
-    courseName:state.selectedCourse||$("courseInput").value, courseUrl:state.courseUrl,
-    numPlayers:state.numPlayers, mode:state.mode,
-    playerNames:state.playerNames.slice(0,state.numPlayers),
-    handicaps:state.handicaps.slice(0,state.numPlayers),
-    pars:[...state.pars], siValues:[...state.si],
-    scores:Array(16).fill(null).map(()=>Array(18).fill("")),
-    updatedAt:Date.now()
-  };
-  $("setupError").style.display="none";
-  try{
-    await fbWrite(`rounds/${code}`,r);
-    roomCode=code; round=r; startPlay();
-  }catch(e){ $("setupError").textContent="Could not create round: "+e.message; $("setupError").style.display="block"; }
+function doCreate(){
+  $('setupErr').style.display='none';
+  var code=genCode();
+  var r={course:S.course||$('courseIn').value,curl:S.curl,np:S.np,mode:S.mode,
+    names:S.names.slice(0,S.np),hcps:S.hcps.slice(0,S.np),
+    pars:S.pars.slice(),si:S.si.slice(),
+    scores:Array(16).fill(0).map(function(){return Array(18).fill(0)}),
+    ts:Date.now()};
+  fbPut('rounds/'+code,r).then(function(){
+    RC=code;R=r;startPlay();
+  }).catch(function(e){
+    $('setupErr').textContent='Error: '+e.message+'. Check your internet connection.';
+    $('setupErr').style.display='block';
+  });
 }
 
-async function handleJoin(){
-  const code=$("joinInput").value.trim().toUpperCase();
+function doJoin(){
+  $('joinErr').style.display='none';
+  var code=$('joinInput').value.trim().toUpperCase();
   if(!code)return;
-  $("joinError").style.display="none";
-  try{
-    const data=await fbRead(`rounds/${code}`);
-    if(!data)throw new Error("Room not found");
-    roomCode=code; round=data; startPlay();
-  }catch(e){ $("joinError").textContent="Room not found — check the code and try again."; $("joinError").style.display="block"; }
+  fbGet('rounds/'+code).then(function(d){
+    if(!d)throw new Error('Room not found');
+    RC=code;R=d;startPlay();
+  }).catch(function(){
+    $('joinErr').textContent='Room not found — check the code and try again.';
+    $('joinErr').style.display='block';
+  });
 }
 
 // ── PLAY ──
 function startPlay(){
-  activeP=0; activeH=0;
-  $("roomCodeDisplay").textContent=roomCode;
-  $("lbCode").textContent=roomCode;
-  $("playCourseName").textContent=round.courseName?.split(",")[0]||"Golf Round";
-  if(round.courseUrl){$("playCourseBtn").style.display="inline-block";}
-  const totalPar=round.pars.reduce((a,b)=>a+b,0);
-  $("playMeta").textContent=`${round.numPlayers} players · Par ${totalPar} · ${round.mode==="stableford"?"Stableford":"Stroke play"}`;
-  showScreen("s-play");
-  renderPlayerBtns(); renderHoleGrid(); renderEntry();
-  renderScorecard(); renderLeaderboard();
-  startPolling();
+  AP=0;AH=0;
+  $('codeDisp').textContent=RC;
+  $('lbCode').textContent=RC;
+  $('playName').textContent=(R.course||'Golf Round').split(',')[0];
+  if(R.curl){$('playWebBtn').style.display='inline-block'}
+  var tp=R.pars.reduce(function(a,b){return a+b},0);
+  $('playMeta').textContent=R.np+' players · Par '+tp+' · '+(R.mode==='stableford'?'Stableford':'Stroke play');
+  show('p-play');
+  renderAll();
+  startPoll();
 }
 
-function openCourseWebsite(){ if(round.courseUrl)window.open(round.courseUrl,"_blank"); }
-
-function startPolling(){
-  if(pollTimer)clearInterval(pollTimer);
-  pollTimer=setInterval(async()=>{
-    try{
-      const data=await fbRead(`rounds/${roomCode}`);
-      if(data&&data.updatedAt>(round.updatedAt||0)){
-        round=data; lastSynced=new Date();
-        $("liveStatus").textContent="● Live"; $("liveStatus").className="live-dot on";
-        $("syncTime").textContent=lastSynced.toLocaleTimeString([],{hour:"2-digit",minute:"2-digit"});
-        renderAll();
-      } else {
-        $("liveStatus").textContent="● Live"; $("liveStatus").className="live-dot on";
-        if(!lastSynced){lastSynced=new Date();$("syncTime").textContent=lastSynced.toLocaleTimeString([],{hour:"2-digit",minute:"2-digit"});}
-      }
-    }catch{}
-  },4000);
+function startPoll(){
+  if(PT)clearInterval(PT);
+  PT=setInterval(function(){
+    fbGet('rounds/'+RC).then(function(d){
+      if(d&&d.ts>R.ts){R=d;LS=new Date();renderAll()}
+      $('liveDisp').className='live';$('liveDisp').textContent='● Live';
+      if(!LS)LS=new Date();
+      $('timeDisp').textContent=LS.toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'});
+    }).catch(function(){});
+  },5000);
 }
 
-function endRound(){ if(pollTimer)clearInterval(pollTimer); round=null; roomCode=""; showScreen("s-home"); }
+function doEnd(){if(PT)clearInterval(PT);R=null;RC='';show('p-home')}
 
-function renderAll(){ renderPlayerBtns();renderHoleGrid();renderEntry();renderScorecard();renderSummary();renderLeaderboard(); }
-
-function switchTab(t){
-  document.querySelectorAll(".tab").forEach((b,i)=>b.classList.toggle("active",["entry","scorecard","summary","leaderboard"][i]===t));
-  document.querySelectorAll(".tab-panel").forEach(p=>p.classList.remove("active"));
-  $(`tab-${t}`).classList.add("active");
-  if(t==="summary")renderSummary();
+function switchTab(t,el){
+  document.querySelectorAll('.tab').forEach(function(b){b.classList.remove('on')});
+  el.classList.add('on');
+  document.querySelectorAll('.panel').forEach(function(p){p.classList.remove('on')});
+  $('tab-'+t).classList.add('on');
+  if(t==='summary')renderSummary();
+  if(t==='leaderboard')renderLB();
 }
 
-function renderPlayerBtns(){
-  ["playerBtns","summaryPlayerBtns"].forEach(id=>{
-    const el=$(id); el.innerHTML="";
-    for(let i=0;i<round.numPlayers;i++){
-      const b=document.createElement("button");
-      b.className="pbtn"+(i===activeP?" active":"");
-      b.textContent=round.playerNames[i]||`P${i+1}`;
-      const pi=i;
-      b.onclick=()=>{ activeP=pi; renderPlayerBtns(); if(id==="playerBtns"){renderHoleGrid();renderEntry();}else renderSummary(); };
+function renderAll(){renderPBtns();renderHBtns();renderEntry();renderSC();renderLB()}
+
+function renderPBtns(){
+  ['pBtns','sBtns'].forEach(function(id){
+    var el=$(id);if(!el)return;el.innerHTML='';
+    for(var i=0;i<R.np;i++){
+      var b=document.createElement('button');
+      b.className='btn-sm'+(i===AP?' on':'');
+      b.textContent=R.names[i]||'P'+(i+1);
+      (function(pi){b.onclick=function(){AP=pi;renderPBtns();if(id==='pBtns'){renderHBtns();renderEntry()}else renderSummary()}})(i);
       el.appendChild(b);
     }
   });
 }
 
-function renderHoleGrid(){
-  const hg=$("holeGrid"); hg.innerHTML="";
-  for(let i=0;i<18;i++){
-    const v=parseInt(round.scores[activeP][i])||0;
-    const b=document.createElement("button");
-    b.className="hbtn"+(i===activeH?" active":"");
+function renderHBtns(){
+  var hg=$('hBtns');hg.innerHTML='';
+  for(var i=0;i<18;i++){
+    var v=R.scores[AP][i]||0;
+    var b=document.createElement('button');
+    b.className='hbtn'+(i===AH?' on':''+(v&&i!==AH?' '+sCls(v,R.pars[i]):''));
     b.textContent=i+1;
-    if(i!==activeH&&v){const cl=cellBg(v,round.pars[i]);if(cl)b.classList.add(cl);}
-    const hi=i;
-    b.onclick=()=>{ activeH=hi; renderHoleGrid(); renderEntry(); };
+    (function(hi){b.onclick=function(){AH=hi;renderHBtns();renderEntry()}})(i);
     hg.appendChild(b);
   }
 }
 
 function renderEntry(){
-  const s=parseInt(round.scores[activeP][activeH])||0;
-  const par=round.pars[activeH], si=round.siValues[activeH], hcp=round.handicaps[activeP]||0;
-  const hs=hcpS(hcp,si);
-  $("entryTitle").textContent=`${round.playerNames[activeP]} — Hole ${activeH+1}`;
-  $("entryMeta").textContent=`Par ${par} · SI ${si} · HCP ${hcp}${hs>0?` · +${hs} stroke`:""}`;
-  $("scoreNum").textContent=s||"—";
-  const {t,c}=scoreLabel(s,par);
-  const pts=stablefordPts(s,par,hs);
-  $("entryLabel").innerHTML=s?`<div style="font-size:13px;font-weight:600;color:${c}">${t}</div>${round.mode==="stableford"?`<div style="font-size:12px;color:#6b7280">${pts} pts</div>`:""}`:""  ;
-  document.querySelectorAll(".nbtn").forEach(b=>{ if(!isNaN(parseInt(b.textContent)))b.classList.toggle("active",parseInt(b.textContent)===s); });
-  $("prevBtn").style.display=activeH>0?"block":"none";
-  $("nextBtn").style.display=activeH<17?"block":"none";
+  var s=R.scores[AP][AH]||0,par=R.pars[AH],si=R.si[AH],hcp=R.hcps[AP]||0,hs=hcpS(hcp,si);
+  $('eTitle').textContent=(R.names[AP]||'P'+(AP+1))+' — Hole '+(AH+1);
+  $('eMeta').textContent='Par '+par+' · SI '+si+' · HCP '+hcp+(hs>0?' · +'+hs+' stroke':'');
+  $('eBig').textContent=s||'—';
+  var lb=sLabel(s,par),pts=sbPts(s,par,hs);
+  $('eLabel').innerHTML=s?'<div style="font-size:13px;font-weight:700;color:'+lb.c+'">'+lb.t+'</div>'+(R.mode==='stableford'?'<div style="font-size:12px;color:#6b7280">'+pts+' pts</div>':''):'';
+  document.querySelectorAll('.nbtn').forEach(function(b){b.classList.toggle('on',parseInt(b.textContent)===s)});
+  $('prevBtn').style.display=AH>0?'block':'none';
+  $('nextBtn').style.display=AH<17?'block':'none';
 }
 
-function adjustScore(d){ const cur=parseInt(round.scores[activeP][activeH])||0; setScoreVal(Math.max(1,Math.min(15,cur+d))); }
-function prevHole(){ if(activeH>0){activeH--;renderHoleGrid();renderEntry();} }
-function nextHole(){ if(activeH<17){activeH++;renderHoleGrid();renderEntry();} }
-function setScoreVal(v){
-  round.scores[activeP][activeH]=v===""?"":String(v);
-  round.updatedAt=Date.now();
-  fbPatch(`rounds/${roomCode}`,{scores:round.scores,updatedAt:round.updatedAt}).then(()=>{
-    lastSynced=new Date(); $("liveStatus").textContent="● Live"; $("liveStatus").className="live-dot on";
-    $("syncTime").textContent=lastSynced.toLocaleTimeString([],{hour:"2-digit",minute:"2-digit"});
-  }).catch(()=>{});
-  renderHoleGrid(); renderEntry(); renderScorecard(); renderLeaderboard();
+function adj(d){var cur=R.scores[AP][AH]||0;setVal(Math.max(1,Math.min(15,cur+d)))}
+function prevH(){if(AH>0){AH--;renderHBtns();renderEntry()}}
+function nextH(){if(AH<17){AH++;renderHBtns();renderEntry()}}
+function setVal(v){
+  R.scores[AP][AH]=v;R.ts=Date.now();
+  fbPatch('rounds/'+RC,{scores:R.scores,ts:R.ts}).then(function(){
+    LS=new Date();$('liveDisp').className='live';$('liveDisp').textContent='● Live';
+    $('timeDisp').textContent=LS.toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'});
+  }).catch(function(){});
+  renderHBtns();renderEntry();renderSC();renderLB();
 }
 
-function renderScorecard(){
-  const totalPar=round.pars.reduce((a,b)=>a+b,0);
-  let html=`<thead><tr><th>Player</th>${Array(18).fill(0).map((_,i)=>`<th>${i+1}</th>`).join("")}<th>Tot</th><th>${round.mode==="stableford"?"Pts":"+/-"}</th></tr>
-  <tr style="color:#6b7280;font-size:10px"><td>Par</td>${round.pars.map(p=>`<td>${p}</td>`).join("")}<td style="font-weight:600">${totalPar}</td><td></td></tr></thead><tbody>`;
-  for(let pi=0;pi<round.numPlayers;pi++){
-    let gross=0,stable=0,played=0,toPar=0;
-    const hcp=round.handicaps[pi]||0;
-    const cells=round.scores[pi].map((v,hi)=>{
-      const s=parseInt(v)||0, hs=hcpS(hcp,round.siValues[hi]), pts=stablefordPts(s,round.pars[hi],hs);
-      if(s){gross+=s;stable+=pts;toPar+=s-round.pars[hi];played++;}
-      const cls=s?cellBg(s,round.pars[hi]):"";
-      return `<td class="${cls}" style="border-radius:3px">${s||""}${hs>0&&s?`<sup style="font-size:7px;color:#10b981">${"•".repeat(hs)}</sup>`:""}</td>`;
-    }).join("");
-    const toParStr=gross?(round.mode==="stableford"?stable:(toPar===0?"E":toPar>0?`+${toPar}`:toPar)):"";
-    const toParColor=round.mode==="stableford"?"#111827":(toPar<0?"#10b981":toPar>0?"#ef4444":"#6b7280");
-    html+=`<tr style="border-top:1px solid #f3f4f6"><td style="font-weight:600;font-size:11px">${round.playerNames[pi]}<br><span style="font-size:10px;font-weight:400;color:#6b7280">HCP ${hcp}</span></td>${cells}<td style="font-weight:700">${gross||""}</td><td style="font-weight:700;color:${toParColor}">${toParStr}</td></tr>`;
+function renderSC(){
+  var tp=R.pars.reduce(function(a,b){return a+b},0);
+  var h='<thead><tr><th>Player</th>';
+  for(var i=0;i<18;i++)h+='<th>'+(i+1)+'</th>';
+  h+='<th>Tot</th><th>'+(R.mode==='stableford'?'Pts':'+/-')+'</th></tr>';
+  h+='<tr style="color:#9ca3af"><td>Par</td>';
+  R.pars.forEach(function(p){h+='<td>'+p+'</td>'});
+  h+='<td style="font-weight:700">'+tp+'</td><td></td></tr></thead><tbody>';
+  for(var pi=0;pi<R.np;pi++){
+    var gross=0,stable=0,played=0,toPar=0,hcp=R.hcps[pi]||0;
+    var cells='';
+    R.scores[pi].forEach(function(v,hi){
+      var s=v||0,hs=hcpS(hcp,R.si[hi]),pts=sbPts(s,R.pars[hi],hs);
+      if(s){gross+=s;stable+=pts;toPar+=s-R.pars[hi];played++}
+      var cls=s?sCls(s,R.pars[hi]):'';
+      cells+='<td class="'+cls+'">'+(s||'')+(hs>0&&s?'<sup style="font-size:7px;color:#10b981">'+('•'.repeat(hs))+'</sup>':'')+'</td>';
+    });
+    var toParStr=gross?(R.mode==='stableford'?stable:(toPar===0?'E':toPar>0?'+'+toPar:toPar)):'';
+    var tc=R.mode==='stableford'?'#111':(toPar<0?'#10b981':toPar>0?'#ef4444':'#6b7280');
+    h+='<tr><td style="font-weight:700">'+(R.names[pi]||'P'+(pi+1))+'<br><span style="font-size:10px;font-weight:400;color:#9ca3af">HCP '+hcp+'</span></td>'+cells+'<td style="font-weight:700">'+(gross||'')+'</td><td style="font-weight:700;color:'+tc+'">'+toParStr+'</td></tr>';
   }
-  html+="</tbody>";
-  $("scorecardTable").innerHTML=html;
+  h+='</tbody>';
+  $('scTable').innerHTML=h;
 }
 
 function renderSummary(){
-  const pi=activeP, hcp=round.handicaps[pi]||0;
-  let gross=0,stable=0,played=0,toPar=0,birds=0,bogs=0,pars_=0;
-  const rows=round.scores[pi].map((v,hi)=>{
-    const s=parseInt(v)||0, hs=hcpS(hcp,round.siValues[hi]), pts=stablefordPts(s,round.pars[hi],hs);
-    if(s){gross+=s;stable+=pts;toPar+=s-round.pars[hi];played++;
-      if(s-round.pars[hi]<=-1)birds++;else if(s-round.pars[hi]>=1)bogs++;else pars_++;}
-    return {s,hs,pts,hi};
+  var pi=AP,hcp=R.hcps[pi]||0,gross=0,stable=0,played=0,toPar=0,birds=0,bogs=0,pars_=0;
+  var rows=R.scores[pi].map(function(v,hi){
+    var s=v||0,hs=hcpS(hcp,R.si[hi]),pts=sbPts(s,R.pars[hi],hs);
+    if(s){gross+=s;stable+=pts;toPar+=s-R.pars[hi];played++;
+      if(s-R.pars[hi]<=-1)birds++;else if(s-R.pars[hi]>=1)bogs++;else pars_++}
+    return{s:s,hs:hs,pts:pts,hi:hi};
   });
-  const toParStr=gross?(round.mode==="stableford"?stable:(toPar===0?"E":toPar>0?`+${toPar}`:toPar)):"—";
-  let html=`<div class="stat-grid">
-    ${[["Gross",gross||"—"],["${round.mode==="stableford"?"Points":"To par"}",toParStr],["Holes",played],["HCP",hcp]].map(([l,v])=>
-      `<div class="stat-box"><div class="sl">${l}</div><div class="sv">${v}</div></div>`).join("")}
-  </div>
-  <div class="stat-grid stat3" style="margin-bottom:16px">
-    <div class="stat-box"><div class="sl">Birdies+</div><div class="sv green">${birds}</div></div>
-    <div class="stat-box"><div class="sl">Pars</div><div class="sv">${pars_}</div></div>
-    <div class="stat-box"><div class="sl">Bogeys+</div><div class="sv red">${bogs}</div></div>
-  </div>`;
-  html=html.replace('${round.mode==="stableford"?"Points":"To par"}', round.mode==="stableford"?"Points":"To par");
-  rows.forEach(({s,hs,pts,hi})=>{
-    if(!s)return;
-    const {t,c}=scoreLabel(s,round.pars[hi]);
-    const bg=cellBg(s,round.pars[hi]);
-    html+=`<div class="hole-row ${bg}" style="margin-bottom:5px">
-      <div style="min-width:30px;font-weight:700">H${hi+1}</div>
-      <div style="flex:1;font-size:12px;color:#6b7280">Par ${round.pars[hi]} · SI ${round.siValues[hi]}${hs>0?` · +${hs} hcp`:""}</div>
-      <div style="font-size:13px;font-weight:600;color:${c};min-width:72px;text-align:right">${t}</div>
-      <div style="font-size:18px;font-weight:700;min-width:28px;text-align:right">${s}</div>
-      ${round.mode==="stableford"?`<div style="font-size:12px;color:#6b7280;min-width:32px;text-align:right">${pts}pts</div>`:""}
-    </div>`;
+  var tpStr=gross?(R.mode==='stableford'?stable:(toPar===0?'E':toPar>0?'+'+toPar:toPar)):'—';
+  var html='<div class="g4">'
+    +'<div class="sbox"><div class="sl">Gross</div><div class="sv">'+(gross||'—')+'</div></div>'
+    +'<div class="sbox"><div class="sl">'+(R.mode==='stableford'?'Points':'To par')+'</div><div class="sv">'+tpStr+'</div></div>'
+    +'<div class="sbox"><div class="sl">Holes</div><div class="sv">'+played+'</div></div>'
+    +'<div class="sbox"><div class="sl">HCP</div><div class="sv">'+hcp+'</div></div>'
+    +'</div><div class="g3">'
+    +'<div class="sbox"><div class="sl">Birdies+</div><div class="sv green">'+birds+'</div></div>'
+    +'<div class="sbox"><div class="sl">Pars</div><div class="sv">'+pars_+'</div></div>'
+    +'<div class="sbox"><div class="sl">Bogeys+</div><div class="sv red">'+bogs+'</div></div></div>';
+  rows.forEach(function(r){
+    if(!r.s)return;
+    var lb=sLabel(r.s,R.pars[r.hi]),cls=sCls(r.s,R.pars[r.hi]);
+    html+='<div class="hrow '+cls+'">'
+      +'<div style="min-width:30px;font-weight:700">H'+(r.hi+1)+'</div>'
+      +'<div style="flex:1;font-size:12px;color:#6b7280">Par '+R.pars[r.hi]+' · SI '+R.si[r.hi]+(r.hs>0?' · +'+r.hs+' hcp':'')+'</div>'
+      +'<div style="font-size:13px;font-weight:700;color:'+lb.c+';min-width:72px;text-align:right">'+lb.t+'</div>'
+      +'<div style="font-size:20px;font-weight:700;min-width:30px;text-align:right">'+r.s+'</div>'
+      +(R.mode==='stableford'?'<div style="font-size:12px;color:#6b7280;min-width:30px;text-align:right">'+r.pts+'pts</div>':'')
+      +'</div>';
   });
-  if(!played)html+='<p style="color:#9ca3af;font-size:14px">No scores entered yet.</p>';
-  $("summaryContent").innerHTML=html;
+  if(!played)html+='<p style="color:#9ca3af;font-size:14px">No scores yet.</p>';
+  $('sContent').innerHTML=html;
 }
 
-function renderLeaderboard(){
-  const stats=[];
-  for(let pi=0;pi<round.numPlayers;pi++){
-    const hcp=round.handicaps[pi]||0;
-    let gross=0,stable=0,played=0,toPar=0;
-    round.scores[pi].forEach((v,hi)=>{
-      const s=parseInt(v)||0,hs=hcpS(hcp,round.siValues[hi]),pts=stablefordPts(s,round.pars[hi],hs);
-      if(s){gross+=s;stable+=pts;toPar+=s-round.pars[hi];played++;}
+function renderLB(){
+  var stats=[];
+  for(var pi=0;pi<R.np;pi++){
+    var hcp=R.hcps[pi]||0,gross=0,stable=0,played=0,toPar=0;
+    R.scores[pi].forEach(function(v,hi){
+      var s=v||0,hs=hcpS(hcp,R.si[hi]),pts=sbPts(s,R.pars[hi],hs);
+      if(s){gross+=s;stable+=pts;toPar+=s-R.pars[hi];played++}
     });
-    if(played)stats.push({pi,name:round.playerNames[pi],gross,stable,played,toPar,hcp});
+    if(played)stats.push({pi:pi,name:R.names[pi]||'P'+(pi+1),gross:gross,stable:stable,played:played,toPar:toPar,hcp:hcp});
   }
-  stats.sort((a,b)=>round.mode==="stableford"?b.stable-a.stable:a.toPar-b.toPar);
-  const lb=$("lbContent");
-  if(!stats.length){lb.innerHTML='<p style="color:#9ca3af;font-size:14px;padding:1rem 0">No scores yet — use the Entry tab.</p>';$("lbBanner").style.display="none";return;}
-  lb.innerHTML=stats.map((p,rank)=>{
-    const score=round.mode==="stableford"?p.stable:p.gross;
-    const sub=round.mode==="stableford"?"pts":(p.toPar===0?"Even":p.toPar>0?`+${p.toPar}`:p.toPar);
-    const subColor=round.mode==="stableford"?(p.stable>=36?"#10b981":"#6b7280"):(p.toPar<0?"#10b981":p.toPar>0?"#ef4444":"#6b7280");
-    return `<div class="lb-row${rank===0?" first":""}">
-      <div class="lb-rank">${["1st","2nd","3rd"][rank]||`${rank+1}th`}</div>
-      <div style="flex:1"><div style="font-weight:600;font-size:15px">${p.name}</div><div style="font-size:12px;color:#6b7280">HCP ${p.hcp} · ${p.played} holes</div></div>
-      <div class="lb-score"><div class="big">${score}</div><div style="font-size:13px;font-weight:600;color:${subColor}">${sub}</div></div>
-    </div>`;
-  }).join("");
-  $("lbBanner").style.display="block";
+  stats.sort(function(a,b){return R.mode==='stableford'?b.stable-a.stable:a.toPar-b.toPar});
+  var lbc=$('lbContent');
+  if(!stats.length){lbc.innerHTML='<p style="color:#9ca3af;font-size:14px;padding:1rem 0">No scores yet.</p>';$('lbFooter').style.display='none';return}
+  var ranks=['1st','2nd','3rd'];
+  lbc.innerHTML=stats.map(function(p,i){
+    var sc=R.mode==='stableford'?p.stable:p.gross;
+    var sub=R.mode==='stableford'?'pts':(p.toPar===0?'Even':p.toPar>0?'+'+p.toPar:p.toPar);
+    var sc2=R.mode==='stableford'?(p.stable>=36?'#10b981':'#6b7280'):(p.toPar<0?'#10b981':p.toPar>0?'#ef4444':'#6b7280');
+    return'<div class="lbrow'+(i===0?' gold':'')+'">'
+      +'<div class="rank">'+(ranks[i]||((i+1)+'th'))+'</div>'
+      +'<div style="flex:1"><div style="font-weight:700;font-size:15px">'+p.name+'</div><div style="font-size:12px;color:#6b7280">HCP '+p.hcp+' · '+p.played+' holes</div></div>'
+      +'<div class="lbscore"><div class="big">'+sc+'</div><div style="font-size:13px;font-weight:700;color:'+sc2+'">'+sub+'</div></div>'
+      +'</div>';
+  }).join('');
+  $('lbFooter').style.display='block';
 }
-
-// Init
-window.onload=()=>{ initSetup(); };
 </script>
 </body>
 </html>
