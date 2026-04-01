@@ -317,25 +317,28 @@ function ddFilter(q){
   dl.style.display='block';
   dl.innerHTML='<div style="padding:12px 16px;font-size:13px;color:#6b7280">Searching...</div>';
   searchTimer=setTimeout(function(){
-    // Use Anthropic API as proxy to avoid CORS issues with RapidAPI
     fetch('https://api.anthropic.com/v1/messages',{
       method:'POST',
       headers:{'Content-Type':'application/json'},
       body:JSON.stringify({
         model:'claude-sonnet-4-20250514',
         max_tokens:1000,
-        system:'You are a UK golf course search assistant. When given a search term, return ONLY a JSON array of up to 10 matching UK golf clubs. Format: [{"id":"club_name_slug","name":"Full Club Name","county":"County","website":"https://...or empty string"}]. Use your knowledge of UK golf clubs. Return only JSON, no markdown.',
+        system:'You are a UK golf course search assistant. When given a search term, return ONLY a JSON array of up to 10 matching UK golf clubs. Format: [{"id":"slug","name":"Full Club Name","county":"County"}]. Return only JSON, no markdown, no explanation.',
         messages:[{role:'user',content:'Find UK golf clubs matching: '+q.trim()}]
       })
     })
-    .then(function(r){return r.json();})
+    .then(function(r){
+      if(!r.ok)throw new Error('HTTP '+r.status+' '+r.statusText);
+      return r.json();
+    })
     .then(function(d){
+      if(d.error)throw new Error(JSON.stringify(d.error));
       var text=d.content.map(function(b){return b.text||''}).join('');
       DF=JSON.parse(text.replace(/```json|```/g,'').trim());
       DI=0;ddRender();
     })
-    .catch(function(){
-      dl.innerHTML='<div style="padding:12px 16px;font-size:13px;color:#ef4444">Search failed — check connection</div>';
+    .catch(function(e){
+      dl.innerHTML='<div style="padding:12px 16px;font-size:13px;color:#ef4444">Error: '+e.message+'</div>';
     });
   },400);
 }
