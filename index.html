@@ -198,9 +198,60 @@ thead tr:nth-child(2) td:first-child{background:#f0f4ff}
     <button class="btn btn-white" onclick="loadArchive()">View archived rounds</button>
     <div id="archiveList" style="display:none;margin-top:14px"></div>
   </div>
+  <div style="height:14px"></div>
+  <div style="background:#fff;padding:20px;border-bottom:3px solid #c8102e">
+    <h2>Comps Diary</h2>
+    <p style="font-size:13px;color:#4a5a7a;margin-bottom:14px">Plan upcoming competitions with course, players & handicaps preloaded.</p>
+    <button class="btn btn-dark" onclick="show('p-diary');loadDiary()">Open Comps Diary</button>
+  </div>
 </div>
 
 <!-- SETUP -->
+<!-- COMPS DIARY -->
+<div id="p-diary" class="page">
+  <div class="topbar">
+    <div class="topbar-inner" style="display:flex;align-items:center;gap:12px">
+      <button class="btn-sm" onclick="show('p-home')" style="background:rgba(255,255,255,0.15);color:#fff;border-color:rgba(255,255,255,0.4)">← Back</button>
+      <h1>Comps Diary</h1>
+    </div>
+    <div class="stripe"></div>
+  </div>
+  <button class="btn btn-dark" onclick="openNewComp()" style="margin-bottom:14px">+ Add competition</button>
+  <div id="diaryList"></div>
+</div>
+
+<!-- ADD / EDIT COMP -->
+<div id="p-comp" class="page">
+  <div class="topbar">
+    <div class="topbar-inner" style="display:flex;align-items:center;gap:12px">
+      <button class="btn-sm" onclick="show('p-diary');loadDiary()" style="background:rgba(255,255,255,0.15);color:#fff;border-color:rgba(255,255,255,0.4)">← Back</button>
+      <h1 id="compPageTitle">Add competition</h1>
+    </div>
+    <div class="stripe"></div>
+  </div>
+  <label>Competition name</label>
+  <input id="compName" placeholder="e.g. Club Medal, Away Day"/>
+  <label>Date</label>
+  <input id="compDate" type="date"/>
+  <label>Golf course</label>
+  <input id="compCourse" placeholder="Course name"/>
+  <label>Format</label>
+  <div class="row">
+    <button class="btn-sm on" id="cModeStroke" onclick="setCompMode('strokeplay')">Stroke play</button>
+    <button class="btn-sm" id="cModeStable" onclick="setCompMode('stableford')">Stableford</button>
+  </div>
+  <label>Number of players</label>
+  <div class="row" id="compNpRow"></div>
+  <label>Players & handicaps</label>
+  <div id="compPFields"></div>
+  <label>Notes</label>
+  <input id="compNotes" placeholder="e.g. Tee time 10:30, dress code smart"/>
+  <div id="compErr" class="err"></div>
+  <button class="btn btn-dark" style="margin-top:16px" onclick="saveComp()">Save competition</button>
+  <button class="btn btn-red" id="deleteCompBtn" style="display:none;margin-top:4px" onclick="deleteComp()">Delete</button>
+</div>
+
+
 <div id="p-setup" class="page">
   <div class="topbar">
     <div class="topbar-inner" style="display:flex;align-items:center;gap:12px">
@@ -365,10 +416,10 @@ var FB='https://rogs-9f527-default-rtdb.europe-west1.firebasedatabase.app';
 var KNOWN={"carlisle golf club":"https://www.carlislegolfclub.org/the-course","pollok golf club":"https://pollokgolf.com/","cabopino golf":"https://www.cabopinogolfmarbella.com/en/home/","la cala golf":"https://www.lacala.com/","calanova golf":"https://www.calanovagolf.es/web/en/index.php","torrequebrada golf":"https://golftorrequebrada.com/","chaparral golf":"https://golfelchaparral.com/en/","tewkesbury park":"https://tewkesburypark.co.uk/golf/"};
 var DPARS=[4,4,3,4,5,3,4,4,5,4,4,3,4,5,3,4,4,5];
 var KNOWN_CARDS={
-  'carlisle golf club':{
-    yellow:{par:[4, 3, 4, 3, 4, 4, 4, 4, 5, 4, 4, 5, 3, 4, 5, 3, 4, 4],si:[10, 16, 4, 8, 18, 14, 2, 12, 6, 9, 1, 17, 15, 3, 7, 5, 13, 11],found:true},
-    white:{par:[4, 3, 4, 3, 4, 4, 4, 4, 5, 4, 4, 5, 3, 4, 5, 3, 4, 4],si:[10, 16, 4, 8, 18, 14, 2, 12, 6, 9, 1, 17, 15, 3, 7, 5, 13, 11],found:true},
-    red:{par:[4, 3, 4, 3, 4, 4, 4, 4, 5, 4, 4, 5, 3, 4, 5, 3, 4, 4],si:[10, 16, 4, 8, 18, 14, 2, 12, 6, 9, 1, 17, 15, 3, 7, 5, 13, 11],found:true}
+  "carlisle golf club":{
+    yellow:{par:[4,3,4,3,4,4,4,4,5,4,4,5,3,4,5,3,4,4],si:[10,16,4,8,18,14,2,12,6,9,1,17,15,3,7,5,13,11],found:true},
+    white:{par:[4,3,4,3,4,4,4,4,5,4,4,5,3,4,5,3,4,4],si:[10,16,4,8,18,14,2,12,6,9,1,17,15,3,7,5,13,11],found:true},
+    red:{par:[4,3,4,3,4,4,4,4,5,4,4,5,3,4,5,3,4,4],si:[10,16,4,8,18,14,2,12,6,9,1,17,15,3,7,5,13,11],found:true}
   }
 };
 var DSI=[7,11,15,3,1,17,9,13,5,8,12,16,4,2,18,10,14,6];
@@ -1105,6 +1156,167 @@ function timeSince(ts){
   if(s<3600)return Math.floor(s/60)+'m ago';
   return Math.floor(s/3600)+'h ago';
 }
+// ── Comps Diary ─────────────────────────────────────────────────────────────
+var EDIT_COMP_ID=null;
+var COMP_NP=4;
+var COMP_MODE='strokeplay';
+
+function setCompMode(m){
+  COMP_MODE=m;
+  $('cModeStroke').className='btn-sm'+(m==='strokeplay'?' on':'');
+  $('cModeStable').className='btn-sm'+(m==='stableford'?' on':'');
+}
+
+function buildCompNpRow(){
+  var el=$('compNpRow');el.innerHTML='';
+  [2,3,4,6,8,10,12,14,16].forEach(function(n){
+    var b=document.createElement('button');
+    b.className='btn-sm'+(n===COMP_NP?' on':'');
+    b.textContent=n;
+    b.onclick=function(){COMP_NP=n;buildCompNpRow();buildCompPFields();};
+    el.appendChild(b);
+  });
+}
+
+function buildCompPFields(){
+  var pf=$('compPFields');
+  pf.innerHTML='<div class="prow" style="margin-bottom:2px"><span style="font-size:11px;color:#9ca3af;font-weight:700;text-transform:uppercase">Name</span><span style="font-size:11px;color:#9ca3af;font-weight:700;text-align:center;text-transform:uppercase">HCP</span></div>';
+  for(var i=0;i<COMP_NP;i++){
+    var r=document.createElement('div');r.className='prow';
+    var existingName=(EDIT_COMP_ID&&window._editComp&&window._editComp.names)?window._editComp.names[i]||'':'';
+    var existingHcp=(EDIT_COMP_ID&&window._editComp&&window._editComp.hcps)?window._editComp.hcps[i]||0:0;
+    r.innerHTML='<input placeholder="Player '+(i+1)+'" value="'+existingName+'" data-ci="'+i+'" class="cpname"/>'
+      +'<input type="number" min="0" max="36" value="'+existingHcp+'" data-ci="'+i+'" style="text-align:center" class="cphcp"/>';
+    pf.appendChild(r);
+  }
+}
+
+function openNewComp(){
+  EDIT_COMP_ID=null;COMP_NP=4;COMP_MODE='strokeplay';window._editComp=null;
+  $('compPageTitle').textContent='Add competition';
+  $('compName').value='';
+  $('compDate').value='';
+  $('compCourse').value='';
+  $('compNotes').value='';
+  $('compErr').style.display='none';
+  $('deleteCompBtn').style.display='none';
+  setCompMode('strokeplay');
+  buildCompNpRow();buildCompPFields();
+  show('p-comp');
+}
+
+function openEditComp(id,comp){
+  EDIT_COMP_ID=id;COMP_NP=comp.np||4;COMP_MODE=comp.mode||'strokeplay';window._editComp=comp;
+  $('compPageTitle').textContent='Edit competition';
+  $('compName').value=comp.name||'';
+  $('compDate').value=comp.date||'';
+  $('compCourse').value=comp.course||'';
+  $('compNotes').value=comp.notes||'';
+  $('compErr').style.display='none';
+  $('deleteCompBtn').style.display='block';
+  setCompMode(COMP_MODE);
+  buildCompNpRow();buildCompPFields();
+  show('p-comp');
+}
+
+function saveComp(){
+  var name=$('compName').value.trim();
+  var date=$('compDate').value;
+  var course=$('compCourse').value.trim();
+  if(!name||!date||!course){
+    $('compErr').textContent='Please fill in name, date and course.';
+    $('compErr').style.display='block';return;
+  }
+  var names=[],hcps=[];
+  document.querySelectorAll('.cpname').forEach(function(el){names.push(el.value||('Player '+(parseInt(el.dataset.ci)+1)))});
+  document.querySelectorAll('.cphcp').forEach(function(el){hcps.push(parseInt(el.value)||0)});
+  var comp={name:name,date:date,course:course,mode:COMP_MODE,np:COMP_NP,names:names.slice(0,COMP_NP),hcps:hcps.slice(0,COMP_NP),notes:$('compNotes').value.trim(),created:Date.now()};
+  var id=EDIT_COMP_ID||(Date.now().toString(36));
+  fbPut('comps/'+id,comp).then(function(){
+    show('p-diary');loadDiary();
+  }).catch(function(e){
+    $('compErr').textContent='Error saving: '+e.message;$('compErr').style.display='block';
+  });
+}
+
+function deleteComp(){
+  if(!EDIT_COMP_ID)return;
+  if(!confirm('Delete this competition?'))return;
+  fbDelete('comps/'+EDIT_COMP_ID).then(function(){
+    show('p-diary');loadDiary();
+  }).catch(function(){});
+}
+
+function loadDiary(){
+  var el=$('diaryList');el.innerHTML='<div style="font-size:13px;color:#4a5a7a">Loading...</div>';
+  fbGet('comps').then(function(d){
+    if(!d||!Object.keys(d).length){
+      el.innerHTML='<div style="font-size:13px;color:#9ca3af;padding:12px 0">No competitions yet. Tap "+ Add competition" to plan one.</div>';
+      return;
+    }
+    var comps=Object.entries(d).map(function(e){return{id:e[0],data:e[1]}});
+    // Sort by date
+    comps.sort(function(a,b){return(a.data.date||'').localeCompare(b.data.date||'')});
+    var now=new Date().toISOString().slice(0,10);
+    var upcoming=[],past=[];
+    comps.forEach(function(c){(c.data.date>=now?upcoming:past).push(c)});
+
+    var html='';
+    if(upcoming.length){
+      html+='<div style="font-size:11px;font-weight:700;color:#0d2d6e;text-transform:uppercase;letter-spacing:1px;margin-bottom:8px">Upcoming</div>';
+      upcoming.forEach(function(c){html+=compCard(c.id,c.data,false)});
+    }
+    if(past.length){
+      html+='<div style="font-size:11px;font-weight:700;color:#9ca3af;text-transform:uppercase;letter-spacing:1px;margin:14px 0 8px">Past</div>';
+      past.forEach(function(c){html+=compCard(c.id,c.data,true)});
+    }
+    el.innerHTML=html;
+  }).catch(function(){
+    el.innerHTML='<div style="font-size:13px;color:#c8102e">Could not load diary.</div>';
+  });
+}
+
+function compCard(id,c,isPast){_COMP_CACHE[id]=c;
+  var d=new Date(c.date+'T12:00:00');
+  var dateStr=d.toLocaleDateString('en-GB',{weekday:'short',day:'numeric',month:'short',year:'numeric'});
+  var players=(c.names||[]).slice(0,c.np||0).map(function(n,i){return n+' ('+((c.hcps||[])[i]||0)+')'}).join(', ');
+  return '<div style="padding:14px 16px;margin-bottom:10px;border:2px solid #0d2d6e;border-left:5px solid '+(isPast?'#9ca3af':'#c8102e')+';background:#fff">'
+    +'<div style="display:flex;justify-content:space-between;align-items:flex-start;flex-wrap:wrap;gap:4px">'
+    +'<div style="font-weight:700;font-size:15px;color:#0d2d6e">'+escHtml(c.name||'Competition')+'</div>'
+    +'<div style="font-size:12px;color:#9ca3af">'+dateStr+'</div></div>'
+    +'<div style="font-size:13px;color:#4a5a7a;margin-top:3px">'+escHtml(c.course||'')+'  ·  '+(c.mode==='stableford'?'Stableford':'Stroke play')+'</div>'
+    +(players?'<div style="font-size:12px;color:#4a5a7a;margin-top:3px">'+escHtml(players)+'</div>':'')
+    +(c.notes?'<div style="font-size:12px;color:#6b7280;margin-top:3px;font-style:italic">'+escHtml(c.notes)+'</div>':'')
+    +'<div style="display:flex;gap:8px;margin-top:10px">'
+    +(isPast?'':'<button class="btn-sm" style="flex:1;background:#0d2d6e;color:#fff;border-color:#0d2d6e" onclick="launchComp(\'' +id+ '\')">&#9658; Start round</button>')
+    +'<button class="btn-sm" onclick="editCompById(\'' +id+ '\')">Edit</button>'
+    +'</div></div>';
+}
+
+function escHtml(s){return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;')}
+
+var _COMP_CACHE={};
+function editCompById(id){
+  if(_COMP_CACHE[id])openEditComp(id,_COMP_CACHE[id]);
+  else fbGet('comps/'+id).then(function(c){if(c)openEditComp(id,c)}).catch(function(){});
+}
+function launchComp(id){
+  fbGet('comps/'+id).then(function(c){
+    if(!c)return;
+    if(!confirm('Start live round for "'+c.name+'" at '+c.course+'?'))return;
+    var code=genCode();
+    var r={course:c.course,curl:'',np:c.np||4,mode:c.mode||'strokeplay',
+      names:(c.names||[]).slice(0,c.np||4),
+      hcps:(c.hcps||[]).slice(0,c.np||4),
+      pars:DPARS.slice(),si:DSI.slice(),
+      scores:Array(16).fill(0).map(function(){return Array(18).fill(0)}),
+      ts:Date.now(),status:'live',compName:c.name};
+    fbPut('rounds/'+code,r).then(function(){
+      RC=code;R=r;IS_ARCHIVED=false;startPlay();
+    }).catch(function(e){alert('Error starting round: '+e.message)});
+  }).catch(function(){alert('Could not load competition.')});
+}
+
 </script>
 </body>
 </html>
