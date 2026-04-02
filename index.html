@@ -450,6 +450,8 @@ function sLabel(s,par){if(!s)return{t:'-',c:'#9ca3af'};var d=s-par;if(s===1)retu
 function sCls(s,par){if(!s)return'';var d=s-par;if(d<=-2)return'eag';if(d===-1)return'bir';if(d===1)return'bog';if(d>=2)return'dbl';return''}
 
 function goSetup(){buildSetup();show('p-setup')}
+// Load any user-added courses from Firebase on startup
+loadCustomCourses();
 function buildSetup(){
   var nr=$('npRow');nr.innerHTML='';
   [2,3,4,6,8,10,12,14,16].forEach(function(n){
@@ -510,13 +512,39 @@ function ddKey(e){
   else if(e.key==='Escape'){DO=false;$('ddlist').style.display='none'}
 }
 document.addEventListener('click',function(e){if($('ddwrap')&&!$('ddwrap').contains(e.target)){DO=false;if($('ddlist'))$('ddlist').style.display='none'}});
+// Load custom courses from Firebase on startup
+function loadCustomCourses(){
+  fbGet('custom_courses').then(function(d){
+    if(d&&typeof d==='object'){
+      var extras=Object.values(d).filter(function(c){return c&&typeof c==='string'});
+      extras.forEach(function(c){if(COURSES.indexOf(c)<0)COURSES.push(c)});
+      COURSES.sort();
+    }
+  }).catch(function(){});
+}
+
+function saveCustomCourse(name){
+  var key=name.toLowerCase().replace(/[^a-z0-9]/g,'_').substring(0,60);
+  fbPut('custom_courses/'+key,name).catch(function(){});
+}
+
 function useCustomCourse(){
   var name=$('courseIn').value.trim();
   if(!name)return;
   S.course=name;S.curl='';
   DO=false;$('ddlist').style.display='none';
+  // Save to Firebase if not already in list
+  if(COURSES.indexOf(name)<0){
+    COURSES.push(name);COURSES.sort();
+    saveCustomCourse(name);
+    var ci=$('courseInfo');
+    ci.style.display='block';ci.style.background='#f0fdf4';ci.style.borderLeftColor='#16a34a';ci.style.color='#166534';
+    ci.textContent='Course saved to database — it will appear in search for everyone next time.';
+    setTimeout(function(){loadCourseCard(name)},800);
+  } else {
+    loadCourseCard(name);
+  }
   lookupSite(name);
-  loadCourseCard(name);
 }
 function searchGoogle(){
   var name=$('courseIn').value.trim();
