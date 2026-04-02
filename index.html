@@ -989,18 +989,18 @@ function loadLiveRounds(){
       stats.sort(function(a,b){return d.mode==='stableford'?b.stable-a.stable:a.toPar-b.toPar});
       var leader=stats[0]?('🏆 '+stats[0].name+' — '+(d.mode==='stableford'?stats[0].stable+' pts':stats[0].gross+' ('+fmtToPar(stats[0].toPar)+')')):'No scores yet';
       var courseName=(d.course||'Golf Round').split(',')[0];
-      return '<div class="live-round-row" id="round-'+r.code+'">'
-        +'<div style="display:flex;justify-content:space-between;align-items:flex-start;flex-wrap:wrap;gap:4px">'
-        +'<div style="font-weight:700;font-size:15px;color:#0d2d6e">'+courseName+'</div>'
-        +'<div style="font-family:monospace;font-size:15px;font-weight:700;color:#c8102e;letter-spacing:3px">'+r.code+'</div></div>'
-        +'<div style="font-size:12px;color:#4a5a7a;margin-top:3px">'+(d.np||0)+' players · '+(d.mode===\'stableford\'?\'Stableford\':\'Stroke play\')+'</div>'
-        +'<div style="font-size:12px;color:#4a5a7a;margin-top:2px">~'+holesPerPlayer+' holes played per player · last update '+since+'</div>'
-        +'<div style="font-size:13px;color:#16a34a;font-weight:700;margin-top:6px">'+leader+'</div>'
-        +'<div style="display:flex;gap:8px;margin-top:10px">'
-        +'<button class="btn-sm" style="flex:1" onclick="adminJoin(\''+r.code+'\')" >Open scorecard</button>'
-        +'<button class="btn-sm" style="background:#c8102e;color:#fff;border-color:#c8102e" onclick="adminDelete(\''+r.code+'\',\''+courseName.replace(/\'/g,\'\')+'\',event)">🗑 Delete</button>'
-        +'</div>'
-        +'</div>';
+      var html='<div class="live-round-row" id="round-'+r.code+'">';
+      html+='<div style="display:flex;justify-content:space-between;align-items:flex-start;flex-wrap:wrap;gap:4px">';
+      html+='<div style="font-weight:700;font-size:15px;color:#0d2d6e">'+courseName+'</div>';
+      html+='<div style="font-family:monospace;font-size:15px;font-weight:700;color:#c8102e;letter-spacing:3px">'+r.code+'</div></div>';
+      html+='<div style="font-size:12px;color:#4a5a7a;margin-top:3px">'+(d.np||0)+' players &middot; '+(d.mode==='stableford'?'Stableford':'Stroke play')+'</div>';
+      html+='<div style="font-size:12px;color:#4a5a7a;margin-top:2px">~'+holesPerPlayer+' holes played per player &middot; last update '+since+'</div>';
+      html+='<div style="font-size:13px;color:#16a34a;font-weight:700;margin-top:6px">'+leader+'</div>';
+      html+='<div style="display:flex;gap:8px;margin-top:10px">';
+      html+='<button class="btn-sm" style="flex:1" onclick="adminJoin(\'' +r.code+ '\')">Open scorecard</button>';
+      html+='<button class="btn-sm" style="background:#c8102e;color:#fff;border-color:#c8102e" onclick="adminDelete(\'' +r.code+ '\',\'' +courseName.replace(/'/g,'')+ '\',event)">Delete</button>';
+      html+='</div></div>';
+      return html;
     }).join('');
   }).catch(function(){
     list.innerHTML='<div style="font-size:13px;color:#c8102e">Could not load rounds.</div>';
