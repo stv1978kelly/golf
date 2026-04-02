@@ -485,14 +485,29 @@ function buildSetup(){
 }
 function setMode(m){S.mode=m;$('mStroke').className='btn-sm'+(m==='strokeplay'?' on':'');$('mStable').className='btn-sm'+(m==='stableford'?' on':'')}
 
-var DF=[],DI=0,DO=false,ST=null;
+var DF=[],DI=0,DO=false,ST=null,CLUB_MAP={};
 function ddFilter(q){
   clearTimeout(ST);
   ST=setTimeout(function(){
     var lq=q.trim().toLowerCase();
-    DF=lq?COURSES.filter(function(c){return c.toLowerCase().indexOf(lq)>=0}).slice(0,60):COURSES.slice(0,50);
+    if(!lq){DF=COURSES.slice(0,50);DI=0;ddRender();return;}
+    // First show local matches instantly
+    DF=COURSES.filter(function(c){return c.toLowerCase().indexOf(lq)>=0}).slice(0,20);
     DI=0;ddRender();
-  },150);
+    // Then fetch from real API
+    fetch('/api/golf-search?q='+encodeURIComponent(lq))
+      .then(function(r){return r.json()})
+      .then(function(d){
+        var clubs=d.clubs||d.data||d||[];
+        if(!Array.isArray(clubs))return;
+        clubs.forEach(function(club){
+          var name=club.name+(club.county?', '+club.county:'');
+          CLUB_MAP[name.toLowerCase()]=club.id;
+          if(DF.indexOf(name)<0)DF.push(name);
+        });
+        ddRender();
+      }).catch(function(){});
+  },300);
 }
 function ddOpen(){DO=true;ddFilter($('courseIn').value)}
 function ddRender(){
@@ -605,8 +620,45 @@ function loadCourseCard(name){
         ci.style.borderLeftColor='#16a34a';ci.style.background='#f0fdf4';ci.style.color='#166534';return;}
     }
   }
+  // Try real golf API if we have a club ID
+  var clubId=CLUB_MAP[name.toLowerCase()]||CLUB_MAP[k];
+  if(clubId){
+    ci.textContent='Loading from UK Golf database...';
+    fetch('/api/golf-scorecard?clubId='+clubId)
+      .then(function(r){return r.json()})
+      .then(function(d){
+        var courses=d.courses||d.data||d||[];
+        if(!Array.isArray(courses)||!courses.length)throw new Error('No courses found');
+        // Pick the first course (or match by name)
+        var course=courses[0];
+        return fetch('/api/golf-scorecard?courseId='+course.id);
+      })
+      .then(function(r){return r.json()})
+      .then(function(d){
+        // Find the matching tee set
+        var tees=d.tee_sets||d.tees||[];
+        var teeColour=S.tee.toLowerCase();
+        var teeSet=tees.find(function(t){return(t.name||t.colour||'').toLowerCase().indexOf(teeColour)>=0});
+        if(!teeSet&&tees.length)teeSet=tees[0];
+        if(!teeSet)throw new Error('No tee data');
+        var holes=teeSet.holes||d.holes||[];
+        if(holes.length!==18)throw new Error('Expected 18 holes, got '+holes.length);
+        var pars=holes.map(function(h){return parseInt(h.par)||4});
+        var sis=holes.map(function(h){return parseInt(h.stroke_index||h.si||h.handicap)||0});
+        // Validate SI is 1-18 unique
+        var siValid=sis.every(function(s){return s>=1&&s<=18})&&new Set(sis).size===18;
+        if(!siValid)throw new Error('Invalid SI data');
+        S.pars=pars;S.si=sis;buildSetup();
+        ci.textContent='Scorecard loaded for '+name.split(',')[0]+' ('+( teeSet.name||S.tee)+' tees)!';
+        ci.style.borderLeftColor='#16a34a';ci.style.background='#f0fdf4';ci.style.color='#166534';
+      })
+      .catch(function(err){
+        console.log('Golf API failed, trying AI:',err.message);
+        loadCourseCardAI(name,ci);
+      });
+    return;
+  }
   var _b3=JSON.stringify({model:'claude-sonnet-4-5',max_tokens:800,system:'You are a golf course data assistant. Return ONLY a valid JSON object with these exact keys: "par" (array of exactly 18 integers, each 3, 4, or 5), "si" (array of exactly 18 integers, each unique and between 1 and 18), "found" (boolean, true ONLY if you are certain of this specific course and tee data, false if estimating). Do not include any text, markdown, or explanation outside the JSON object.',messages:[{role:'user',content:'Provide the par and stroke index for all 18 holes at '+name+', playing from the '+S.tee+' tees. List them in hole order from hole 1 to hole 18.'}]});
-  fetch(API_URL,{method:'POST',headers:{'Content-Type':'application/json'},body:_b3})
   fetch(API_URL,{method:'POST',headers:{'Content-Type':'application/json'},body:_b3})
   .then(function(r){
     return r.text().then(function(txt){
