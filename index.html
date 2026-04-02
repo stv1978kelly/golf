@@ -480,14 +480,26 @@ function ddFilter(q){
 function ddOpen(){DO=true;ddFilter($('courseIn').value)}
 function ddRender(){
   var dl=$('ddlist');
-  if(!DF.length){dl.style.display='none';return}
+  if(!DF.length){
+    dl.style.display='block';
+    dl.innerHTML='<div style="padding:12px 16px;font-size:13px;color:#0d2d6e;border-bottom:1px solid #e5eaf3">No courses found for "<b>'+$('courseIn').value+'</b>"</div>'
+      +'<div class="dditem" onmousedown="useCustomCourse()" style="background:#f0f4ff">'
+      +'<span class="dn" style="color:#c8102e">+ Use "'+$('courseIn').value+'" as course name</span></div>'
+      +'<div class="dditem" onmousedown="searchGoogle()" style="background:#fff">'
+      +'<span class="dn">Search Google for this course ↗</span>'
+      +'<span class="dr">Opens in browser</span></div>'
+      +'<div class="ddfoot">'+COURSES.length+' courses in list</div>';
+    return;
+  }
   dl.style.display='block';
   var html='';
   DF.forEach(function(c,i){
     var pts=c.split(',');var nm=pts[0];var rg=pts.slice(1).join(',').trim();
     html+='<div class="dditem'+(i===DI?' hi':'')+'" onmousedown="ddPick(\''+c.replace(/\\/g,'\\\\').replace(/'/g,"\\'")+'\')"><span class="dn">'+nm+'</span>'+(rg?'<span class="dr">'+rg+'</span>':'')+'</div>';
   });
-  html+='<div class="ddfoot">'+DF.length+' of '+COURSES.length+' courses</div>';
+  html+='<div class="dditem" onmousedown="useCustomCourse()" style="background:#f0f4ff;border-top:2px solid #0d2d6e">'
+    +'<span class="dn" style="color:#c8102e">+ Use "'+$('courseIn').value+'" as course name</span></div>'
+    +'<div class="ddfoot">'+DF.length+' of '+COURSES.length+' courses · Not listed? Use options above</div>';
   dl.innerHTML=html;
 }
 function ddKey(e){
@@ -498,6 +510,25 @@ function ddKey(e){
   else if(e.key==='Escape'){DO=false;$('ddlist').style.display='none'}
 }
 document.addEventListener('click',function(e){if($('ddwrap')&&!$('ddwrap').contains(e.target)){DO=false;if($('ddlist'))$('ddlist').style.display='none'}});
+function useCustomCourse(){
+  var name=$('courseIn').value.trim();
+  if(!name)return;
+  S.course=name;S.curl='';
+  DO=false;$('ddlist').style.display='none';
+  lookupSite(name);
+  loadCourseCard(name);
+}
+function searchGoogle(){
+  var name=$('courseIn').value.trim();
+  if(!name)return;
+  DO=false;$('ddlist').style.display='none';
+  window.open('https://www.google.com/search?q='+encodeURIComponent(name+' golf course'),'_blank');
+  // Show prompt to paste the result back
+  var ci=$('courseInfo');
+  ci.style.display='block';
+  ci.style.background='#f0f4ff';ci.style.borderLeftColor='#0d2d6e';ci.style.color='#0d2d6e';
+  ci.innerHTML='Google opened in a new tab. Find the course name, then come back and type it here or tap <b>"+ Use as course name"</b> above.';
+}
 function ddPick(name){
   S.course=name;S.curl='';$('courseIn').value=name;DO=false;$('ddlist').style.display='none';
   lookupSite(name);loadCourseCard(name);
