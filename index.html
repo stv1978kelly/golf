@@ -413,6 +413,7 @@ thead tr:nth-child(2) td:first-child{background:#f0f4ff}
 <script>
 var API_URL='/api/anthropic';
 var FB='https://rogs-9f527-default-rtdb.europe-west1.firebasedatabase.app';
+var HOLE_URLS={"carlisle golf club":"https://www.carlislegolfclub.org/hole-by-hole","tewkesbury park golf club":"https://course.bluegolf.com/bluegolf/course/course/tewkesburyparkhotel/holemap.htm","tewkesbury park":"https://course.bluegolf.com/bluegolf/course/course/tewkesburyparkhotel/holemap.htm"};
 var KNOWN={"carlisle golf club":"https://www.carlislegolfclub.org/the-course","pollok golf club":"https://pollokgolf.com/","cabopino golf":"https://www.cabopinogolfmarbella.com/en/home/","la cala golf":"https://www.lacala.com/","calanova golf":"https://www.calanovagolf.es/web/en/index.php","torrequebrada golf":"https://golftorrequebrada.com/","chaparral golf":"https://golfelchaparral.com/en/","tewkesbury park":"https://tewkesburypark.co.uk/golf/"};
 var DPARS=[4,4,3,4,5,3,4,4,5,4,4,3,4,5,3,4,4,5];
 var KNOWN_CARDS={
@@ -734,6 +735,12 @@ function renderPBtns(){
     }
   });
 }
+function getCourseHoleUrl(){
+  if(!R||!R.course)return'';
+  var k=R.course.toLowerCase().split(',')[0].trim();
+  for(var key in HOLE_URLS){if(k.indexOf(key)>=0||key.indexOf(k)>=0)return HOLE_URLS[key];}
+  return'';
+}
 function renderHBtns(){
   var hg=$('hBtns');hg.innerHTML='';
   for(var i=0;i<18;i++){
@@ -744,7 +751,13 @@ function renderHBtns(){
 }
 function renderEntry(){
   var s=R.scores[AP][AH]||0,par=R.pars[AH],si=R.si[AH],hcp=R.hcps[AP]||0,hs=hcpS(hcp,si);
-  $('eTitle').textContent=(R.names[AP]||'P'+(AP+1))+' — Hole '+(AH+1);
+  var _holeUrl=getCourseHoleUrl();
+  var _holeLabel=(R.names[AP]||'P'+(AP+1))+' — Hole '+(AH+1);
+  if(_holeUrl){
+    $('eTitle').innerHTML=_holeLabel+' <a href="'+_holeUrl+'" target="_blank" rel="noopener" title="View hole guide" style="font-size:11px;font-weight:600;color:#c8102e;text-decoration:none;border:1px solid #c8102e;padding:2px 6px;border-radius:2px;vertical-align:middle;margin-left:4px">Hole guide ↗</a>';
+  } else {
+    $('eTitle').textContent=_holeLabel;
+  }
   $('eMeta').textContent='Par '+par+' · SI '+si+' · HCP '+hcp+(hs>0?' · +'+hs+' stroke':'');
   $('eBig').textContent=s||'—';
   var lb=sLabel(s,par),pts=sbPts(s,par,hs);
