@@ -279,11 +279,11 @@ thead tr:nth-child(2) td:first-child{background:#f0f4ff}
       <div class="code" id="lbCode"></div>
     </div>
     <div id="emailBox" style="display:none" class="embox">
-      <div style="font-size:15px;font-weight:700;color:#0d2d6e;margin-bottom:4px">Email scorecard</div>
-      <div style="font-size:13px;color:#4a5a7a;margin-bottom:12px">Send the full results to your group</div>
+      <div style="font-size:15px;font-weight:700;color:#0d2d6e;margin-bottom:4px">Share scorecard</div>
+      <div style="font-size:13px;color:#4a5a7a;margin-bottom:12px">Send or copy the full results</div>
       <input id="emailTo" placeholder="Email addresses (comma separated — or leave blank)"/>
       <button class="btn btn-dark" onclick="sendEmail()">Send via email app</button>
-      <button class="btn btn-white" onclick="copyCard()">Copy scorecard text</button>
+      <button class="btn btn-white" onclick="copyCard()">Copy for WhatsApp</button>
       <div id="emailMsg" style="display:none"></div>
     </div>
   </div>
@@ -673,43 +673,193 @@ function renderLB(){
   $('lbBanner').style.display=IS_ARCHIVED?'none':'block';
   $('emailBox').style.display='block';
 }
-function buildText(){
-  var L=[],date=new Date().toLocaleDateString('en-GB',{weekday:'long',year:'numeric',month:'long',day:'numeric'});
-  L.push('GOLF SCORECARD');L.push('==============');
-  L.push('Course: '+(R.course||'Golf Round'));L.push('Date: '+date);
-  L.push('Format: '+(R.mode==='stableford'?'Stableford':'Stroke play'));L.push('');
-  L.push('LEADERBOARD');L.push('-----------');
+
+// ── Shared helper: build sorted stats ──────────────────────────────────────
+function buildStats(){
   var stats=[];
   for(var pi=0;pi<R.np;pi++){
-    var hcp=R.hcps[pi]||0,gross=0,stable=0,played=0,toPar=0;
-    R.scores[pi].forEach(function(v,hi){var s=v||0,hs=hcpS(hcp,R.si[hi]),pts=sbPts(s,R.pars[hi],hs);if(s){gross+=s;stable+=pts;toPar+=s-R.pars[hi];played++}});
-    if(played)stats.push({pi:pi,name:R.names[pi]||'P'+(pi+1),gross:gross,stable:stable,played:played,toPar:toPar,hcp:hcp});
+    var hcp=R.hcps[pi]||0,gross=0,stable=0,played=0,toPar=0,out=0,inB=0,outStable=0,inStable=0;
+    R.scores[pi].forEach(function(v,hi){
+      var s=v||0,hs=hcpS(hcp,R.si[hi]),pts=sbPts(s,R.pars[hi],hs);
+      if(s){gross+=s;stable+=pts;toPar+=s-R.pars[hi];played++;
+        if(hi<9){out+=s;outStable+=pts}else{inB+=s;inStable+=pts}}
+    });
+    if(played)stats.push({pi:pi,name:R.names[pi]||'P'+(pi+1),hcp:hcp,gross:gross,stable:stable,played:played,toPar:toPar,out:out,inB:inB,outStable:outStable,inStable:inStable});
   }
   stats.sort(function(a,b){return R.mode==='stableford'?b.stable-a.stable:a.toPar-b.toPar});
-  stats.forEach(function(p,i){var sc=R.mode==='stableford'?p.stable+' pts':p.gross+' ('+(p.toPar===0?'E':p.toPar>0?'+'+p.toPar:p.toPar)+')';L.push(((['1st','2nd','3rd'][i])||(i+1)+'th')+' '+p.name+' — '+sc+' (HCP '+p.hcp+')')});
-  L.push('');L.push('SCORECARD');L.push('---------');
-  var hdr='       ';for(var i=1;i<=18;i++)hdr+=String(i).padStart(3);hdr+='  TOT';L.push(hdr);
-  var pr='Par    ';R.pars.forEach(function(p){pr+=String(p).padStart(3)});pr+='  '+String(R.pars.reduce(function(a,b){return a+b},0)).padStart(3);L.push(pr);L.push('');
-  for(var pi=0;pi<R.np;pi++){
-    var hcp=R.hcps[pi]||0,gross=0,toPar=0,stable=0;
-    var row=(R.names[pi]||'P'+(pi+1)).substring(0,7).padEnd(7);
-    R.scores[pi].forEach(function(v,hi){var s=v||0,hs=hcpS(hcp,R.si[hi]),pts=sbPts(s,R.pars[hi],hs);if(s){gross+=s;toPar+=s-R.pars[hi];stable+=pts}row+=String(s||'-').padStart(3)});
-    L.push(row+'  '+String(gross||'-').padStart(3)+'  '+(gross?(R.mode==='stableford'?stable:(toPar===0?'E':toPar>0?'+'+toPar:toPar)):'-'));
+  return stats;
+}
+
+function fmtToPar(n){return n===0?'E':n>0?'+'+n:String(n)}
+
+// ── WhatsApp / Copy version ─────────────────────────────────────────────────
+function buildWhatsApp(){
+  var stats=buildStats();
+  var tp=R.pars.reduce(function(a,b){return a+b},0);
+  var date=new Date().toLocaleDateString('en-GB',{weekday:'long',year:'numeric',month:'long',day:'numeric'});
+  var isStable=R.mode==='stableford';
+  var medals=['🥇','🥈','🥉'];
+  var L=[];
+
+  L.push('⛳ *GOLF SCORECARD*');
+  L.push('');
+  L.push('📍 '+(R.course||'Golf Round').split(',')[0]);
+  L.push('📅 '+date);
+  L.push('🏌️ '+R.np+' players  ·  Par '+tp+'  ·  '+(isStable?'Stableford':'Stroke play'));
+  L.push('');
+  L.push('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
+  L.push('🏆 *LEADERBOARD*');
+  L.push('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
+  stats.forEach(function(p,i){
+    var sc=isStable?p.stable+' pts':p.gross+' ('+fmtToPar(p.toPar)+')';
+    L.push((medals[i]||'  '+(i+1)+'.')+'  *'+p.name+'*  —  '+sc+'  ·  HCP '+p.hcp);
+  });
+
+  L.push('');
+  L.push('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
+  L.push('📋 *SCORECARD*');
+  L.push('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
+
+  // Score emoji key
+  function scoreEmoji(s,par){
+    if(!s)return'–';
+    var d=s-par;
+    if(s===1)return s+'🌟';
+    if(d<=-2)return s+'🦅';
+    if(d===-1)return s+'🐦';
+    if(d===0)return s+'·';
+    if(d===1)return s+'○';
+    return s+'';
   }
-  L.push('');L.push('Golf Scorecard App — https://golf-two-psi.vercel.app');
+
+  // Front nine
+  L.push('');
+  L.push('  *Front nine  (holes 1–9)*');
+  var hdrF='Hole ';for(var i=1;i<=9;i++)hdrF+='  '+String(i).padStart(2);
+  hdrF+='  Out';L.push(hdrF);
+  var parF='Par  ';R.pars.slice(0,9).forEach(function(p){parF+='  '+String(p).padStart(2)});
+  var outPar=R.pars.slice(0,9).reduce(function(a,b){return a+b},0);
+  parF+='   '+outPar;L.push(parF);
+  stats.forEach(function(p){
+    var hcp=p.hcp;
+    var row=p.name.substring(0,5).padEnd(5)+' ';
+    R.scores[p.pi].slice(0,9).forEach(function(v,i){row+='  '+String(scoreEmoji(v,R.pars[i])).padStart(2)});
+    var outSc=isStable?p.outStable+'pts':p.out||'–';
+    row+='  '+(p.out?String(outSc).padStart(4):'  –');
+    L.push(row);
+  });
+
+  // Back nine
+  L.push('');
+  L.push('  *Back nine  (holes 10–18)*');
+  var hdrB='Hole ';for(var i=10;i<=18;i++)hdrB+='  '+String(i).padStart(2);
+  hdrB+='  Tot';L.push(hdrB);
+  var parB='Par  ';R.pars.slice(9).forEach(function(p){parB+='  '+String(p).padStart(2)});
+  var inPar=R.pars.slice(9).reduce(function(a,b){return a+b},0);
+  parB+='   '+tp;L.push(parB);
+  stats.forEach(function(p){
+    var row=p.name.substring(0,5).padEnd(5)+' ';
+    R.scores[p.pi].slice(9).forEach(function(v,i){row+='  '+String(scoreEmoji(v,R.pars[9+i])).padStart(2)});
+    var sc=isStable?p.stable+'pts':p.gross?(fmtToPar(p.toPar)):'-';
+    row+='  '+(p.gross?String(p.gross+'  '+sc).padStart(6):'  –');
+    L.push(row);
+  });
+
+  L.push('');
+  L.push('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
+  L.push('🐦 Birdie  🦅 Eagle  🌟 Hole-in-one');
+  L.push('○ Bogey  · Par');
+  L.push('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
+  L.push('golf-two-psi.vercel.app');
   return L.join('\n');
 }
+
+// ── Email plain-text version ─────────────────────────────────────────────────
+function buildEmail(){
+  var stats=buildStats();
+  var tp=R.pars.reduce(function(a,b){return a+b},0);
+  var date=new Date().toLocaleDateString('en-GB',{weekday:'long',year:'numeric',month:'long',day:'numeric'});
+  var isStable=R.mode==='stableford';
+  var divider='================================================================';
+  var thin    ='----------------------------------------------------------------';
+  var L=[];
+
+  L.push(divider);
+  L.push('  GOLF SCORECARD');
+  L.push(divider);
+  L.push('  Course  :  '+(R.course||'Golf Round').split(',')[0]);
+  L.push('  Date    :  '+date);
+  L.push('  Format  :  '+(isStable?'Stableford':'Stroke play')+'   |   '+R.np+' players   |   Par '+tp);
+  L.push(divider);
+  L.push('');
+
+  // Leaderboard
+  L.push('  LEADERBOARD');
+  L.push(thin);
+  var pos=['1st','2nd','3rd'];
+  stats.forEach(function(p,i){
+    var sc=isStable?p.stable+' pts':p.gross+' ('+fmtToPar(p.toPar)+')';
+    var star=i===0?'*** ':i===1?'**  ':i===2?'*   ':'    ';
+    L.push('  '+star+(pos[i]||((i+1)+'th')).padEnd(5)+'  '+p.name.padEnd(12)+'  '+sc.padEnd(14)+'  HCP '+p.hcp);
+  });
+  L.push(thin);
+  L.push('');
+
+  // Scorecard header row builder
+  function scRow(label,cells,total){
+    var s='  '+label.padEnd(10);
+    cells.forEach(function(c){s+=String(c).padStart(3)});
+    s+='    '+String(total).padStart(4);
+    return s;
+  }
+
+  // Front nine
+  L.push('  FRONT NINE (Holes 1-9)');
+  L.push(thin);
+  var hF=[];for(var i=1;i<=9;i++)hF.push(i);
+  L.push(scRow('Hole',hF,'Out'));
+  L.push(scRow('Par',R.pars.slice(0,9),R.pars.slice(0,9).reduce(function(a,b){return a+b},0)));
+  L.push(thin);
+  stats.forEach(function(p){
+    var cells=R.scores[p.pi].slice(0,9).map(function(v){return v||'-'});
+    var outTot=isStable?p.outStable+' pts':(p.out||'-');
+    L.push(scRow(p.name.substring(0,10),cells,outTot));
+  });
+  L.push('');
+
+  // Back nine
+  L.push('  BACK NINE (Holes 10-18)');
+  L.push(thin);
+  var hB=[];for(var i=10;i<=18;i++)hB.push(i);
+  L.push(scRow('Hole',hB,'Tot'));
+  L.push(scRow('Par',R.pars.slice(9),tp));
+  L.push(thin);
+  stats.forEach(function(p){
+    var cells=R.scores[p.pi].slice(9).map(function(v){return v||'-'});
+    var totTot=p.gross?(isStable?p.stable+' pts':p.gross+' '+fmtToPar(p.toPar)):'-';
+    L.push(scRow(p.name.substring(0,10),cells,totTot));
+  });
+  L.push('');
+  L.push(divider);
+  L.push('  Golf Scorecard App');
+  L.push('  https://golf-two-psi.vercel.app');
+  L.push(divider);
+  return L.join('\n');
+}
+
 function showMsg(txt,ok){var m=$('emailMsg');m.textContent=txt;m.className=ok?'ok':'warn';m.style.display='block'}
+
 function sendEmail(){
   var to=$('emailTo').value.trim();
-  var subj=encodeURIComponent('Golf Scorecard – '+(R.course||'Golf Round')+' – '+new Date().toLocaleDateString('en-GB'));
-  var body=encodeURIComponent(buildText());
+  var subj=encodeURIComponent('Golf Scorecard – '+(R.course||'Golf Round').split(',')[0]+' – '+new Date().toLocaleDateString('en-GB'));
+  var body=encodeURIComponent(buildEmail());
   window.location.href='mailto:'+(to||'')+' ?subject='+subj+'&body='+body;
   showMsg('Opening your email app...',true);
 }
+
 function copyCard(){
-  var text=buildText();
-  function ok(){showMsg('Copied! Paste into WhatsApp or email.',true)}
+  var text=buildWhatsApp();
+  function ok(){showMsg('Copied! Paste into WhatsApp or your messenger.',true)}
   function fail(){showMsg('Could not copy — use the email button.',false)}
   if(navigator.clipboard&&navigator.clipboard.writeText){navigator.clipboard.writeText(text).then(ok).catch(function(){ta(text,ok,fail)})}else ta(text,ok,fail);
 }
