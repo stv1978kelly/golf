@@ -217,7 +217,7 @@ thead tr:nth-child(2) td:first-child{background:#f0f4ff}
   <div id="wsrow" class="wsrow" style="display:none">
     <div class="dot" id="wsdot" style="background:#f59e0b"></div>
     <span id="wstext" style="font-size:13px;flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap"></span>
-    <button class="btn-sm" id="wsbtn" onclick="openUrl()" style="display:none">Visit ↗</button>
+    <a id="wsbtn" href="#" target="_blank" rel="noopener" style="display:none;font-size:13px;font-weight:700;color:#0d2d6e;border:2px solid #0d2d6e;padding:7px 14px;text-decoration:none;white-space:nowrap">Visit ↗</a>
   </div>
   <div id="courseInfo" style="display:none;padding:10px 14px;border-left:4px solid #16a34a;background:#f0fdf4;color:#166534;font-size:13px;margin-bottom:12px"></div>
   <label>Scoring mode</label>
@@ -355,6 +355,7 @@ thead tr:nth-child(2) td:first-child{background:#f0f4ff}
 </div>
 
 <script>
+var AKEY='REPLACE_WITH_YOUR_ANTHROPIC_API_KEY';
 var FB='https://rogs-9f527-default-rtdb.europe-west1.firebasedatabase.app';
 var KNOWN={"carlisle golf club":"https://www.carlislegolfclub.org/the-course","pollok golf club":"https://pollokgolf.com/","cabopino golf":"https://www.cabopinogolfmarbella.com/en/home/","la cala golf":"https://www.lacala.com/","calanova golf":"https://www.calanovagolf.es/web/en/index.php","torrequebrada golf":"https://golftorrequebrada.com/","chaparral golf":"https://golfelchaparral.com/en/","tewkesbury park":"https://tewkesburypark.co.uk/golf/"};
 var DPARS=[4,4,3,4,5,3,4,4,5,4,4,3,4,5,3,4,4,5];
@@ -464,7 +465,7 @@ function useCustomCourse(){
     for(var key in KNOWN){if(k.indexOf(key)>=0){knownUrl=KNOWN[key];break}}
     if(knownUrl){S.curl=knownUrl;setSite(knownUrl);saveCustomCourse(name,knownUrl);ci.textContent='Course and website saved!';loadCourseCard(name);}
     else{
-      fetch('https://api.anthropic.com/v1/messages',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({model:'claude-sonnet-4-20250514',max_tokens:150,system:'Return ONLY JSON: {"url":"https://...","found":true} or {"url":"","found":false}',messages:[{role:'user',content:'Official website for: '+name}]})})
+      fetch('https://api.anthropic.com/v1/messages',{method:'POST',headers:{'Content-Type':'application/json','x-api-key':AKEY,'anthropic-version':'2023-06-01','anthropic-dangerous-direct-browser-access':'true'},body:JSON.stringify({model:'claude-sonnet-4-20250514',max_tokens:150,system:'Return ONLY JSON: {"url":"https://...","found":true} or {"url":"","found":false}',messages:[{role:'user',content:'Official website for: '+name}]})})
       .then(function(r){return r.json()}).then(function(d){
         var t=d.content.map(function(b){return b.text||''}).join('');
         var p=JSON.parse(t.replace(/```json|```/g,'').trim());
@@ -490,20 +491,20 @@ function lookupSite(name){
   $('wsdot').style.background='#f59e0b';$('wstext').textContent='Finding website...';$('wsbtn').style.display='none';
   var k=name.toLowerCase();
   for(var key in KNOWN){if(k.indexOf(key)>=0){setSite(KNOWN[key]);return}}
-  fetch('https://api.anthropic.com/v1/messages',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({model:'claude-sonnet-4-20250514',max_tokens:150,system:'Return ONLY JSON: {"url":"https://...","found":true} or {"url":"","found":false} for the official website of this golf course.',messages:[{role:'user',content:'Official website for: '+name}]})})
+  fetch('https://api.anthropic.com/v1/messages',{method:'POST',headers:{'Content-Type':'application/json','x-api-key':AKEY,'anthropic-version':'2023-06-01','anthropic-dangerous-direct-browser-access':'true'},body:JSON.stringify({model:'claude-sonnet-4-20250514',max_tokens:150,system:'Return ONLY JSON: {"url":"https://...","found":true} or {"url":"","found":false} for the official website of this golf course.',messages:[{role:'user',content:'Official website for: '+name}]})})
   .then(function(r){return r.json()}).then(function(d){
     var t=d.content.map(function(b){return b.text||''}).join('');
     var p=JSON.parse(t.replace(/```json|```/g,'').trim());
     if(p.found)setSite(p.url);else setNoSite();
   }).catch(setNoSite);
 }
-function setSite(url){S.curl=url;$('wsdot').style.background='#10b981';$('wstext').textContent=url.replace('https://','').replace(/\/$/,'');$('wsbtn').style.display='inline-block'}
+function setSite(url){S.curl=url;$('wsdot').style.background='#10b981';var display=url.replace('https://','').replace(/\/$/,'');$('wstext').innerHTML='<a href="'+url+'" target="_blank" rel="noopener" style="color:#0d2d6e;font-weight:700;text-decoration:underline">'+display+'</a>';$('wsbtn').href=url;$('wsbtn').style.display='inline-block'}
 function setNoSite(){$('wsdot').style.background='#9ca3af';$('wstext').textContent='No website found'}
 function openUrl(){if(S.curl)window.open(S.curl,'_blank')}
 function openCourseUrl(){if(R&&R.curl)window.open(R.curl,'_blank')}
 function loadCourseCard(name){
   var ci=$('courseInfo');ci.style.display='block';ci.textContent='Loading scorecard for '+name.split(',')[0]+'...';
-  fetch('https://api.anthropic.com/v1/messages',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({model:'claude-sonnet-4-20250514',max_tokens:600,system:'Return ONLY JSON no markdown: {"par":[4,4,3,4,5,3,4,4,5,4,4,3,4,5,3,4,4,5],"si":[7,11,15,3,1,17,9,13,5,8,12,16,4,2,18,10,14,6],"found":true}',messages:[{role:'user',content:'Par and stroke index for 18 holes at '+name}]})})
+  fetch('https://api.anthropic.com/v1/messages',{method:'POST',headers:{'Content-Type':'application/json','x-api-key':AKEY,'anthropic-version':'2023-06-01','anthropic-dangerous-direct-browser-access':'true'},body:JSON.stringify({model:'claude-sonnet-4-20250514',max_tokens:600,system:'Return ONLY JSON no markdown: {"par":[4,4,3,4,5,3,4,4,5,4,4,3,4,5,3,4,4,5],"si":[7,11,15,3,1,17,9,13,5,8,12,16,4,2,18,10,14,6],"found":true}',messages:[{role:'user',content:'Par and stroke index for 18 holes at '+name}]})})
   .then(function(r){return r.json()}).then(function(d){
     var t=d.content.map(function(b){return b.text||''}).join('');
     var p=JSON.parse(t.replace(/```json|```/g,'').trim());
