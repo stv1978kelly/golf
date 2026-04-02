@@ -512,20 +512,23 @@ function ddKey(e){
   else if(e.key==='Escape'){DO=false;$('ddlist').style.display='none'}
 }
 document.addEventListener('click',function(e){if($('ddwrap')&&!$('ddwrap').contains(e.target)){DO=false;if($('ddlist'))$('ddlist').style.display='none'}});
-// Load custom courses from Firebase on startup
 function loadCustomCourses(){
   fbGet('custom_courses').then(function(d){
     if(d&&typeof d==='object'){
-      var extras=Object.values(d).filter(function(c){return c&&typeof c==='string'});
-      extras.forEach(function(c){if(COURSES.indexOf(c)<0)COURSES.push(c)});
+      Object.values(d).forEach(function(v){
+        if(!v)return;
+        var name=typeof v==='object'?v.name:v;
+        if(name&&COURSES.indexOf(name)<0)COURSES.push(name);
+        if(typeof v==='object'&&v.url)KNOWN[name.toLowerCase()]=v.url;
+      });
       COURSES.sort();
     }
   }).catch(function(){});
 }
 
-function saveCustomCourse(name){
+function saveCustomCourse(name,url){
   var key=name.toLowerCase().replace(/[^a-z0-9]/g,'_').substring(0,60);
-  fbPut('custom_courses/'+key,name).catch(function(){});
+  fbPut('custom_courses/'+key,{name:name,url:url||''}).catch(function(){});
 }
 
 function useCustomCourse(){
@@ -533,18 +536,46 @@ function useCustomCourse(){
   if(!name)return;
   S.course=name;S.curl='';
   DO=false;$('ddlist').style.display='none';
-  // Save to Firebase if not already in list
+  lookupSite(name);
   if(COURSES.indexOf(name)<0){
     COURSES.push(name);COURSES.sort();
-    saveCustomCourse(name);
     var ci=$('courseInfo');
     ci.style.display='block';ci.style.background='#f0fdf4';ci.style.borderLeftColor='#16a34a';ci.style.color='#166534';
-    ci.textContent='Course saved to database — it will appear in search for everyone next time.';
-    setTimeout(function(){loadCourseCard(name)},800);
+    ci.textContent='Finding website and saving course to database...';
+    // Look up website first, then save both name + URL together
+    var k=name.toLowerCase();
+    var knownUrl='';
+    for(var key in KNOWN){if(k.indexOf(key)>=0){knownUrl=KNOWN[key];break}}
+    if(knownUrl){
+      S.curl=knownUrl;
+      setSite(knownUrl);
+      saveCustomCourse(name,knownUrl);
+      ci.textContent='Course and website saved to database for everyone!';
+      loadCourseCard(name);
+    } else {
+      fetch('https://api.anthropic.com/v1/messages',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({model:'claude-sonnet-4-20250514',max_tokens:150,system:'Return ONLY JSON: {"url":"https://...","found":true} or {"url":"","found":false} for the official website of this golf course.',messages:[{role:'user',content:'Official website for: '+name}]})})
+      .then(function(r){return r.json()}).then(function(d){
+        var t=d.content.map(function(b){return b.text||''}).join('');
+        var p=JSON.parse(t.replace(/```json|```/g,'').trim());
+        var url=p.found?p.url:'';
+        if(url){S.curl=url;setSite(url);if(url)KNOWN[name.toLowerCase()]=url;}
+        else setNoSite();
+        saveCustomCourse(name,url);
+        ci.textContent=url?'Course saved — website '+url.replace('https://','').replace(/\/$/,'')+' saved too!':'Course saved to database. No website found.';
+        ci.style.borderLeftColor=url?'#16a34a':'#d97706';
+        ci.style.background=url?'#f0fdf4':'#fffbeb';
+        ci.style.color=url?'#166534':'#92400e';
+      }).catch(function(){
+        saveCustomCourse(name,'');
+        ci.textContent='Course saved to database.';
+        setNoSite();
+      });
+    }
+    setTimeout(function(){loadCourseCard(name)},1200);
   } else {
+    lookupSite(name);
     loadCourseCard(name);
   }
-  lookupSite(name);
 }
 function searchGoogle(){
   var name=$('courseIn').value.trim();
