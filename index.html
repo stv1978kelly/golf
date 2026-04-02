@@ -241,16 +241,114 @@ thead tr:nth-child(2) td:first-child{background:#f0f4ff}
   </div>
   <div style="height:14px"></div>
   <div style="background:#fff;padding:20px;border-bottom:3px solid #c8102e">
-    <h2>Past rounds</h2>
-    <p style="font-size:13px;color:#4a5a7a;margin-bottom:14px">View completed scorecards</p>
-    <button class="btn btn-white" onclick="loadArchive()">View archived rounds</button>
+    <h2>Archive &amp; Pro Stats</h2>
+    <p style="font-size:13px;color:#4a5a7a;margin-bottom:14px">View completed scorecards and ROGS player statistics</p>
+    <button class="btn btn-dark" onclick="show('p-stats');loadStats()">Pro Stats</button>
+    <button class="btn btn-white" onclick="loadArchive()" style="margin-top:0">View archived rounds</button>
     <div id="archiveList" style="display:none;margin-top:14px"></div>
+  </div>
+  <div style="height:14px"></div>
+  <div style="background:#fff;padding:20px;border-bottom:3px solid #c8102e">
+    <h2>My Profile</h2>
+    <p style="font-size:13px;color:#4a5a7a;margin-bottom:14px">Set your name, handicap certificate & PIN</p>
+    <button class="btn btn-white" onclick="openProfile()">My Profile</button>
   </div>
   <div style="height:14px"></div>
   <div style="background:#fff;padding:20px;border-bottom:3px solid #c8102e">
     <h2>Comps Diary</h2>
     <p style="font-size:13px;color:#4a5a7a;margin-bottom:14px">Plan upcoming competitions with course, players & handicaps preloaded.</p>
     <button class="btn btn-dark" onclick="show('p-diary');loadDiary()">Open Comps Diary</button>
+  </div>
+</div>
+
+
+<!-- PRO STATS -->
+<div id="p-stats" class="page">
+  <div class="topbar">
+    <div class="topbar-inner" style="display:flex;align-items:center;gap:12px">
+      <button class="btn-sm" onclick="show('p-home')" style="background:rgba(255,255,255,0.15);color:#fff;border-color:rgba(255,255,255,0.4)">← Back</button>
+      <h1>Pro Stats</h1>
+    </div>
+    <div class="stripe"></div>
+  </div>
+  <div class="tabs" id="statsTabs">
+    <button class="tab on" onclick="switchStatTab('overview',this)">Overview</button>
+    <button class="tab" onclick="switchStatTab('courses',this)">By Course</button>
+    <button class="tab" onclick="switchStatTab('h2h',this)">Head to Head</button>
+  </div>
+  <div id="statsLoading" style="font-size:13px;color:#4a5a7a;padding:20px 0">Loading stats from archived rounds...</div>
+  <div id="statsContent" style="display:none">
+    <div id="stats-overview" class="panel on"></div>
+    <div id="stats-courses" class="panel"></div>
+    <div id="stats-h2h" class="panel"></div>
+  </div>
+</div>
+
+
+<!-- PROFILE PIN -->
+<div id="p-profile-pin" class="page">
+  <div class="topbar">
+    <div class="topbar-inner" style="display:flex;align-items:center;gap:12px">
+      <button class="btn-sm" onclick="show('p-home')" style="background:rgba(255,255,255,0.15);color:#fff;border-color:rgba(255,255,255,0.4)">← Back</button>
+      <h1 id="profilePinTitle">Profile PIN</h1>
+    </div>
+    <div class="stripe"></div>
+  </div>
+  <div style="padding:30px 0 16px;text-align:center">
+    <div id="profilePinMsg" style="font-size:14px;color:#4a5a7a;margin-bottom:20px">Enter your profile PIN</div>
+    <div id="profilePinDots" style="display:flex;justify-content:center;gap:14px;margin-bottom:24px">
+      <div class="pin-dot"></div><div class="pin-dot"></div><div class="pin-dot"></div><div class="pin-dot"></div>
+    </div>
+    <div style="display:grid;grid-template-columns:repeat(3,72px);gap:10px;justify-content:center">
+      <button class="pin-key" onclick="profilePinKey('1')">1</button>
+      <button class="pin-key" onclick="profilePinKey('2')">2</button>
+      <button class="pin-key" onclick="profilePinKey('3')">3</button>
+      <button class="pin-key" onclick="profilePinKey('4')">4</button>
+      <button class="pin-key" onclick="profilePinKey('5')">5</button>
+      <button class="pin-key" onclick="profilePinKey('6')">6</button>
+      <button class="pin-key" onclick="profilePinKey('7')">7</button>
+      <button class="pin-key" onclick="profilePinKey('8')">8</button>
+      <button class="pin-key" onclick="profilePinKey('9')">9</button>
+      <button class="pin-key pin-clear" onclick="profilePinClear()">⌫</button>
+      <button class="pin-key" onclick="profilePinKey('0')">0</button>
+      <button class="pin-key pin-ok" onclick="profilePinSubmit()">✓</button>
+    </div>
+    <div id="profilePinErr" style="color:#c8102e;font-size:13px;margin-top:16px;min-height:20px"></div>
+  </div>
+</div>
+
+<!-- PROFILE PAGE -->
+<div id="p-profile" class="page">
+  <div class="topbar">
+    <div class="topbar-inner" style="display:flex;align-items:center;gap:12px">
+      <button class="btn-sm" onclick="show('p-home')" style="background:rgba(255,255,255,0.15);color:#fff;border-color:rgba(255,255,255,0.4)">← Back</button>
+      <h1 id="profilePageName">My Profile</h1>
+    </div>
+    <div class="stripe"></div>
+  </div>
+  <label>Your name</label>
+  <select id="profileName" onchange="profileNameChanged()">
+    <option value="">-- Select your name --</option>
+  </select>
+  <label>Handicap Index</label>
+  <div style="display:flex;gap:8px;align-items:flex-start">
+    <input id="profileHcp" type="number" min="0" max="54" step="0.1" placeholder="e.g. 12.4" style="flex:1;margin-bottom:0"/>
+    <button class="btn-sm" onclick="profileSaveHcp()" style="margin-top:0;height:44px">Save HCP</button>
+  </div>
+  <label>WHS Certificate Number <span style="font-size:11px;color:#9ca3af;font-weight:400">(optional)</span></label>
+  <input id="profileCertNo" placeholder="e.g. 12345678" maxlength="20"/>
+  <div id="profileHcpStatus" style="font-size:12px;color:#4a5a7a;margin-top:-6px;margin-bottom:10px"></div>
+  <label>Profile PIN <span style="font-size:11px;color:#9ca3af;font-weight:400">(lock your profile)</span></label>
+  <div style="display:flex;gap:8px;align-items:flex-start">
+    <input id="profilePinNew" type="password" maxlength="4" placeholder="4-digit PIN" style="flex:1;margin-bottom:0;letter-spacing:6px;font-size:18px"/>
+    <button class="btn-sm" onclick="profileSavePin()" style="height:44px">Set PIN</button>
+  </div>
+  <div id="profilePinStatus" style="font-size:12px;color:#4a5a7a;margin-top:4px;margin-bottom:10px"></div>
+  <button class="btn btn-dark" onclick="profileSaveAll()" style="margin-top:12px">Save Profile</button>
+  <div id="profileMsg" style="display:none;margin-top:8px"></div>
+  <div class="embox" style="margin-top:16px">
+    <div style="font-size:13px;font-weight:700;color:#0d2d6e;margin-bottom:6px">About your profile</div>
+    <div style="font-size:12px;color:#4a5a7a;line-height:1.6">Your handicap and certificate number are saved to the ROGS database. Your HCP auto-fills when you're selected in any round setup. The PIN protects your profile from others changing your details.</div>
   </div>
 </div>
 
@@ -533,11 +631,52 @@ function buildSetup(){
   [2,3,4,6,8,10,12,14,16].forEach(function(n){
     var b=document.createElement('button');b.className='btn-sm'+(n===S.np?' on':'');b.textContent=n;b.onclick=function(){S.np=n;buildSetup()};nr.appendChild(b);
   });
-  var pf=$('pFields');pf.innerHTML='<div class="prow" style="margin-bottom:2px"><span style="font-size:11px;color:#9ca3af;font-weight:700;text-transform:uppercase">Name</span><span style="font-size:11px;color:#9ca3af;font-weight:700;text-align:center;text-transform:uppercase">HCP</span></div>';
+  var pf=$('pFields');
+  pf.innerHTML='<div class="prow" style="margin-bottom:2px"><span style="font-size:11px;color:#9ca3af;font-weight:700;text-transform:uppercase">Name</span><span style="font-size:11px;color:#9ca3af;font-weight:700;text-align:center;text-transform:uppercase">HCP</span></div>';
   for(var i=0;i<S.np;i++){
-    var r=document.createElement('div');r.className='prow';
-    r.innerHTML='<input placeholder="Player '+(i+1)+'" value="'+S.names[i]+'" data-pi="'+i+'" oninput="S.names[this.dataset.pi]=this.value"/><input type="number" min="0" max="36" value="'+S.hcps[i]+'" data-pi="'+i+'" style="text-align:center" oninput="S.hcps[this.dataset.pi]=parseInt(this.value)||0"/>';
-    pf.appendChild(r);
+    var row=document.createElement('div');row.className='prow';
+    var sel=document.createElement('select');
+    sel.dataset.pi=i;
+    sel.style.margin='0';
+    var blankOpt=document.createElement('option');
+    blankOpt.value='';blankOpt.textContent='-- Select player --';
+    sel.appendChild(blankOpt);
+    ROGS_PLAYERS.forEach(function(name){
+      var opt=document.createElement('option');
+      opt.value=name;opt.textContent=name;
+      if(S.names[i]===name)opt.selected=true;
+      sel.appendChild(opt);
+    });
+    var customOpt=document.createElement('option');
+    customOpt.value='__custom__';customOpt.textContent='+ Enter name manually';
+    sel.appendChild(customOpt);
+    (function(pi,selectEl){
+      selectEl.onchange=function(){
+        if(this.value==='__custom__'){
+          var custom=prompt('Enter player name:');
+          if(custom){S.names[pi]=custom;S.hcps[pi]=0;}
+          else{this.value=S.names[pi]||'';}
+          buildSetup();return;
+        }
+        S.names[pi]=this.value;
+        S.hcps[pi]=getROGSHcp(this.value);
+        buildSetup();
+      };
+    })(i,sel);
+    var hcpIn=document.createElement('input');
+    hcpIn.type='number';hcpIn.min='0';hcpIn.max='54';
+    hcpIn.value=S.hcps[i];hcpIn.dataset.pi=i;
+    hcpIn.style.textAlign='center';hcpIn.style.margin='0';
+    hcpIn.title='Enter HCP — saves for next time';
+    (function(pi,inp){
+      inp.oninput=function(){
+        var h=parseInt(this.value)||0;
+        S.hcps[pi]=h;
+        if(S.names[pi])saveROGSHcp(S.names[pi],h);
+      };
+    })(i,hcpIn);
+    row.appendChild(sel);row.appendChild(hcpIn);
+    pf.appendChild(row);
   }
   var pg=$('parGrid');pg.innerHTML='';
   for(var i=0;i<18;i++)pg.innerHTML+='<div class="cell"><span>'+(i+1)+'</span><input type="number" min="3" max="6" value="'+S.pars[i]+'" data-i="'+i+'" oninput="S.pars[this.dataset.i]=parseInt(this.value)||4"/></div>';
@@ -808,7 +947,7 @@ function confirmComplete(){
     return fbDelete('rounds/'+RC);
   }).then(function(){
     if(PT)clearInterval(PT);
-    alert('Round archived! View it from the home screen under "Past rounds".');
+    alert('Round archived! View it from the home screen under "Archive & Pro Stats".');
     R=null;RC='';IS_ARCHIVED=false;show('p-home');
   }).catch(function(e){alert('Error archiving: '+e.message)});
 }
@@ -1333,12 +1472,39 @@ function buildCompPFields(){
   var pf=$('compPFields');
   pf.innerHTML='<div class="prow" style="margin-bottom:2px"><span style="font-size:11px;color:#9ca3af;font-weight:700;text-transform:uppercase">Name</span><span style="font-size:11px;color:#9ca3af;font-weight:700;text-align:center;text-transform:uppercase">HCP</span></div>';
   for(var i=0;i<COMP_NP;i++){
-    var r=document.createElement('div');r.className='prow';
+    var row=document.createElement('div');row.className='prow';
     var existingName=(EDIT_COMP_ID&&window._editComp&&window._editComp.names)?window._editComp.names[i]||'':'';
-    var existingHcp=(EDIT_COMP_ID&&window._editComp&&window._editComp.hcps)?window._editComp.hcps[i]||0:0;
-    r.innerHTML='<input placeholder="Player '+(i+1)+'" value="'+existingName+'" data-ci="'+i+'" class="cpname"/>'
-      +'<input type="number" min="0" max="36" value="'+existingHcp+'" data-ci="'+i+'" style="text-align:center" class="cphcp"/>';
-    pf.appendChild(r);
+    var existingHcp=(EDIT_COMP_ID&&window._editComp&&window._editComp.hcps)?window._editComp.hcps[i]||0:getROGSHcp(existingName);
+    var sel=document.createElement('select');
+    sel.dataset.ci=i;sel.className='cpname';sel.style.margin='0';
+    var blankOpt=document.createElement('option');blankOpt.value='';blankOpt.textContent='-- Select player --';sel.appendChild(blankOpt);
+    ROGS_PLAYERS.forEach(function(name){
+      var opt=document.createElement('option');opt.value=name;opt.textContent=name;
+      if(existingName===name)opt.selected=true;
+      sel.appendChild(opt);
+    });
+    var customOpt=document.createElement('option');customOpt.value='__custom__';customOpt.textContent='+ Enter name manually';sel.appendChild(customOpt);
+    (function(selectEl){
+      selectEl.onchange=function(){
+        if(this.value==='__custom__'){
+          var custom=prompt('Enter player name:');
+          if(custom){this.dataset.customVal=custom;this.value='';}
+          return;
+        }
+        var hcpSib=this.parentNode.querySelector('.cphcp');
+        if(hcpSib)hcpSib.value=getROGSHcp(this.value);
+        delete this.dataset.customVal;
+      };
+    })(sel);
+    var hcpIn=document.createElement('input');
+    hcpIn.type='number';hcpIn.min='0';hcpIn.max='54';hcpIn.value=existingHcp;
+    hcpIn.dataset.ci=i;hcpIn.className='cphcp';hcpIn.style.cssText='text-align:center;margin:0';
+    hcpIn.oninput=function(){
+      var s=this.parentNode.querySelector('select.cpname');
+      var name=s&&s.dataset.customVal?s.dataset.customVal:s?s.value:'';
+      if(name&&name!=='__custom__')saveROGSHcp(name,parseInt(this.value)||0);
+    };
+    row.appendChild(sel);row.appendChild(hcpIn);pf.appendChild(row);
   }
 }
 
@@ -1381,7 +1547,7 @@ function saveComp(){
     $('compErr').style.display='block';return;
   }
   var names=[],hcps=[];
-  document.querySelectorAll('.cpname').forEach(function(el){names.push(el.value||('Player '+(parseInt(el.dataset.ci)+1)))});
+  document.querySelectorAll('.cpname').forEach(function(el){names.push(el.dataset.customVal||el.value||('Player '+(parseInt(el.dataset.ci)+1)))});
   document.querySelectorAll('.cphcp').forEach(function(el){hcps.push(parseInt(el.value)||0)});
   var comp={name:name,date:date,tee:$('compTee').value.trim(),course:course,mode:COMP_MODE,np:COMP_NP,names:names.slice(0,COMP_NP),hcps:hcps.slice(0,COMP_NP),notes:$('compNotes').value.trim(),created:Date.now()};
   var id=EDIT_COMP_ID||(Date.now().toString(36));
@@ -1515,6 +1681,436 @@ function addToCalendar(id){
 }
 
 function icsEsc(s){return String(s).replace(/\\/g,'\\\\').replace(/;/g,'\\;').replace(/,/g,'\\,').replace(/\n/g,'\\n');}
+
+// ── Pro Stats ─────────────────────────────────────────────────────────────────
+var ROGS_PLAYERS = [
+  'Ally McKinlay','Anthony Parkinson','Bernie Brennan','Brian McSherry','Bryan Bennett',
+  'Jim Chadwick','John Douglas','Karl Atkinson','Neil Sanderson','Owen Evans',
+  'John "Paddy" Swan','Paul Simpson','Rick Kennedy','Robbie Strange','Steve Kelly','Titch Walton'
+];
+// Stored HCPs — players update their own via the picker
+var ROGS_HCPS = {};
+function loadROGSHcps(){
+  fbGet('rogs_hcps').then(function(d){if(d&&typeof d==='object')ROGS_HCPS=d;}).catch(function(){});
+}
+function saveROGSHcp(name,hcp){
+  var key=name.replace(/[^a-z0-9]/gi,'_');
+  ROGS_HCPS[key]=hcp;
+  fbPut('rogs_hcps/'+key,hcp).catch(function(){});
+}
+function getROGSHcp(name){
+  var key=name.replace(/[^a-z0-9]/gi,'_');
+  return ROGS_HCPS[key]||0;
+}
+loadROGSHcps();
+
+var _statsData = null;
+
+function switchStatTab(t, el) {
+  document.querySelectorAll('#statsTabs .tab').forEach(function(b){b.classList.remove('on')});
+  el.classList.add('on');
+  document.querySelectorAll('#statsContent .panel').forEach(function(p){p.classList.remove('on')});
+  var panel = document.getElementById('stats-'+t);
+  if(panel) panel.classList.add('on');
+}
+
+function loadStats() {
+  $('statsLoading').style.display = 'block';
+  $('statsContent').style.display = 'none';
+  fbGet('archived_rounds').then(function(d) {
+    if (!d || !Object.keys(d).length) {
+      $('statsLoading').textContent = 'No archived rounds yet — stats will appear here once rounds are completed.';
+      return;
+    }
+    var rounds = Object.values(d).filter(function(r){ return r && r.scores && r.np; });
+    _statsData = buildStatsData(rounds);
+    renderOverview(_statsData);
+    renderCourseStats(_statsData);
+    renderH2H(_statsData);
+    $('statsLoading').style.display = 'none';
+    $('statsContent').style.display = 'block';
+  }).catch(function() {
+    $('statsLoading').textContent = 'Could not load stats.';
+  });
+}
+
+function buildStatsData(rounds) {
+  var players = {}; // name -> stats object
+  var courses = {}; // course -> {rounds, best}
+
+  rounds.forEach(function(r) {
+    var isStable = r.mode === 'stableford';
+    var course = (r.course || 'Unknown').split(',')[0].trim();
+    if (!courses[course]) courses[course] = {rounds:0, best:null, bestStable:null, bestPlayer:'', bestStablePlayer:''};
+    courses[course].rounds++;
+
+    for (var pi = 0; pi < (r.np || 0); pi++) {
+      var rawName = (r.names || [])[pi] || '';
+      // Match to ROGS player list (case-insensitive partial match)
+      var name = matchROGSPlayer(rawName) || rawName;
+      if (!name) continue;
+
+      if (!players[name]) players[name] = {
+        name: name, rounds: 0, grossScores: [], stableScores: [],
+        birdies: 0, eagles: 0, pars: 0, bogeys: 0,
+        bestGross: null, bestStable: null, bestGrossCourse: '',
+        wins: 0, courseBests: {}
+      };
+
+      var p = players[name];
+      var hcp = (r.hcps || [])[pi] || 0;
+      var gross = 0, stable = 0, played = 0, birds = 0, eags = 0, pars_ = 0, bogs = 0;
+
+      (r.scores[pi] || []).forEach(function(v, hi) {
+        var s = v || 0;
+        var par = (r.pars || DPARS)[hi] || 4;
+        var si = (r.si || DSI)[hi] || (hi+1);
+        var hs = hcpS(hcp, si);
+        var pts = sbPts(s, par, hs);
+        if (s) {
+          gross += s; stable += pts; played++;
+          var diff = s - par;
+          if (diff <= -2) eags++;
+          else if (diff === -1) birds++;
+          else if (diff === 0) pars_++;
+          else if (diff >= 1) bogs++;
+        }
+      });
+
+      if (played < 9) continue; // ignore incomplete rounds
+
+      p.rounds++;
+      p.grossScores.push(gross);
+      p.stableScores.push(stable);
+      p.birdies += birds;
+      p.eagles += eags;
+      p.pars += pars_;
+      p.bogeys += bogs;
+
+      if (p.bestGross === null || gross < p.bestGross) { p.bestGross = gross; p.bestGrossCourse = course; }
+      if (p.bestStable === null || stable > p.bestStable) { p.bestStable = stable; }
+      if (!p.courseBests[course] || gross < p.courseBests[course]) p.courseBests[course] = gross;
+
+      // Course best
+      if (courses[course].best === null || gross < courses[course].best) {
+        courses[course].best = gross; courses[course].bestPlayer = name;
+      }
+      if (courses[course].bestStable === null || stable > courses[course].bestStable) {
+        courses[course].bestStable = stable; courses[course].bestStablePlayer = name;
+      }
+    }
+
+    // Round winner
+    var roundStats = [];
+    for (var pi2 = 0; pi2 < (r.np||0); pi2++) {
+      var n2 = matchROGSPlayer((r.names||[])[pi2]||(r.names||[])[pi2]) || (r.names||[])[pi2];
+      if (!n2 || !players[n2]) continue;
+      var g2 = 0, s2 = 0, pl2 = 0;
+      var hcp2 = (r.hcps||[])[pi2]||0;
+      (r.scores[pi2]||[]).forEach(function(v,hi){
+        var s=v||0,par=(r.pars||DPARS)[hi]||4,si=(r.si||DSI)[hi]||(hi+1),hs=hcpS(hcp2,si),pts=sbPts(s,par,hs);
+        if(s){g2+=s;s2+=pts;pl2++;}
+      });
+      if (pl2 >= 9) roundStats.push({name:n2, gross:g2, stable:s2});
+    }
+    roundStats.sort(function(a,b){ return isStable ? b.stable-a.stable : a.gross-b.gross; });
+    if (roundStats[0] && players[roundStats[0].name]) players[roundStats[0].name].wins++;
+  });
+
+  return { players: players, courses: courses, rounds: rounds };
+}
+
+function matchROGSPlayer(name) {
+  if (!name) return null;
+  var n = name.toLowerCase().trim();
+  for (var i = 0; i < ROGS_PLAYERS.length; i++) {
+    var rp = ROGS_PLAYERS[i].toLowerCase();
+    var parts = rp.split(' ');
+    // Match by last name or full name
+    if (n === rp || n === parts[parts.length-1] || rp.indexOf(n) >= 0 || n.indexOf(parts[0]) >= 0 && n.indexOf(parts[1] || parts[0]) >= 0)
+      return ROGS_PLAYERS[i];
+  }
+  return null;
+}
+
+function statCard(label, value, sub, color) {
+  color = color || '#0d2d6e';
+  return '<div class="sbox" style="margin-bottom:0">'
+    + '<div class="sl">'+label+'</div>'
+    + '<div class="sv" style="color:'+color+';font-size:17px">'+value+'</div>'
+    + (sub ? '<div style="font-size:11px;color:#6b7280;margin-top:2px">'+sub+'</div>' : '')
+    + '</div>';
+}
+
+function renderOverview(data) {
+  var players = Object.values(data.players).filter(function(p){ return p.rounds > 0; });
+  if (!players.length) { $('stats-overview').innerHTML='<p style="color:#9ca3af;padding:12px 0">No data yet.</p>'; return; }
+
+  // Sort for various categories
+  var byRounds = players.slice().sort(function(a,b){ return b.rounds-a.rounds; });
+  var byBestGross = players.filter(function(p){return p.bestGross!==null;}).sort(function(a,b){ return a.bestGross-b.bestGross; });
+  var byBestStable = players.filter(function(p){return p.bestStable!==null;}).sort(function(a,b){ return b.bestStable-a.bestStable; });
+  var byBirdies = players.slice().sort(function(a,b){ return b.birdies-a.birdies; });
+  var byEagles = players.slice().sort(function(a,b){ return b.eagles-a.eagles; });
+  var byWins = players.slice().sort(function(a,b){ return b.wins-a.wins; });
+
+  // Worst gross (highest best gross — loosely "worst best")
+  var byWorstGross = players.filter(function(p){return p.bestGross!==null;}).sort(function(a,b){ return b.bestGross-a.bestGross; });
+
+  var html = '';
+
+  // Hero stats row
+  html += '<div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:14px">';
+  if (byBestGross[0]) html += statCard('🏆 Best gross ever', byBestGross[0].bestGross, byBestGross[0].name + ' @ ' + byBestGross[0].bestGrossCourse, '#15803d');
+  if (byBestStable[0]) html += statCard('⭐ Best Stableford', byBestStable[0].bestStable + ' pts', byBestStable[0].name, '#d97706');
+  if (byWins[0]) html += statCard('🥇 Most wins', byWins[0].wins, byWins[0].name);
+  if (byRounds[0]) html += statCard('📋 Most rounds', byRounds[0].rounds, byRounds[0].name);
+  if (byBirdies[0]) html += statCard('🐦 Most birdies', byBirdies[0].birdies, byBirdies[0].name, '#15803d');
+  if (byEagles[0]) html += statCard('🦅 Most eagles', byEagles[0].eagles || 0, byEagles[0].name, '#d97706');
+  html += '</div>';
+
+  // Full player table
+  html += '<div style="font-size:12px;font-weight:700;color:#0d2d6e;text-transform:uppercase;letter-spacing:.5px;margin-bottom:8px">All Players</div>';
+  html += '<div class="scwrap"><table style="min-width:480px"><thead><tr>'
+    + '<th style="text-align:left">Player</th><th>Rounds</th><th>Best Gross</th>'
+    + '<th>Best Pts</th><th>Birdies</th><th>Eagles</th><th>Wins</th>'
+    + '</tr></thead><tbody>';
+
+  byRounds.forEach(function(p) {
+    var avg = p.grossScores.length ? Math.round(p.grossScores.reduce(function(a,b){return a+b},0)/p.grossScores.length) : '-';
+    html += '<tr>'
+      + '<td style="font-weight:700;font-size:11px">'+p.name+'</td>'
+      + '<td>'+p.rounds+'</td>'
+      + '<td style="color:#15803d;font-weight:700">'+(p.bestGross||'-')+'</td>'
+      + '<td style="color:#d97706;font-weight:700">'+(p.bestStable!==null?p.bestStable+'pts':'-')+'</td>'
+      + '<td style="color:#15803d">'+(p.birdies||0)+'</td>'
+      + '<td style="color:#d97706">'+(p.eagles||0)+'</td>'
+      + '<td style="font-weight:700">'+(p.wins||0)+'</td>'
+      + '</tr>';
+  });
+  html += '</tbody></table></div>';
+  $('stats-overview').innerHTML = html;
+}
+
+function renderCourseStats(data) {
+  var courses = data.courses;
+  var keys = Object.keys(courses);
+  if (!keys.length) { $('stats-courses').innerHTML='<p style="color:#9ca3af;padding:12px 0">No data yet.</p>'; return; }
+
+  var html = '';
+  keys.sort().forEach(function(course) {
+    var c = courses[course];
+    html += '<div style="padding:12px 14px;margin-bottom:10px;border:2px solid #0d2d6e;border-left:5px solid #c8102e;background:#fff">'
+      + '<div style="font-weight:700;font-size:14px;color:#0d2d6e;margin-bottom:6px">'+escHtml(course)+'</div>'
+      + '<div style="display:grid;grid-template-columns:1fr 1fr;gap:6px">'
+      + statCard('Rounds played', c.rounds, '')
+      + (c.best!==null ? statCard('Best gross', c.best, c.bestPlayer, '#15803d') : '')
+      + (c.bestStable!==null ? statCard('Best Stableford', c.bestStable+'pts', c.bestStablePlayer, '#d97706') : '')
+      + '</div></div>';
+  });
+  $('stats-courses').innerHTML = html;
+}
+
+function renderH2H(data) {
+  var players = Object.values(data.players).filter(function(p){ return p.rounds > 0; });
+  if (players.length < 2) { $('stats-h2h').innerHTML='<p style="color:#9ca3af;padding:12px 0">Need at least 2 players with rounds.</p>'; return; }
+
+  var rounds = data.rounds;
+  // Build head to head matrix
+  var h2h = {}; // "A vs B" -> {aWins, bWins, played}
+  rounds.forEach(function(r) {
+    var isStable = r.mode === 'stableford';
+    var roundPlayers = [];
+    for (var pi = 0; pi < (r.np||0); pi++) {
+      var name = matchROGSPlayer((r.names||[])[pi]) || (r.names||[])[pi];
+      if (!name) continue;
+      var hcp=(r.hcps||[])[pi]||0, gross=0, stable=0, played=0;
+      (r.scores[pi]||[]).forEach(function(v,hi){
+        var s=v||0,par=(r.pars||DPARS)[hi]||4,si=(r.si||DSI)[hi]||(hi+1),hs=hcpS(hcp,si),pts=sbPts(s,par,hs);
+        if(s){gross+=s;stable+=pts;played++;}
+      });
+      if (played >= 9) roundPlayers.push({name:name, gross:gross, stable:stable});
+    }
+    // Compare every pair
+    for (var i = 0; i < roundPlayers.length; i++) {
+      for (var j = i+1; j < roundPlayers.length; j++) {
+        var a = roundPlayers[i], b = roundPlayers[j];
+        var key = [a.name,b.name].sort().join('|||');
+        if (!h2h[key]) h2h[key] = {names:[a.name,b.name].sort(), wins:{}, played:0};
+        h2h[key].played++;
+        var aScore = isStable ? a.stable : a.gross;
+        var bScore = isStable ? b.stable : b.gross;
+        var aWins = isStable ? aScore > bScore : aScore < bScore;
+        var bWins = isStable ? bScore > aScore : bScore < aScore;
+        var winner = aWins ? a.name : bWins ? b.name : null;
+        if (winner) h2h[key].wins[winner] = (h2h[key].wins[winner]||0) + 1;
+      }
+    }
+  });
+
+  var keys = Object.keys(h2h).sort(function(a,b){ return h2h[b].played - h2h[a].played; });
+  if (!keys.length) { $('stats-h2h').innerHTML='<p style="color:#9ca3af;padding:12px 0">No head to head data yet.</p>'; return; }
+
+  var html = '<div style="font-size:12px;color:#6b7280;margin-bottom:10px">Based on rounds played together. Win = better score in that round.</div>';
+  keys.forEach(function(key) {
+    var r = h2h[key];
+    var n1 = r.names[0], n2 = r.names[1];
+    var w1 = r.wins[n1]||0, w2 = r.wins[n2]||0, draws = r.played-w1-w2;
+    var leader = w1 > w2 ? n1 : w2 > w1 ? n2 : null;
+    html += '<div style="padding:10px 14px;margin-bottom:8px;border:2px solid #0d2d6e;border-left:5px solid '+(leader?'#c8102e':'#9ca3af')+';background:#fff">'
+      + '<div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:4px">'
+      + '<div style="font-weight:700;font-size:13px;color:#0d2d6e">'+escHtml(n1)+' vs '+escHtml(n2)+'</div>'
+      + '<div style="font-size:11px;color:#9ca3af">'+r.played+' rounds together</div></div>'
+      + '<div style="display:flex;align-items:center;gap:8px;margin-top:6px">'
+      + '<div style="font-size:13px;font-weight:700;color:'+(w1>=w2?'#c8102e':'#4a5a7a')+'">'+w1+'</div>'
+      + '<div style="flex:1;height:8px;background:#e5e7eb;border-radius:4px;overflow:hidden">'
+      + '<div style="height:100%;background:#c8102e;border-radius:4px;width:'+(r.played?Math.round(w1/r.played*100):0)+'%"></div></div>'
+      + '<div style="font-size:13px;font-weight:700;color:'+(w2>w1?'#c8102e':'#4a5a7a')+'">'+w2+'</div>'
+      + '</div>'
+      + (draws ? '<div style="font-size:11px;color:#9ca3af;margin-top:3px">'+draws+' draw'+(draws>1?'s':'')+'</div>' : '')
+      + (leader ? '<div style="font-size:12px;color:#c8102e;font-weight:700;margin-top:3px">'+escHtml(leader)+' leads</div>' : '<div style="font-size:12px;color:#9ca3af;margin-top:3px">All square</div>')
+      + '</div>';
+  });
+  $('stats-h2h').innerHTML = html;
+}
+
+// ── Player Profiles ──────────────────────────────────────────────────────────
+var _profilePin='';
+var _profileMode='enter'; // 'enter'|'set'
+var _profilePlayer=null;  // currently loaded profile name
+var _profileUnlocked=false;
+
+function openProfile(){
+  // Check if a profile is stored locally
+  var last=localStorage.getItem('rogs_profile_name')||'';
+  if(last){
+    // Try to load — if PIN protected, ask for PIN
+    fbGet('rogs_profiles/'+profileKey(last)).then(function(d){
+      if(d&&d.pin){
+        _profilePlayer=last;_profileMode='enter';
+        $('profilePinTitle').textContent='Enter Profile PIN';
+        $('profilePinMsg').textContent='PIN required for '+last;
+        $('profilePinErr').textContent='';
+        profilePinReset();show('p-profile-pin');
+      } else {
+        loadProfilePage(last,d||{});
+      }
+    }).catch(function(){loadProfilePage(last,{});});
+  } else {
+    loadProfilePage('',{});
+  }
+}
+
+function profileKey(name){return name.replace(/[^a-z0-9]/gi,'_').toLowerCase();}
+
+function loadProfilePage(name,data){
+  _profilePlayer=name;_profileUnlocked=true;
+  // Populate name dropdown
+  var sel=$('profileName');sel.innerHTML='<option value="">-- Select your name --</option>';
+  ROGS_PLAYERS.forEach(function(n){
+    var opt=document.createElement('option');opt.value=n;opt.textContent=n;
+    if(n===name)opt.selected=true;
+    sel.appendChild(opt);
+  });
+  $('profileHcp').value=data.hcp!=null?data.hcp:'';
+  $('profileCertNo').value=data.certNo||'';
+  $('profilePinNew').value='';
+  $('profileHcpStatus').textContent=data.certNo?'Certificate: '+data.certNo:'';
+  $('profilePinStatus').textContent=data.pin?'PIN is set ✓':'No PIN set';
+  $('profileMsg').style.display='none';
+  $('profilePageName').textContent=name?name+' — Profile':'My Profile';
+  show('p-profile');
+}
+
+function profileNameChanged(){
+  var name=$('profileName').value;
+  if(!name)return;
+  localStorage.setItem('rogs_profile_name',name);
+  fbGet('rogs_profiles/'+profileKey(name)).then(function(d){
+    if(d&&d.pin&&name!==_profilePlayer){
+      // Need PIN to switch to this profile
+      _profilePlayer=name;_profileMode='enter';
+      $('profilePinTitle').textContent='Enter Profile PIN';
+      $('profilePinMsg').textContent='PIN required for '+name;
+      $('profilePinErr').textContent='';
+      profilePinReset();show('p-profile-pin');
+    } else {
+      loadProfilePage(name,d||{});
+    }
+  }).catch(function(){loadProfilePage(name,{});});
+}
+
+function profileSaveHcp(){
+  var name=$('profileName').value;
+  var hcp=parseFloat($('profileHcp').value);
+  if(!name){alert('Please select your name first.');return;}
+  if(isNaN(hcp)){alert('Please enter a valid handicap.');return;}
+  saveROGSHcp(name,hcp);
+  $('profileHcpStatus').textContent='HCP '+hcp+' saved ✓';
+  $('profileHcpStatus').style.color='#15803d';
+  setTimeout(function(){$('profileHcpStatus').style.color='';},2000);
+}
+
+function profileSavePin(){
+  var pin=$('profilePinNew').value.trim();
+  if(pin.length!==4||isNaN(pin)){alert('PIN must be exactly 4 digits.');return;}
+  $('profilePinStatus').textContent='PIN will be saved with your profile ✓';
+  $('profilePinStatus').style.color='#15803d';
+}
+
+function profileSaveAll(){
+  var name=$('profileName').value;
+  if(!name){
+    var m=$('profileMsg');m.textContent='Please select your name.';m.className='warn';m.style.display='block';return;
+  }
+  var hcp=parseFloat($('profileHcp').value)||0;
+  var certNo=$('profileCertNo').value.trim();
+  var pin=$('profilePinNew').value.trim();
+  var data={name:name,hcp:hcp,certNo:certNo,updated:Date.now()};
+  if(pin.length===4&&!isNaN(pin))data.pin=pin;
+  else {
+    // Keep existing pin
+    var existing=null;
+    fbGet('rogs_profiles/'+profileKey(name)).then(function(d){if(d&&d.pin)data.pin=d.pin;});
+  }
+  saveROGSHcp(name,hcp);
+  localStorage.setItem('rogs_profile_name',name);
+  fbPut('rogs_profiles/'+profileKey(name),data).then(function(){
+    var m=$('profileMsg');
+    m.textContent='Profile saved! ✓';m.className='ok';m.style.display='block';
+    $('profilePageName').textContent=name+' — Profile';
+    setTimeout(function(){m.style.display='none';},3000);
+  }).catch(function(e){
+    var m=$('profileMsg');m.textContent='Error saving: '+e.message;m.className='warn';m.style.display='block';
+  });
+}
+
+// Profile PIN pad
+var _ppVal='';
+function profilePinKey(d){
+  if(_ppVal.length>=4)return;
+  _ppVal+=d;profilePinUpdateDots();
+  if(_ppVal.length===4)setTimeout(profilePinSubmit,120);
+}
+function profilePinClear(){_ppVal=_ppVal.slice(0,-1);profilePinUpdateDots();$('profilePinErr').textContent='';}
+function profilePinReset(){_ppVal='';profilePinUpdateDots();}
+function profilePinUpdateDots(){
+  var dots=$('profilePinDots').querySelectorAll('.pin-dot');
+  dots.forEach(function(d,i){d.classList.toggle('filled',i<_ppVal.length)});
+}
+function profilePinSubmit(){
+  fbGet('rogs_profiles/'+profileKey(_profilePlayer)).then(function(d){
+    if(d&&d.pin&&_ppVal===d.pin){
+      loadProfilePage(_profilePlayer,d);
+    } else {
+      $('profilePinErr').textContent='Incorrect PIN — try again';
+      _ppVal='';profilePinUpdateDots();
+    }
+  }).catch(function(){
+    $('profilePinErr').textContent='Could not verify PIN';
+    _ppVal='';profilePinUpdateDots();
+  });
+}
 
 function escHtml(s){return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;')}
 
