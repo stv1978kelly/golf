@@ -446,7 +446,7 @@ body{padding-bottom:38px!important}
   <label>First tee time</label>
   <input id="compTee" type="time" placeholder="e.g. 10:30"/>
   <label>Golf course</label>
-  <input id="compCourse" placeholder="Course name"/>
+  <select id="compCourse" style="width:100%;padding:11px 12px;border:2px solid #0d2d6e;border-radius:0;font-size:14px;margin-bottom:4px;background:#fff;color:#111" onchange="compCourseChanged(this)"><option value="">-- Select course --</option></select><input id="compCourseCustom" placeholder="Type course name..." style="width:100%;padding:11px 12px;border:2px solid #0d2d6e;border-radius:0;font-size:14px;margin-bottom:10px;display:none;background:#fff;color:#111"/>
   <label>Format</label>
   <div class="row">
     <button class="btn-sm on" id="cModeStroke" onclick="setCompMode('strokeplay')">Stroke play</button>
@@ -1580,7 +1580,7 @@ function openNewComp(){
   $('compName').value='';
   $('compDate').value='';
   $('compTee').value='';
-  $('compCourse').value='';
+  $('compCourse').value='';loadCompCourseDropdown('');
   $('compNotes').value='';
   $('compErr').style.display='none';
   $('deleteCompBtn').style.display='none';
@@ -1595,7 +1595,7 @@ function openEditComp(id,comp){
   $('compName').value=comp.name||'';
   $('compDate').value=comp.date||'';
   $('compTee').value=comp.tee||'';
-  $('compCourse').value=comp.course||'';
+  $('compCourse').value=comp.course||'';loadCompCourseDropdown(comp.course||'');
   $('compNotes').value=comp.notes||'';$('compUrl').value=comp.url||'';
   $('compErr').style.display='none';
   $('deleteCompBtn').style.display='block';
@@ -2209,6 +2209,48 @@ function launchComp(id){
   }).catch(function(){alert('Could not load competition.')});
 }
 
+
+
+function getCompCourse(){
+  var sel=document.getElementById('compCourse');
+  var cust=document.getElementById('compCourseCustom');
+  if(!sel)return '';
+  return sel.value==='__custom__'?(cust?cust.value.trim():''): sel.value;
+}
+function compCourseChanged(sel){
+  var cust=document.getElementById('compCourseCustom');
+  if(sel.value==='__custom__'){cust.style.display='block';cust.focus();}
+  else cust.style.display='none';
+}
+function loadCompCourseDropdown(selectedName){
+  var sel=document.getElementById('compCourse');
+  if(!sel)return;
+  // Keep first "-- Select --" option, rebuild the rest
+  while(sel.options.length>1)sel.remove(1);
+  fbGet('custom_courses').then(function(courses){
+    var names=[];
+    if(courses){Object.values(courses).forEach(function(c){
+      var n=typeof c==='string'?c:(c&&c.name?c.name:null);
+      if(n)names.push(n);
+    });}
+    names.sort();
+    names.forEach(function(n){
+      var o=document.createElement('option');
+      o.value=n;o.textContent=n;
+      if(n===selectedName)o.selected=true;
+      sel.add(o);
+    });
+    var oCustom=document.createElement('option');
+    oCustom.value='__custom__';oCustom.textContent='+ Other (type name)';
+    sel.add(oCustom);
+    // If selectedName not in list, show custom input
+    if(selectedName&&!names.includes(selectedName)){
+      sel.value='__custom__';
+      var cust=document.getElementById('compCourseCustom');
+      if(cust){cust.style.display='block';cust.value=selectedName;}
+    }
+  });
+}
 </script>
 
 <script>if("serviceWorker"in navigator){var swBlob=new Blob([`
