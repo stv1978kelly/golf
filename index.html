@@ -5,81 +5,82 @@
 <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1"/>
 <title>Golf Scorecard</title>
 <style>
-body{font-family:-apple-system,BlinkMacSystemFont,sans-serif;background:#ffffff;min-height:100vh;padding:0}
-.page{display:none}.page.on{display:block;padding:0 16px 16px}
-.card{background:#ffffff;border-radius:0;padding:20px;margin-bottom:0;border:none;border-bottom:3px solid #c8102e}
-h1{font-size:22px;font-weight:700;margin-bottom:4px;color:#fff}
-h2{font-size:18px;font-weight:700;margin-bottom:16px;color:#0d2d6e}
-.sub{font-size:14px;color:#6b7280;margin-bottom:24px}
-input{width:100%;padding:12px;border:2px solid #0d2d6e;border-radius:8px;font-size:15px;margin-bottom:10px;background:#fff;color:#111}
-input:focus{border-color:#c8102e;outline:none}
-label{font-size:13px;color:#0d2d6e;display:block;margin-bottom:5px;margin-top:12px;font-weight:700}
-.btn{width:100%;padding:14px;border-radius:0;border:none;font-size:15px;font-weight:700;cursor:pointer;margin-bottom:8px}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:-apple-system,BlinkMacSystemFont,sans-serif;background:#fff;min-height:100vh;padding:0}
+.page{display:none}.page.on{display:block;padding:0 16px 24px}
+.card{background:#fff;padding:20px;margin-bottom:0;border-bottom:3px solid #c8102e}
+h1{font-size:22px;font-weight:700;color:#fff;margin-bottom:4px}
+h2{font-size:18px;font-weight:700;color:#0d2d6e;margin-bottom:16px}
+input,select{width:100%;padding:11px 12px;border:2px solid #0d2d6e;border-radius:0;font-size:14px;margin-bottom:10px;background:#fff;color:#111;-webkit-appearance:none;appearance:none}
+input:focus,select:focus{border-color:#c8102e;outline:none}
+label{font-size:12px;color:#0d2d6e;display:block;margin-bottom:4px;margin-top:12px;font-weight:700;text-transform:uppercase;letter-spacing:.5px}
+.btn{width:100%;padding:13px;border:none;font-size:15px;font-weight:700;cursor:pointer;margin-bottom:8px;border-radius:0}
 .btn-dark{background:#0d2d6e;color:#fff}
 .btn-red{background:#c8102e;color:#fff}
 .btn-white{background:#fff;color:#0d2d6e;border:2px solid #0d2d6e}
-.btn-sm{width:auto;padding:7px 14px;font-size:13px;font-weight:700;border-radius:0;border:2px solid #0d2d6e;background:#fff;cursor:pointer;color:#0d2d6e}
-.btn-sm.on{background:#0d2d6e;color:#fff;border-color:#0d2d6e}
+.btn-sm{width:auto;padding:7px 14px;font-size:13px;font-weight:700;border:2px solid #0d2d6e;background:#fff;cursor:pointer;color:#0d2d6e;border-radius:0}
+.btn-sm.on{background:#0d2d6e;color:#fff}
 .row{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:12px}
-.err{color:#c8102e;font-size:13px;padding:10px;background:#fff0f0;border-radius:0;margin-bottom:10px;border-left:4px solid #c8102e}
-.topbar{background:#0d2d6e;margin:0 -16px 0 -16px;padding:20px 16px 0;border-bottom:6px solid #c8102e;position:relative}
-.topbar::after{content:'';display:block;height:6px;background:#ffffff;margin:0 -16px}
-.banner{background:#0d2d6e;color:#fff;border-radius:0;padding:14px 16px;margin-bottom:0;display:flex;justify-content:space-between;align-items:center;border-top:6px solid #c8102e;border-bottom:6px solid #c8102e}
+.err{color:#c8102e;font-size:13px;padding:10px;background:#fff0f0;border-left:4px solid #c8102e;margin-bottom:10px;display:none}
+.topbar{background:#0d2d6e;padding:20px 16px 0;border-bottom:6px solid #c8102e;margin:0 -16px 20px}
+.topbar-inner{padding-bottom:16px}
+.stripe{height:6px;background:#fff;margin:0 -16px}
+.banner{background:#0d2d6e;padding:14px 16px;margin:0 -16px 14px;display:flex;justify-content:space-between;align-items:center;border-top:6px solid #c8102e;border-bottom:6px solid #c8102e}
 .code{font-size:26px;font-weight:700;letter-spacing:5px;font-family:monospace;color:#fff}
 .live{font-size:12px;font-weight:700;color:#4ade80}
 .offline{font-size:12px;font-weight:700;color:#fbbf24}
-.tabs{display:flex;gap:0;margin-bottom:14px;flex-wrap:wrap;border-bottom:3px solid #0d2d6e;margin-top:14px}
-.tab{padding:10px 18px;border-radius:0;border:none;border-right:2px solid #c8102e;background:#fff;font-size:13px;font-weight:700;cursor:pointer;color:#0d2d6e}
+.tabs{display:flex;gap:0;flex-wrap:wrap;border-bottom:3px solid #0d2d6e;margin-bottom:14px}
+.tab{padding:10px 16px;border:none;border-right:2px solid #c8102e;background:#fff;font-size:13px;font-weight:700;cursor:pointer;color:#0d2d6e}
 .tab:last-child{border-right:none}
 .tab.on{background:#0d2d6e;color:#fff}
 .panel{display:none}.panel.on{display:block}
-.grid9{display:grid;grid-template-columns:repeat(9,1fr);gap:4px;margin-bottom:12px}
-.grid9 .cell{text-align:center}
-.grid9 .cell span{font-size:10px;color:#9ca3af;display:block;margin-bottom:2px}
-.grid9 input{padding:5px 2px;font-size:12px;text-align:center;margin:0;border-radius:0}
+.g9{display:grid;grid-template-columns:repeat(9,1fr);gap:4px;margin-bottom:12px}
+.g9 .cell{text-align:center}
+.g9 .cell span{font-size:10px;color:#9ca3af;display:block;margin-bottom:2px}
+.g9 input{padding:4px 2px;font-size:12px;text-align:center;margin:0}
 .prow{display:grid;grid-template-columns:1fr 70px;gap:6px;margin-bottom:6px}
-.prow input{margin:0;border-radius:0}
+.prow input{margin:0}
 .hgrid{display:grid;grid-template-columns:repeat(9,1fr);gap:5px;margin-bottom:14px}
-.hbtn{padding:8px 2px;border-radius:0;border:2px solid #0d2d6e;background:#fff;font-size:13px;font-weight:700;cursor:pointer;text-align:center;color:#0d2d6e}
-.hbtn.on{background:#0d2d6e;color:#fff;border-color:#0d2d6e}
+.hbtn{padding:8px 2px;border:2px solid #0d2d6e;background:#fff;font-size:13px;font-weight:700;cursor:pointer;text-align:center;color:#0d2d6e}
+.hbtn.on{background:#0d2d6e;color:#fff}
 .hbtn.bir{background:#bbf7d0;border-color:#16a34a;color:#166534}
 .hbtn.eag{background:#fde68a;border-color:#d97706;color:#92400e}
 .hbtn.bog{background:#fca5a5;border-color:#c8102e;color:#7f1d1d}
 .hbtn.dbl{background:#f87171;border-color:#991b1b;color:#450a0a}
-.entry-box{background:#f8f9ff;border-radius:0;padding:16px;margin-bottom:14px;border-top:4px solid #0d2d6e;border-bottom:4px solid #c8102e;border-left:2px solid #0d2d6e;border-right:2px solid #0d2d6e}
-.score-row{display:flex;align-items:center;gap:16px;margin:14px 0}
-.score-big{font-size:48px;font-weight:700;min-width:60px;text-align:center;color:#0d2d6e}
-.pm{font-size:28px;padding:6px 18px;border-radius:0;border:2px solid #0d2d6e;background:#fff;cursor:pointer;font-weight:700;color:#0d2d6e}
+.ebox{background:#f0f4ff;padding:16px;margin-bottom:14px;border-top:4px solid #0d2d6e;border-bottom:4px solid #c8102e;border-left:2px solid #0d2d6e;border-right:2px solid #0d2d6e}
+.srow{display:flex;align-items:center;gap:16px;margin:14px 0}
+.sbig{font-size:48px;font-weight:700;min-width:60px;text-align:center;color:#0d2d6e}
+.pm{font-size:28px;padding:6px 18px;border:2px solid #0d2d6e;background:#fff;cursor:pointer;font-weight:700;color:#0d2d6e}
 .nrow{display:flex;gap:5px;flex-wrap:wrap}
-.nbtn{padding:10px 14px;border-radius:0;border:2px solid #0d2d6e;background:#fff;font-size:15px;font-weight:700;cursor:pointer;color:#0d2d6e}
+.nbtn{padding:10px 14px;border:2px solid #0d2d6e;background:#fff;font-size:15px;font-weight:700;cursor:pointer;color:#0d2d6e}
 .nbtn.on{background:#0d2d6e;color:#fff}
-.scwrap{overflow-x:auto}
+.scwrap{overflow-x:auto;margin-bottom:8px}
 table{border-collapse:collapse;min-width:520px;width:100%;font-size:11px}
 th,td{padding:5px 3px;text-align:center;border-bottom:1px solid #dce3ee}
-th:first-child,td:first-child{text-align:left;padding-left:8px;min-width:75px;position:sticky;left:0}
+th:first-child,td:first-child{text-align:left;padding-left:8px;min-width:75px;position:sticky;left:0;background:#fff}
 thead tr:first-child th{background:#0d2d6e;color:#fff;font-weight:700;border-bottom:3px solid #c8102e}
+thead tr:first-child th:first-child{background:#0d2d6e}
 thead tr:nth-child(2) td{background:#f0f4ff;color:#0d2d6e;font-size:10px;font-weight:700;border-bottom:2px solid #c8102e}
-tbody td:first-child{background:#fff}
-tbody tr:nth-child(even) td:first-child{background:#f8f9ff}
+thead tr:nth-child(2) td:first-child{background:#f0f4ff}
 .bir{background:#bbf7d0!important;border:2px solid #16a34a!important}
 .eag{background:#fde68a!important;border:2px solid #d97706!important}
 .bog{background:#fca5a5!important;border:1px solid #c8102e!important}
 .dbl{background:#f87171!important;border:1px solid #991b1b!important}
-.lbrow{display:flex;align-items:center;gap:12px;padding:13px 16px;margin-bottom:8px;border-radius:0;border:2px solid #0d2d6e;background:#fff;border-left:4px solid #0d2d6e}
-.lbrow.top{background:#f0f4ff;border:2px solid #0d2d6e;border-left:6px solid #c8102e}
+.lbrow{display:flex;align-items:center;gap:12px;padding:13px 16px;margin-bottom:8px;border:2px solid #0d2d6e;background:#fff;border-left:4px solid #0d2d6e}
+.lbrow.top{background:#f0f4ff;border-left:6px solid #c8102e}
 .rank{font-size:15px;font-weight:700;min-width:36px;color:#0d2d6e}
 .top .rank{color:#c8102e}
 .lbscore .big{font-size:22px;font-weight:700;color:#0d2d6e}
-.sbox{background:#f0f4ff;border-radius:0;padding:10px 12px;border-top:3px solid #0d2d6e;border-bottom:3px solid #c8102e;border-left:1px solid #0d2d6e;border-right:1px solid #0d2d6e}
-.sbox .sl{font-size:11px;color:#0d2d6e;margin-bottom:3px;font-weight:700}
+.sbox{background:#f0f4ff;padding:10px 12px;border-top:3px solid #0d2d6e;border-bottom:3px solid #c8102e;border-left:1px solid #0d2d6e;border-right:1px solid #0d2d6e}
+.sbox .sl{font-size:11px;color:#0d2d6e;margin-bottom:3px;font-weight:700;text-transform:uppercase}
 .sbox .sv{font-size:20px;font-weight:700;color:#0d2d6e}
 .g4{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-bottom:12px}
 .g3{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:14px}
-.hrow{display:flex;align-items:center;gap:10px;padding:9px 12px;margin-bottom:5px;border-radius:0;border-left:4px solid #0d2d6e;border-top:1px solid #dce3ee;border-bottom:1px solid #dce3ee;border-right:1px solid #dce3ee;background:#f8f9ff}
+.hrow{display:flex;align-items:center;gap:10px;padding:9px 12px;margin-bottom:5px;border-left:4px solid #0d2d6e;border-top:1px solid #dce3ee;border-bottom:1px solid #dce3ee;border-right:1px solid #dce3ee;background:#f8f9ff}
 .green{color:#15803d}.red{color:#c8102e}.amber{color:#d97706}
 .ddwrap{position:relative;margin-bottom:8px}
 .ddwrap input{margin-bottom:0}
-.ddlist{display:none;position:absolute;top:100%;left:0;right:0;background:#fff;border:2px solid #0d2d6e;border-top:3px solid #c8102e;border-radius:0;max-height:250px;overflow-y:auto;z-index:999;box-shadow:0 6px 20px rgba(13,45,110,0.2)}
+.ddlist{display:none;position:absolute;top:100%;left:0;right:0;background:#fff;border:2px solid #0d2d6e;border-top:3px solid #c8102e;max-height:250px;overflow-y:auto;z-index:999;box-shadow:0 6px 20px rgba(13,45,110,0.2)}
 .dditem{padding:12px 16px;cursor:pointer;display:flex;justify-content:space-between;align-items:center;border-bottom:1px solid #e5eaf3}
 .dditem.hi,.dditem:active{background:#0d2d6e}
 .dditem.hi .dn,.dditem:active .dn{color:#fff}
@@ -87,40 +88,52 @@ tbody tr:nth-child(even) td:first-child{background:#f8f9ff}
 .dn{font-size:14px;font-weight:700;color:#0d2d6e}
 .dr{font-size:12px;color:#6b7280;white-space:nowrap;margin-left:8px}
 .ddfoot{padding:7px 16px;font-size:11px;color:#fff;background:#0d2d6e;border-top:2px solid #c8102e}
-.wsrow{display:flex;align-items:center;gap:10px;padding:10px 14px;background:#f0f4ff;border-radius:0;border-left:4px solid #c8102e;border-top:1px solid #0d2d6e;border-bottom:1px solid #0d2d6e;border-right:1px solid #0d2d6e;margin-bottom:12px}
+.wsrow{display:flex;align-items:center;gap:10px;padding:10px 14px;background:#f0f4ff;border-left:4px solid #c8102e;border-top:1px solid #0d2d6e;border-bottom:1px solid #0d2d6e;border-right:1px solid #0d2d6e;margin-bottom:12px}
 .dot{width:10px;height:10px;border-radius:50%;flex-shrink:0}
-.email-box{background:#f0f4ff;border-radius:0;padding:16px;border-top:4px solid #0d2d6e;border-bottom:4px solid #c8102e;border-left:2px solid #0d2d6e;border-right:2px solid #0d2d6e;margin-top:14px}
-.msg-ok{font-size:13px;padding:10px 12px;border-radius:0;background:#f0fdf4;color:#166534;border-left:4px solid #16a34a;margin-top:8px}
-.msg-warn{font-size:13px;padding:10px 12px;border-radius:0;background:#fff0f0;color:#c8102e;border-left:4px solid #c8102e;margin-top:8px}
+.embox{background:#f0f4ff;padding:16px;border-top:4px solid #0d2d6e;border-bottom:4px solid #c8102e;border-left:2px solid #0d2d6e;border-right:2px solid #0d2d6e;margin-top:14px}
+.ok{font-size:13px;padding:10px;border-left:4px solid #16a34a;background:#f0fdf4;color:#166534;margin-top:8px}
+.warn{font-size:13px;padding:10px;border-left:4px solid #c8102e;background:#fff0f0;color:#c8102e;margin-top:8px}
+.editbox{background:#f0f4ff;padding:14px;border-top:4px solid #0d2d6e;border-bottom:4px solid #c8102e;border-left:2px solid #0d2d6e;border-right:2px solid #0d2d6e;margin-top:12px}
+.selrow{display:flex;gap:8px;flex-wrap:wrap;align-items:flex-end;margin-bottom:10px}
+.selcol{flex:1;min-width:90px}
+.selcol label{margin-top:0}
 </style>
 </head>
 <body>
 
+<!-- HOME -->
 <div id="p-home" class="page on">
   <div class="topbar">
-    <h1>Golf Scorecard</h1>
-    <p style="color:#93b4e0;font-size:14px;margin-top:4px">Live scoring — share with your group</p>
+    <div class="topbar-inner">
+      <h1>Golf Scorecard</h1>
+      <p style="color:#93b4e0;font-size:14px;margin-top:4px">Live scoring — share with your group</p>
+    </div>
+    <div class="stripe"></div>
   </div>
   <div class="card">
     <h2>Start a new round</h2>
     <p style="font-size:13px;color:#4a5a7a;margin-bottom:14px">Set up course, players & handicaps. Get a Room Code to share in WhatsApp.</p>
     <button class="btn btn-dark" onclick="goSetup()">Set up round</button>
   </div>
+  <div style="height:14px"></div>
   <div class="card">
     <h2>Join a round</h2>
     <p style="font-size:13px;color:#4a5a7a;margin-bottom:14px">Enter the Room Code from your WhatsApp group.</p>
     <input id="joinInput" placeholder="Room Code e.g. AB12CD" maxlength="6" style="text-align:center;font-size:22px;font-weight:700;letter-spacing:6px" oninput="this.value=this.value.toUpperCase()"/>
-    <div id="joinErr" class="err" style="display:none"></div>
+    <div id="joinErr" class="err"></div>
     <button class="btn btn-dark" onclick="doJoin()">Join round</button>
   </div>
 </div>
 
+<!-- SETUP -->
 <div id="p-setup" class="page">
-  <div class="topbar" style="display:flex;align-items:center;gap:12px">
-    <button class="btn-sm" onclick="show('p-home')" style="background:rgba(255,255,255,0.15);color:#fff;border-color:rgba(255,255,255,0.3)">← Back</button>
-    <h1>Set up round</h1>
+  <div class="topbar">
+    <div class="topbar-inner" style="display:flex;align-items:center;gap:12px">
+      <button class="btn-sm" onclick="show('p-home')" style="background:rgba(255,255,255,0.15);color:#fff;border-color:rgba(255,255,255,0.4)">← Back</button>
+      <h1>Set up round</h1>
+    </div>
+    <div class="stripe"></div>
   </div>
-  <div style="height:16px"></div>
 
   <label>Golf course</label>
   <div class="ddwrap" id="ddwrap">
@@ -130,10 +143,10 @@ tbody tr:nth-child(even) td:first-child{background:#f8f9ff}
   </div>
   <div id="wsrow" class="wsrow" style="display:none">
     <div class="dot" id="wsdot" style="background:#f59e0b"></div>
-    <span id="wstext" style="font-size:13px;flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">Finding website...</span>
+    <span id="wstext" style="font-size:13px;flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap"></span>
     <button class="btn-sm" id="wsbtn" onclick="openUrl()" style="display:none">Visit ↗</button>
   </div>
-  <div id="courseInfo" style="display:none;padding:10px 14px;border-radius:8px;border:1px solid #bbf7d0;margin-bottom:12px;font-size:13px;background:#f0fdf4;color:#166534"></div>
+  <div id="courseInfo" style="display:none;padding:10px 14px;border-left:4px solid #16a34a;background:#f0fdf4;color:#166534;font-size:13px;margin-bottom:12px"></div>
 
   <label>Scoring mode</label>
   <div class="row">
@@ -148,15 +161,16 @@ tbody tr:nth-child(even) td:first-child{background:#f8f9ff}
   <div id="pFields"></div>
 
   <label>Par per hole</label>
-  <div class="grid9" id="parGrid"></div>
+  <div class="g9" id="parGrid"></div>
 
   <label>Stroke index per hole</label>
-  <div class="grid9" id="siGrid"></div>
+  <div class="g9" id="siGrid"></div>
 
-  <div id="setupErr" class="err" style="display:none"></div>
+  <div id="setupErr" class="err"></div>
   <button class="btn btn-dark" style="margin-top:16px" onclick="doCreate()">Create round & get Room Code</button>
 </div>
 
+<!-- PLAY -->
 <div id="p-play" class="page">
   <div class="banner">
     <div>
@@ -168,6 +182,7 @@ tbody tr:nth-child(even) td:first-child{background:#f8f9ff}
       <div id="timeDisp" style="font-size:11px;color:#9ca3af;margin-top:2px"></div>
     </div>
   </div>
+
   <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px">
     <div>
       <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap">
@@ -178,6 +193,7 @@ tbody tr:nth-child(even) td:first-child{background:#f8f9ff}
     </div>
     <button class="btn-sm" style="background:#c8102e;color:#fff;border-color:#c8102e" onclick="doEnd()">End</button>
   </div>
+
   <div class="tabs">
     <button class="tab on" onclick="switchTab('entry',this)">Entry</button>
     <button class="tab" onclick="switchTab('scorecard',this)">Scorecard</button>
@@ -185,12 +201,13 @@ tbody tr:nth-child(even) td:first-child{background:#f8f9ff}
     <button class="tab" onclick="switchTab('leaderboard',this)">Leaderboard</button>
   </div>
 
+  <!-- ENTRY -->
   <div id="tab-entry" class="panel on">
     <label>Player</label>
     <div class="row" id="pBtns"></div>
     <label>Hole</label>
     <div class="hgrid" id="hBtns"></div>
-    <div class="entry-box">
+    <div class="ebox">
       <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:8px">
         <div>
           <div style="font-size:15px;font-weight:700;color:#0d2d6e" id="eTitle"></div>
@@ -198,9 +215,9 @@ tbody tr:nth-child(even) td:first-child{background:#f8f9ff}
         </div>
         <div style="text-align:right" id="eLabel"></div>
       </div>
-      <div class="score-row">
+      <div class="srow">
         <button class="pm" onclick="adj(-1)">−</button>
-        <div class="score-big" id="eBig">—</div>
+        <div class="sbig" id="eBig">—</div>
         <button class="pm" onclick="adj(1)">+</button>
       </div>
       <div class="nrow">
@@ -223,29 +240,52 @@ tbody tr:nth-child(even) td:first-child{background:#f8f9ff}
     </div>
   </div>
 
+  <!-- SCORECARD -->
   <div id="tab-scorecard" class="panel">
     <div class="scwrap"><table id="scTable"></table></div>
-    <div style="display:flex;gap:12px;font-size:11px;color:#6b7280;flex-wrap:wrap;margin-top:8px">
+    <div style="display:flex;gap:12px;font-size:11px;color:#6b7280;flex-wrap:wrap;margin-top:8px;margin-bottom:4px">
       <span><span style="display:inline-block;width:14px;height:14px;background:#bbf7d0;border:2px solid #16a34a;border-radius:2px;vertical-align:middle"></span> Birdie</span>
       <span><span style="display:inline-block;width:14px;height:14px;background:#fde68a;border:2px solid #d97706;border-radius:2px;vertical-align:middle"></span> Eagle</span>
-      <span><span style="display:inline-block;width:14px;height:14px;background:#fca5a5;border:1px solid #ef4444;border-radius:2px;vertical-align:middle"></span> Bogey</span>
-      <span><span style="display:inline-block;width:14px;height:14px;background:#f87171;border:1px solid #dc2626;border-radius:2px;vertical-align:middle"></span> Dbl+</span>
-      <span style="color:#15803d;font-weight:700">•</span> = hcp stroke
+      <span><span style="display:inline-block;width:14px;height:14px;background:#fca5a5;border:1px solid #c8102e;border-radius:2px;vertical-align:middle"></span> Bogey</span>
+      <span><span style="display:inline-block;width:14px;height:14px;background:#f87171;border:1px solid #991b1b;border-radius:2px;vertical-align:middle"></span> Dbl+</span>
+      <span><span style="color:#15803d;font-weight:700">•</span> = hcp stroke</span>
+    </div>
+    <!-- EDIT SCORE -->
+    <div class="editbox">
+      <div style="font-size:13px;font-weight:700;color:#0d2d6e;margin-bottom:10px">Edit a score</div>
+      <div class="selrow">
+        <div class="selcol">
+          <label>Player</label>
+          <select id="edP" onchange="edBuildScore()" style="margin-bottom:0"></select>
+        </div>
+        <div class="selcol">
+          <label>Hole</label>
+          <select id="edH" onchange="edBuildScore()" style="margin-bottom:0"></select>
+        </div>
+        <div class="selcol">
+          <label>Score</label>
+          <select id="edS" style="margin-bottom:0;border-color:#c8102e"></select>
+        </div>
+      </div>
+      <button class="btn btn-dark" onclick="edApply()" style="margin-bottom:0">Update score</button>
+      <div id="edMsg" style="display:none"></div>
     </div>
   </div>
 
+  <!-- SUMMARY -->
   <div id="tab-summary" class="panel">
     <div class="row" id="sBtns"></div>
     <div id="sContent"></div>
   </div>
 
+  <!-- LEADERBOARD -->
   <div id="tab-leaderboard" class="panel">
     <div id="lbContent"></div>
-    <div id="lbBanner" style="display:none;background:#0d2d6e;border-radius:10px;padding:14px;text-align:center;margin-top:8px;border-left:4px solid #c8102e">
+    <div id="lbBanner" style="display:none;background:#0d2d6e;padding:14px;text-align:center;margin-top:8px;border-top:4px solid #c8102e">
       <div style="font-size:12px;color:#93b4e0;margin-bottom:4px">Share in WhatsApp for live scores</div>
       <div class="code" id="lbCode"></div>
     </div>
-    <div id="emailBox" style="display:none" class="email-box">
+    <div id="emailBox" style="display:none" class="embox">
       <div style="font-size:15px;font-weight:700;color:#0d2d6e;margin-bottom:4px">Email scorecard</div>
       <div style="font-size:13px;color:#4a5a7a;margin-bottom:12px">Send the full results to your group</div>
       <input id="emailTo" placeholder="Email addresses (comma separated — or leave blank)"/>
@@ -282,7 +322,7 @@ function buildSetup(){
   [2,3,4,6,8,10,12,14,16].forEach(function(n){
     var b=document.createElement('button');b.className='btn-sm'+(n===S.np?' on':'');b.textContent=n;b.onclick=function(){S.np=n;buildSetup()};nr.appendChild(b);
   });
-  var pf=$('pFields');pf.innerHTML='<div class="prow" style="margin-bottom:2px"><span style="font-size:11px;color:#9ca3af;font-weight:600">Name</span><span style="font-size:11px;color:#9ca3af;font-weight:600;text-align:center">HCP</span></div>';
+  var pf=$('pFields');pf.innerHTML='<div class="prow" style="margin-bottom:2px"><span style="font-size:11px;color:#9ca3af;font-weight:700;text-transform:uppercase">Name</span><span style="font-size:11px;color:#9ca3af;font-weight:700;text-align:center;text-transform:uppercase">HCP</span></div>';
   for(var i=0;i<S.np;i++){
     var r=document.createElement('div');r.className='prow';
     r.innerHTML='<input placeholder="Player '+(i+1)+'" value="'+S.names[i]+'" data-pi="'+i+'" oninput="S.names[this.dataset.pi]=this.value"/><input type="number" min="0" max="36" value="'+S.hcps[i]+'" data-pi="'+i+'" style="text-align:center" oninput="S.hcps[this.dataset.pi]=parseInt(this.value)||0"/>';
@@ -298,10 +338,9 @@ function setMode(m){S.mode=m;$('mStroke').className='btn-sm'+(m==='strokeplay'?'
 var DF=[],DI=0,DO=false,ST=null;
 function ddFilter(q){
   clearTimeout(ST);var dl=$('ddlist');
-  if(!q||q.trim().length<1){DF=COURSES.slice(0,50);DI=0;ddRender();return}
   ST=setTimeout(function(){
     var lq=q.trim().toLowerCase();
-    DF=COURSES.filter(function(c){return c.toLowerCase().indexOf(lq)>=0}).slice(0,60);
+    DF=lq?COURSES.filter(function(c){return c.toLowerCase().indexOf(lq)>=0}).slice(0,60):COURSES.slice(0,50);
     DI=0;ddRender();
   },150);
 }
@@ -335,7 +374,7 @@ function lookupSite(name){
   $('wsdot').style.background='#f59e0b';$('wstext').textContent='Finding website...';$('wsbtn').style.display='none';
   var k=name.toLowerCase();
   for(var key in KNOWN){if(k.indexOf(key)>=0){setSite(KNOWN[key]);return}}
-  fetch('https://api.anthropic.com/v1/messages',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({model:'claude-sonnet-4-20250514',max_tokens:150,system:'Return ONLY JSON: {"url":"https://...","found":true} or {"url":"","found":false} for the official website of this UK golf course.',messages:[{role:'user',content:'Official website for: '+name}]})})
+  fetch('https://api.anthropic.com/v1/messages',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({model:'claude-sonnet-4-20250514',max_tokens:150,system:'Return ONLY JSON: {"url":"https://...","found":true} or {"url":"","found":false} for the official website of this golf course.',messages:[{role:'user',content:'Official website for: '+name}]})})
   .then(function(r){return r.json()}).then(function(d){
     var t=d.content.map(function(b){return b.text||''}).join('');
     var p=JSON.parse(t.replace(/```json|```/g,'').trim());
@@ -346,16 +385,17 @@ function setSite(url){S.curl=url;$('wsdot').style.background='#10b981';$('wstext
 function setNoSite(){$('wsdot').style.background='#9ca3af';$('wstext').textContent='No website found'}
 function openUrl(){if(S.curl)window.open(S.curl,'_blank')}
 function openCourseUrl(){if(R&&R.curl)window.open(R.curl,'_blank')}
-
 function loadCourseCard(name){
-  var ci=$('courseInfo');ci.style.display='block';ci.style.background='#f0fdf4';ci.style.borderColor='#bbf7d0';ci.style.color='#166534';
-  ci.textContent='Loading scorecard for '+name.split(',')[0]+'...';
-  fetch('https://api.anthropic.com/v1/messages',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({model:'claude-sonnet-4-20250514',max_tokens:600,system:'Return ONLY JSON: {"par":[4,4,3,4,5,3,4,4,5,4,4,3,4,5,3,4,4,5],"si":[7,11,15,3,1,17,9,13,5,8,12,16,4,2,18,10,14,6],"found":true}. Par=18 hole pars, si=18 stroke indexes. If unknown set found:false.',messages:[{role:'user',content:'Par and stroke index for 18 holes at '+name+' golf course UK'}]})})
+  var ci=$('courseInfo');ci.style.display='block';ci.textContent='Loading scorecard for '+name.split(',')[0]+'...';
+  fetch('https://api.anthropic.com/v1/messages',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({model:'claude-sonnet-4-20250514',max_tokens:600,system:'Return ONLY JSON no markdown: {"par":[4,4,3,4,5,3,4,4,5,4,4,3,4,5,3,4,4,5],"si":[7,11,15,3,1,17,9,13,5,8,12,16,4,2,18,10,14,6],"found":true}',messages:[{role:'user',content:'Par and stroke index for 18 holes at '+name}]})})
   .then(function(r){return r.json()}).then(function(d){
     var t=d.content.map(function(b){return b.text||''}).join('');
     var p=JSON.parse(t.replace(/```json|```/g,'').trim());
-    if(p.par&&p.si&&p.par.length===18){S.pars=p.par;S.si=p.si;buildSetup();ci.textContent=p.found?'Scorecard loaded for '+name.split(',')[0]+'!':'Default scorecard — edit if needed.';if(!p.found){ci.style.background='#fffbeb';ci.style.borderColor='#fde68a';ci.style.color='#92400e'}}
-  }).catch(function(){ci.textContent='Could not load scorecard — using defaults.';ci.style.background='#fffbeb';ci.style.borderColor='#fde68a';ci.style.color='#92400e'});
+    if(p.par&&p.si&&p.par.length===18){S.pars=p.par;S.si=p.si;buildSetup();
+      ci.textContent=p.found?'Scorecard loaded for '+name.split(',')[0]+'!':'Default scorecard — edit if needed.';
+      ci.style.borderLeftColor=p.found?'#16a34a':'#d97706';ci.style.background=p.found?'#f0fdf4':'#fffbeb';ci.style.color=p.found?'#166534':'#92400e';
+    }
+  }).catch(function(){ci.textContent='Could not load scorecard — using defaults.';ci.style.borderLeftColor='#d97706';ci.style.background='#fffbeb';ci.style.color='#92400e'});
 }
 
 function doCreate(){
@@ -366,11 +406,9 @@ function doCreate(){
 }
 function doJoin(){
   $('joinErr').style.display='none';
-  var code=$('joinInput').value.trim().toUpperCase();
-  if(!code)return;
-  fbGet('rounds/'+code).then(function(d){if(!d)throw new Error('not found');RC=code;R=d;startPlay()}).catch(function(){$('joinErr').textContent='Room not found — check the code.';$('joinErr').style.display='block'});
+  var code=$('joinInput').value.trim().toUpperCase();if(!code)return;
+  fbGet('rounds/'+code).then(function(d){if(!d)throw new Error();RC=code;R=d;startPlay()}).catch(function(){$('joinErr').textContent='Room not found — check the code.';$('joinErr').style.display='block'});
 }
-
 function startPlay(){
   AP=0;AH=0;
   $('codeDisp').textContent=RC;$('lbCode').textContent=RC;
@@ -393,7 +431,9 @@ function doEnd(){if(PT)clearInterval(PT);R=null;RC='';show('p-home')}
 function switchTab(t,el){
   document.querySelectorAll('.tab').forEach(function(b){b.classList.remove('on')});el.classList.add('on');
   document.querySelectorAll('.panel').forEach(function(p){p.classList.remove('on')});$('tab-'+t).classList.add('on');
-  if(t==='summary')renderSummary();if(t==='leaderboard')renderLB();if(t==='scorecard')initEditDropdowns();
+  if(t==='scorecard')edInit();
+  if(t==='summary')renderSummary();
+  if(t==='leaderboard')renderLB();
 }
 function renderAll(){renderPBtns();renderHBtns();renderEntry();renderSC();renderLB()}
 
@@ -441,12 +481,11 @@ function renderSC(){
   R.pars.forEach(function(p){h+='<td>'+p+'</td>'});
   h+='<td>'+tp+'</td><td></td></tr></thead><tbody>';
   for(var pi=0;pi<R.np;pi++){
-    var hcp=R.hcps[pi]||0,gross=0,stable=0,played=0,toPar=0,cells='';
+    var hcp=R.hcps[pi]||0,gross=0,stable=0,toPar=0,cells='';
     R.scores[pi].forEach(function(v,hi){
       var s=v||0,hs=hcpS(hcp,R.si[hi]),pts=sbPts(s,R.pars[hi],hs);
-      if(s){gross+=s;stable+=pts;toPar+=s-R.pars[hi];played++}
-      var cls=s?sCls(s,R.pars[hi]):'';
-      cells+='<td class="'+cls+'">'+(s||'')+(hs>0&&s?'<sup style="font-size:7px;color:#15803d">'+('•'.repeat(hs))+'</sup>':'')+'</td>';
+      if(s){gross+=s;stable+=pts;toPar+=s-R.pars[hi]}
+      cells+='<td class="'+(s?sCls(s,R.pars[hi]):'')+'">'+(s||'')+(hs>0&&s?'<sup style="font-size:7px;color:#15803d">'+('•'.repeat(hs))+'</sup>':'')+'</td>';
     });
     var tpStr=gross?(R.mode==='stableford'?stable:(toPar===0?'E':toPar>0?'+'+toPar:toPar)):'';
     var tc=R.mode==='stableford'?'#0d2d6e':(toPar<0?'#15803d':toPar>0?'#c8102e':'#4a5a7a');
@@ -454,6 +493,45 @@ function renderSC(){
   }
   h+='</tbody>';$('scTable').innerHTML=h;
 }
+
+// Edit score dropdowns
+function edInit(){
+  if(!R)return;
+  var ep=$('edP'),eh=$('edH');
+  ep.innerHTML='';
+  for(var i=0;i<R.np;i++){var o=document.createElement('option');o.value=i;o.textContent=R.names[i]||'P'+(i+1);ep.appendChild(o)}
+  eh.innerHTML='';
+  for(var i=0;i<18;i++){var o=document.createElement('option');o.value=i;o.textContent='Hole '+(i+1)+' (Par '+R.pars[i]+')';eh.appendChild(o)}
+  edBuildScore();
+}
+function edBuildScore(){
+  if(!R)return;
+  var pi=parseInt($('edP').value)||0,hi=parseInt($('edH').value)||0;
+  var cur=R.scores[pi][hi]||0,par=R.pars[hi],hcp=R.hcps[pi]||0,hs=hcpS(hcp,R.si[hi]);
+  var es=$('edS');es.innerHTML='';
+  var o0=document.createElement('option');o0.value=0;o0.textContent='— Clear —';es.appendChild(o0);
+  for(var n=1;n<=12;n++){
+    var o=document.createElement('option');o.value=n;
+    var d=n-par,lbl=n===1?'Hole in one!':d<=-2?'Eagle':d===-1?'Birdie':d===0?'Par':d===1?'Bogey':d===2?'Dbl Bogey':'+'+d;
+    var pts=sbPts(n,par,hs);
+    o.textContent=n+' — '+lbl+(R.mode==='stableford'?' ('+pts+'pts)':'');
+    if(n===cur)o.selected=true;
+    es.appendChild(o);
+  }
+}
+function edApply(){
+  if(!R)return;
+  var pi=parseInt($('edP').value),hi=parseInt($('edH').value),v=parseInt($('edS').value)||0;
+  R.scores[pi][hi]=v;R.ts=Date.now();
+  fbPatch('rounds/'+RC,{scores:R.scores,ts:R.ts}).catch(function(){});
+  renderSC();renderLB();
+  var m=$('edMsg');
+  var lb=v?sLabel(v,R.pars[hi]):{t:'Cleared',c:'#4a5a7a'};
+  m.textContent=(R.names[pi]||'P'+(pi+1))+' · Hole '+(hi+1)+' updated to '+(v||'cleared')+' — '+lb.t;
+  m.className='ok';m.style.borderLeftColor=lb.c;m.style.display='block';
+  setTimeout(function(){m.style.display='none'},3000);
+}
+
 function renderSummary(){
   var pi=AP,hcp=R.hcps[pi]||0,gross=0,stable=0,played=0,toPar=0,birds=0,bogs=0,pars_=0;
   var rows=R.scores[pi].map(function(v,hi){
@@ -480,7 +558,7 @@ function renderLB(){
   }
   stats.sort(function(a,b){return R.mode==='stableford'?b.stable-a.stable:a.toPar-b.toPar});
   var lbc=$('lbContent');
-  if(!stats.length){lbc.innerHTML='<p style="color:#9ca3af;font-size:14px;padding:1rem 0">No scores yet — use Entry tab.</p>';$('lbBanner').style.display='none';$('emailBox').style.display='none';return}
+  if(!stats.length){lbc.innerHTML='<p style="color:#9ca3af;font-size:14px;padding:1rem 0">No scores yet.</p>';$('lbBanner').style.display='none';$('emailBox').style.display='none';return}
   var ranks=['1st','2nd','3rd'];
   lbc.innerHTML=stats.map(function(p,i){
     var sc=R.mode==='stableford'?p.stable:p.gross;
@@ -492,62 +570,7 @@ function renderLB(){
   $('emailBox').style.display='block';
 }
 
-function initEditDropdowns(){
-  var ep=$('editPlayer'),eh=$('editHole'),es=$('editScore');
-  if(!ep||!R)return;
-  ep.innerHTML='';
-  for(var i=0;i<R.np;i++){
-    var o=document.createElement('option');o.value=i;o.textContent=R.names[i]||'P'+(i+1);ep.appendChild(o);
-  }
-  eh.innerHTML='';
-  for(var i=0;i<18;i++){
-    var o=document.createElement('option');o.value=i;o.textContent='Hole '+(i+1)+' (Par '+R.pars[i]+')';eh.appendChild(o);
-  }
-  buildScoreOptions();
-}
-function buildScoreOptions(){
-  var ep=$('editPlayer'),eh=$('editHole'),es=$('editScore');
-  if(!ep||!eh||!es||!R)return;
-  var pi=parseInt(ep.value)||0,hi=parseInt(eh.value)||0;
-  var cur=R.scores[pi][hi]||0,par=R.pars[hi],hcp=R.hcps[pi]||0,hs=hcpS(hcp,R.si[hi]);
-  es.innerHTML='';
-  var opt=document.createElement('option');opt.value=0;opt.textContent='— Clear score —';es.appendChild(opt);
-  for(var n=1;n<=12;n++){
-    var o=document.createElement('option');
-    o.value=n;
-    var d=n-par,label='';
-    if(n===1)label='Hole in one!';
-    else if(d<=-2)label='Eagle';
-    else if(d===-1)label='Birdie';
-    else if(d===0)label='Par';
-    else if(d===1)label='Bogey';
-    else if(d===2)label='Dbl Bogey';
-    else label='+'+d;
-    var netD=n-hs-par,pts=sbPts(n,par,hs);
-    o.textContent=n+' — '+label+(R.mode==='stableford'?' ('+pts+' pts)':'');
-    if(n===cur)o.selected=true;
-    es.appendChild(o);
-  }
-}
-function updateEditDropdowns(){buildScoreOptions()}
-function updateEditScore(){buildScoreOptions()}
-function applyEditScore(){
-  var ep=$('editPlayer'),eh=$('editHole'),es=$('editScore');
-  if(!ep||!eh||!es||!R)return;
-  var pi=parseInt(ep.value),hi=parseInt(eh.value),v=parseInt(es.value)||0;
-  R.scores[pi][hi]=v;R.ts=Date.now();
-  fbPatch('rounds/'+RC,{scores:R.scores,ts:R.ts}).then(function(){
-    var m=$('editMsg');
-    var name=R.names[pi]||'P'+(pi+1);
-    var par=R.pars[hi],hcp=R.hcps[pi]||0,hs=hcpS(hcp,R.si[hi]);
-    var lb=v?sLabel(v,par):{t:'Cleared',c:'#4a5a7a'};
-    m.textContent=name+' · Hole '+(hi+1)+': '+(v||'cleared')+' — '+lb.t;
-    m.style.display='block';
-    m.style.borderLeftColor=v?lb.c:'#4a5a7a';
-    setTimeout(function(){m.style.display='none'},3000);
-  }).catch(function(){});
-  renderSC();renderLB();
-}
+function buildText(){
   var L=[],date=new Date().toLocaleDateString('en-GB',{weekday:'long',year:'numeric',month:'long',day:'numeric'});
   L.push('GOLF SCORECARD');L.push('==============');
   L.push('Course: '+(R.course||'Golf Round'));L.push('Date: '+date);
@@ -560,41 +583,36 @@ function applyEditScore(){
     if(played)stats.push({pi:pi,name:R.names[pi]||'P'+(pi+1),gross:gross,stable:stable,played:played,toPar:toPar,hcp:hcp});
   }
   stats.sort(function(a,b){return R.mode==='stableford'?b.stable-a.stable:a.toPar-b.toPar});
-  ['1st','2nd','3rd'].forEach(function(m,i){if(stats[i]){var p=stats[i];var sc=R.mode==='stableford'?p.stable+' pts':p.gross+' ('+(p.toPar===0?'E':p.toPar>0?'+'+p.toPar:p.toPar)+')';L.push(m+' '+p.name+' — '+sc+' (HCP '+p.hcp+')')}});
-  stats.slice(3).forEach(function(p,i){var sc=R.mode==='stableford'?p.stable+' pts':p.gross+' ('+(p.toPar===0?'E':p.toPar>0?'+'+p.toPar:p.toPar)+')';L.push((i+4)+'th '+p.name+' — '+sc+' (HCP '+p.hcp+')')});
+  stats.forEach(function(p,i){
+    var sc=R.mode==='stableford'?p.stable+' pts':p.gross+' ('+(p.toPar===0?'E':p.toPar>0?'+'+p.toPar:p.toPar)+')';
+    L.push(((['1st','2nd','3rd'][i])||(i+1)+'th')+' '+p.name+' — '+sc+' (HCP '+p.hcp+')');
+  });
   L.push('');L.push('SCORECARD');L.push('---------');
-  var hdr='       ';for(var i=1;i<=18;i++)hdr+=String(i).padStart(3);hdr+='  TOT '+(R.mode==='stableford'?'PTS':'+/-');L.push(hdr);
+  var hdr='       ';for(var i=1;i<=18;i++)hdr+=String(i).padStart(3);hdr+='  TOT';L.push(hdr);
   var pr='Par    ';R.pars.forEach(function(p){pr+=String(p).padStart(3)});pr+='  '+String(R.pars.reduce(function(a,b){return a+b},0)).padStart(3);L.push(pr);L.push('');
   for(var pi=0;pi<R.np;pi++){
-    var hcp=R.hcps[pi]||0,gross=0,stable=0,toPar=0;
+    var hcp=R.hcps[pi]||0,gross=0,toPar=0,stable=0;
     var row=(R.names[pi]||'P'+(pi+1)).substring(0,7).padEnd(7);
-    R.scores[pi].forEach(function(v,hi){var s=v||0,hs=hcpS(hcp,R.si[hi]),pts=sbPts(s,R.pars[hi],hs);if(s){gross+=s;stable+=pts;toPar+=s-R.pars[hi]}row+=String(s||'-').padStart(3)});
+    R.scores[pi].forEach(function(v,hi){var s=v||0,hs=hcpS(hcp,R.si[hi]),pts=sbPts(s,R.pars[hi],hs);if(s){gross+=s;toPar+=s-R.pars[hi];stable+=pts}row+=String(s||'-').padStart(3)});
     var tpStr=gross?(R.mode==='stableford'?stable:(toPar===0?'E':toPar>0?'+'+toPar:toPar)):'-';
     L.push(row+'  '+String(gross||'-').padStart(3)+'  '+tpStr);
   }
-  L.push('');L.push('Sent from Golf Scorecard App');L.push('https://golf-two-psi.vercel.app');
+  L.push('');L.push('Golf Scorecard App — https://golf-two-psi.vercel.app');
   return L.join('\n');
 }
-
-function showMsg(txt,ok){
-  var m=$('emailMsg');m.textContent=txt;m.className=ok?'msg-ok':'msg-warn';m.style.display='block';
-}
-
+function showMsg(txt,ok){var m=$('emailMsg');m.textContent=txt;m.className=ok?'ok':'warn';m.style.display='block'}
 function sendEmail(){
   var to=$('emailTo').value.trim();
-  var text=buildText();
   var subj=encodeURIComponent('Golf Scorecard – '+(R.course||'Golf Round')+' – '+new Date().toLocaleDateString('en-GB'));
-  var body=encodeURIComponent(text);
-  window.location.href='mailto:'+(to?encodeURIComponent(to):'')+' ?subject='+subj+'&body='+body;
+  var body=encodeURIComponent(buildText());
+  window.location.href='mailto:'+(to||'')+' ?subject='+subj+'&body='+body;
   showMsg('Opening your email app...',true);
 }
-
 function copyCard(){
   var text=buildText();
-  function ok(){showMsg('Copied! Paste into WhatsApp, email or messages.',true)}
-  function fail(){showMsg('Could not copy — try the email button.',false)}
-  if(navigator.clipboard&&navigator.clipboard.writeText){navigator.clipboard.writeText(text).then(ok).catch(function(){ta(text,ok,fail)})}
-  else ta(text,ok,fail);
+  function ok(){showMsg('Copied! Paste into WhatsApp or email.',true)}
+  function fail(){showMsg('Could not copy — use the email button.',false)}
+  if(navigator.clipboard&&navigator.clipboard.writeText){navigator.clipboard.writeText(text).then(ok).catch(function(){ta(text,ok,fail)})}else ta(text,ok,fail);
 }
 function ta(text,ok,fail){
   var el=document.createElement('textarea');el.value=text;el.style.position='fixed';el.style.opacity='0';
