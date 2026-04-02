@@ -1,1 +1,682 @@
-hello
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1"/>
+<title>Golf Scorecard</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:-apple-system,BlinkMacSystemFont,sans-serif;background:#f3f4f6;min-height:100vh;padding:16px}
+.page{display:none}.page.on{display:block}
+.card{background:#fff;border-radius:12px;padding:20px;margin-bottom:14px;border:1px solid #e5e7eb}
+h1{font-size:22px;font-weight:700;margin-bottom:4px}
+h2{font-size:18px;font-weight:700;margin-bottom:16px}
+.sub{font-size:14px;color:#6b7280;margin-bottom:24px}
+input,select{width:100%;padding:12px;border:1.5px solid #d1d5db;border-radius:8px;font-size:15px;margin-bottom:10px;background:#fff;color:#111}
+input:focus{border-color:#1f2937;outline:none}
+.btn{width:100%;padding:14px;border-radius:8px;border:none;font-size:15px;font-weight:700;cursor:pointer;margin-bottom:8px}
+.btn-dark{background:#1f2937;color:#fff}
+.btn-white{background:#fff;color:#1f2937;border:1.5px solid #d1d5db}
+.btn-sm{width:auto;padding:7px 14px;font-size:13px;font-weight:600;border-radius:7px;border:1.5px solid #d1d5db;background:#fff;cursor:pointer}
+.btn-sm.on{background:#1f2937;color:#fff;border-color:#1f2937}
+.row{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:12px}
+.err{color:#ef4444;font-size:13px;padding:10px;background:#fef2f2;border-radius:8px;margin-bottom:10px;display:none}
+.banner{background:#1f2937;color:#fff;border-radius:10px;padding:14px 16px;margin-bottom:14px;display:flex;justify-content:space-between;align-items:center}
+.code{font-size:26px;font-weight:700;letter-spacing:5px;font-family:monospace}
+.live{font-size:12px;font-weight:600;color:#34d399}
+.offline{font-size:12px;font-weight:600;color:#f59e0b}
+.tabs{display:flex;gap:6px;margin-bottom:14px;flex-wrap:wrap}
+.tab{padding:8px 16px;border-radius:8px;border:1.5px solid #d1d5db;background:#fff;font-size:13px;font-weight:600;cursor:pointer}
+.tab.on{background:#1f2937;color:#fff;border-color:#1f2937}
+.panel{display:none}.panel.on{display:block}
+label{font-size:13px;color:#6b7280;display:block;margin-bottom:5px;margin-top:12px;font-weight:600}
+.grid9{display:grid;grid-template-columns:repeat(9,1fr);gap:4px;margin-bottom:12px}
+.grid9 .cell{text-align:center}
+.grid9 .cell span{font-size:10px;color:#9ca3af;display:block;margin-bottom:2px}
+.grid9 input{padding:5px 2px;font-size:12px;text-align:center;margin:0}
+.prow{display:grid;grid-template-columns:1fr 70px;gap:6px;margin-bottom:6px}
+.prow input{margin:0}
+.hgrid{display:grid;grid-template-columns:repeat(9,1fr);gap:5px;margin-bottom:14px}
+.hbtn{padding:8px 2px;border-radius:7px;border:1.5px solid #d1d5db;background:#fff;font-size:13px;font-weight:600;cursor:pointer;text-align:center}
+.hbtn.on{background:#1f2937;color:#fff;border-color:#1f2937}
+.hbtn.bir{background:#d1fae5;border-color:#10b981}
+.hbtn.eag{background:#fef3c7;border-color:#f59e0b}
+.hbtn.bog{background:#fee2e2}
+.hbtn.dbl{background:#fecaca}
+.entry-box{background:#f9fafb;border-radius:12px;padding:16px;margin-bottom:14px;border:1px solid #e5e7eb}
+.score-row{display:flex;align-items:center;gap:16px;margin:14px 0}
+.score-big{font-size:48px;font-weight:700;min-width:60px;text-align:center}
+.pm{font-size:28px;padding:6px 18px;border-radius:8px;border:1.5px solid #d1d5db;background:#fff;cursor:pointer;font-weight:700}
+.nrow{display:flex;gap:5px;flex-wrap:wrap}
+.nbtn{padding:10px 14px;border-radius:7px;border:1.5px solid #d1d5db;background:#fff;font-size:15px;font-weight:600;cursor:pointer}
+.nbtn.on{background:#1f2937;color:#fff;border-color:#1f2937}
+.scwrap{overflow-x:auto}
+table{border-collapse:collapse;min-width:520px;width:100%;font-size:11px}
+th,td{padding:5px 3px;text-align:center;border-bottom:1px solid #f3f4f6}
+th:first-child,td:first-child{text-align:left;padding-left:8px;min-width:75px;position:sticky;left:0;background:#fff}
+thead th{background:#f3f4f6;font-weight:700}
+thead th:first-child{background:#f3f4f6}
+.bir{background:#d1fae5}.eag{background:#fef3c7}.bog{background:#fee2e2}.dbl{background:#fecaca}
+.lbrow{display:flex;align-items:center;gap:12px;padding:13px 16px;margin-bottom:8px;border-radius:10px;border:1px solid #e5e7eb;background:#fff}
+.lbrow.gold{background:#fffbeb;border:2px solid #f59e0b}
+.rank{font-size:15px;font-weight:700;min-width:36px;color:#9ca3af}
+.gold .rank{color:#b45309}
+.lbscore{text-align:right}
+.lbscore .big{font-size:22px;font-weight:700}
+.sbox{background:#f9fafb;border-radius:8px;padding:10px 12px;border:1px solid #e5e7eb}
+.sbox .sl{font-size:11px;color:#6b7280;margin-bottom:3px}
+.sbox .sv{font-size:20px;font-weight:700}
+.g4{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-bottom:12px}
+.g3{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:14px}
+.hrow{display:flex;align-items:center;gap:10px;padding:9px 12px;margin-bottom:5px;border-radius:8px;border:1px solid #e5e7eb;background:#f9fafb}
+.green{color:#10b981}.red{color:#ef4444}.amber{color:#f59e0b}
+/* dropdown */
+.ddwrap{position:relative;margin-bottom:8px}
+.ddwrap input{margin-bottom:0;border-radius:8px}
+.ddlist{display:none;position:absolute;top:100%;left:0;right:0;background:#fff;border:2px solid #1f2937;border-top:1px solid #e5e7eb;border-radius:0 0 10px 10px;max-height:250px;overflow-y:auto;z-index:999;box-shadow:0 6px 20px rgba(0,0,0,0.15)}
+.dditem{padding:12px 16px;cursor:pointer;display:flex;justify-content:space-between;border-bottom:1px solid #f3f4f6}
+.dditem:active,.dditem.hi{background:#1f2937}
+.dditem:active .dn,.dditem.hi .dn{color:#fff}
+.dditem:active .dr,.dditem.hi .dr{color:#d1d5db}
+.dn{font-size:15px;font-weight:600;color:#111}
+.dr{font-size:12px;color:#6b7280;white-space:nowrap}
+.ddfoot{padding:7px 16px;font-size:11px;color:#9ca3af;background:#f9fafb}
+.wsrow{display:flex;align-items:center;gap:10px;padding:10px 14px;background:#f9fafb;border-radius:8px;border:1px solid #e5e7eb;margin-bottom:12px}
+.dot{width:10px;height:10px;border-radius:50%;flex-shrink:0}
+</style>
+</head>
+<body>
+
+<!-- HOME -->
+<div id="p-home" class="page on">
+  <h1>Golf Scorecard</h1>
+  <p class="sub">Live scoring — share with your group</p>
+  <div class="card">
+    <h2>Start a new round</h2>
+    <p style="font-size:13px;color:#6b7280;margin-bottom:14px">Set up course, players & handicaps. Get a Room Code to share in WhatsApp.</p>
+    <button class="btn btn-dark" onclick="goSetup()">Set up round</button>
+  </div>
+  <div class="card">
+    <h2>Join a round</h2>
+    <p style="font-size:13px;color:#6b7280;margin-bottom:14px">Enter the Room Code from your WhatsApp group.</p>
+    <input id="joinInput" placeholder="Room Code e.g. AB12CD" maxlength="6" style="text-align:center;font-size:22px;font-weight:700;letter-spacing:6px" oninput="this.value=this.value.toUpperCase()"/>
+    <div id="joinErr" class="err"></div>
+    <button class="btn btn-dark" onclick="doJoin()">Join round</button>
+  </div>
+</div>
+
+<!-- SETUP -->
+<div id="p-setup" class="page">
+  <button class="btn-sm" onclick="show('p-home')" style="margin-bottom:16px">← Back</button>
+  <h2>Set up round</h2>
+
+  <label>Golf course</label>
+  <div class="ddwrap" id="ddwrap">
+    <input id="courseIn" placeholder="Search UK courses..." autocomplete="off"
+      oninput="ddFilter(this.value)" onfocus="ddOpen()" onkeydown="ddKey(event)"/>
+    <div class="ddlist" id="ddlist"></div>
+  </div>
+  <div id="wsrow" class="wsrow" style="display:none">
+    <div class="dot" id="wsdot" style="background:#f59e0b"></div>
+    <span id="wstext" style="font-size:13px;flex:1">Finding website...</span>
+    <button class="btn-sm" id="wsbtn" onclick="openUrl()" style="display:none">Visit ↗</button>
+  </div>
+
+  <label>Scoring mode</label>
+  <div class="row">
+    <button class="btn-sm on" id="mStroke" onclick="setMode('strokeplay')">Stroke play</button>
+    <button class="btn-sm" id="mStable" onclick="setMode('stableford')">Stableford</button>
+  </div>
+
+  <label>Number of players</label>
+  <div class="row" id="npRow"></div>
+
+  <label>Players & handicaps</label>
+  <div id="pFields"></div>
+
+  <label>Par per hole</label>
+  <div class="grid9" id="parGrid"></div>
+
+  <label>Stroke index per hole</label>
+  <div class="grid9" id="siGrid"></div>
+
+  <div id="setupErr" class="err"></div>
+  <button class="btn btn-dark" style="margin-top:16px" onclick="doCreate()">Create round & get Room Code</button>
+</div>
+
+<!-- PLAY -->
+<div id="p-play" class="page">
+  <div class="banner">
+    <div>
+      <div style="font-size:11px;color:#9ca3af;margin-bottom:4px">Room Code — share in WhatsApp</div>
+      <div class="code" id="codeDisp"></div>
+    </div>
+    <div style="text-align:right">
+      <div id="liveDisp" class="offline">⏳ Syncing...</div>
+      <div id="timeDisp" style="font-size:11px;color:#9ca3af;margin-top:2px"></div>
+    </div>
+  </div>
+  <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px">
+    <div>
+      <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap">
+        <span style="font-size:17px;font-weight:700" id="playName"></span>
+        <button class="btn-sm" id="playWebBtn" onclick="openCourseUrl()" style="display:none">Website ↗</button>
+      </div>
+      <div style="font-size:13px;color:#6b7280;margin-top:2px" id="playMeta"></div>
+    </div>
+    <button class="btn-sm" onclick="doEnd()">End</button>
+  </div>
+  <div class="tabs">
+    <button class="tab on" onclick="switchTab('entry',this)">Entry</button>
+    <button class="tab" onclick="switchTab('scorecard',this)">Scorecard</button>
+    <button class="tab" onclick="switchTab('summary',this)">Summary</button>
+    <button class="tab" onclick="switchTab('leaderboard',this)">Leaderboard</button>
+  </div>
+
+  <!-- ENTRY -->
+  <div id="tab-entry" class="panel on">
+    <label>Player</label>
+    <div class="row" id="pBtns"></div>
+    <label>Hole</label>
+    <div class="hgrid" id="hBtns"></div>
+    <div class="entry-box">
+      <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:8px">
+        <div>
+          <div style="font-size:15px;font-weight:700" id="eTitle"></div>
+          <div style="font-size:12px;color:#6b7280;margin-top:3px" id="eMeta"></div>
+        </div>
+        <div style="text-align:right" id="eLabel"></div>
+      </div>
+      <div class="score-row">
+        <button class="pm" onclick="adj(-1)">−</button>
+        <div class="score-big" id="eBig">—</div>
+        <button class="pm" onclick="adj(1)">+</button>
+      </div>
+      <div class="nrow">
+        <button class="nbtn" onclick="setVal(1)">1</button>
+        <button class="nbtn" onclick="setVal(2)">2</button>
+        <button class="nbtn" onclick="setVal(3)">3</button>
+        <button class="nbtn" onclick="setVal(4)">4</button>
+        <button class="nbtn" onclick="setVal(5)">5</button>
+        <button class="nbtn" onclick="setVal(6)">6</button>
+        <button class="nbtn" onclick="setVal(7)">7</button>
+        <button class="nbtn" onclick="setVal(8)">8</button>
+        <button class="nbtn" onclick="setVal(9)">9</button>
+        <button class="nbtn" onclick="setVal(10)">10</button>
+        <button class="nbtn" style="color:#9ca3af" onclick="setVal(0)">Clear</button>
+      </div>
+    </div>
+    <div style="display:flex;gap:8px">
+      <button class="btn btn-white" id="prevBtn" onclick="prevH()" style="display:none">← Prev</button>
+      <button class="btn btn-dark" id="nextBtn" onclick="nextH()" style="display:none">Next →</button>
+    </div>
+  </div>
+
+  <!-- SCORECARD -->
+  <div id="tab-scorecard" class="panel">
+    <div class="scwrap"><table id="scTable"></table></div>
+    <div style="display:flex;gap:12px;font-size:11px;color:#6b7280;flex-wrap:wrap;margin-top:8px">
+      <span><span style="display:inline-block;width:12px;height:12px;background:#d1fae5;border:2px solid #10b981;border-radius:2px;vertical-align:middle"></span> Birdie</span>
+      <span><span style="display:inline-block;width:12px;height:12px;background:#fef3c7;border:2px solid #f59e0b;border-radius:2px;vertical-align:middle"></span> Eagle</span>
+      <span><span style="display:inline-block;width:12px;height:12px;background:#fee2e2;border-radius:2px;vertical-align:middle"></span> Bogey</span>
+    </div>
+  </div>
+
+  <!-- SUMMARY -->
+  <div id="tab-summary" class="panel">
+    <div class="row" id="sBtns"></div>
+    <div id="sContent"></div>
+  </div>
+
+  <!-- LEADERBOARD -->
+  <div id="tab-leaderboard" class="panel">
+    <div id="lbContent"></div>
+    <div id="lbFooter" style="display:none;background:#1f2937;border-radius:10px;padding:14px;text-align:center;margin-top:8px">
+      <div style="font-size:12px;color:#9ca3af;margin-bottom:4px">Share in WhatsApp for live scores</div>
+      <div class="code" id="lbCode"></div>
+    </div>
+  </div>
+</div>
+
+<script>
+var FB='https://rogs-9f527-default-rtdb.europe-west1.firebasedatabase.app';
+var KNOWN={"carlisle golf club":"https://www.carlislegolfclub.org/the-course","pollok golf club":"https://pollokgolf.com/","cabopino golf":"https://www.cabopinogolfmarbella.com/en/home/","la cala golf":"https://www.lacala.com/","calanova golf":"https://www.calanovagolf.es/web/en/index.php","torrequebrada golf":"https://golftorrequebrada.com/","chaparral golf":"https://golfelchaparral.com/en/"};
+var RAPIDAPI_KEY='f8df13357amsha8624aaa181b5aep1421c5jsn9143711ad0ff';
+var API_BASE='https://uk-golf-api.vercel.app';
+var API_HEADERS={'X-RapidAPI-Key':RAPIDAPI_KEY,'X-RapidAPI-Host':'uk-golf-course-data-api.p.rapidapi.com'};
+function apiGet(path){return fetch(API_BASE+path,{headers:API_HEADERS}).then(function(r){if(!r.ok)throw new Error(r.status);return r.json();});}
+var clubCache={};
+var COURSES=["Aberdovey Golf Club, Wales","Aldeburgh Golf Club, Suffolk","Alwoodley Golf Club, Leeds","Archerfield Links - Fidra Course, East Lothian","Ardglass Golf Club, County Down","Ashburnham Golf Club, Wales","Bamburgh Castle Golf Club, Northumberland","Ballyliffin Golf Club - Glashedy Links","Belvoir Park Golf Club, Belfast","Blairgowrie Golf Club - Rosemount, Perthshire","Brora Golf Club, Highland","Burnham and Berrow Golf Club, Somerset","Camberley Heath Golf Club, Surrey","Carlisle Golf Club, Cumbria","Carnoustie Golf Links - Championship, Angus","Carnoustie Golf Links - Burnside, Angus","Castle Stuart Golf Links, Highland","Celtic Manor Resort - Twenty Ten Course, Wales","Chart Hills Golf Club, Kent","Clandeboye Golf Club - Ava, County Down","Close House Golf Club, Newcastle","Conwy Golf Club, Wales","Crail Golfing Society - Balcomie Links, Fife","Cruden Bay Golf Club, Aberdeenshire","Dumbarnie Links, Fife","Dunbar Golf Club, East Lothian","Dundonald Links, Ayrshire","East Sussex National - East Course","Edgbaston Golf Club, Birmingham","Elie Golf Club, Fife","Fairmont St Andrews, Fife","Ferndown Golf Club, Dorset","Formby Golf Club, Merseyside","Fulford Golf Club, York","Galgorm Castle Golf Club, County Antrim","Ganton Golf Club, Yorkshire","Gleneagles - Kings Course, Perthshire","Gleneagles - Queens Course, Perthshire","Gleneagles - PGA Centenary, Perthshire","Gog Magog Golf Club, Cambridge","Golspie Golf Club, Highland","Gullane Golf Club No.1, East Lothian","Gullane Golf Club No.2, East Lothian","Hillside Golf Club, Southport","Huddersfield Golf Club, Fixby","Hunstanton Golf Club, Norfolk","Ilkley Golf Club, Yorkshire","Inverness Golf Club, Highland","Kingsbarns Golf Links, Fife","La Cala Golf – Campo America, Mijas Costa del Sol, Spain","La Cala Golf – Campo Asia, Mijas Costa del Sol, Spain","La Cala Golf – Campo Europa, Mijas Costa del Sol, Spain","La Moye Golf Club, Jersey","Ladybank Golf Club, Fife","Lindrick Golf Club, Yorkshire","Loch Lomond Golf Club, Dumbartonshire","London Golf Club, Kent","Lundin Golf Club, Fife","Machrie Hotel and Golf Links, Islay","Malone Golf Club, Belfast","Minchinhampton Golf Club, Gloucestershire","Moor Park Golf Club, Hertfordshire","Moortown Golf Club, Leeds","Moseley Golf Club, Birmingham","Muirfield, East Lothian","Murcar Links Golf Club, Aberdeen","Nairn Golf Club, Highland","Nefyn and District Golf Club, Wales","North Berwick Golf Club, East Lothian","Notts Golf Club Hollinwell, Nottinghamshire","Pannal Golf Club, Harrogate","Parkstone Golf Club, Dorset","Pennard Golf Club, Wales","Penrith Golf Club, Cumbria","Pollok Golf Club, Glasgow","Portstewart Golf Club, County Londonderry","Prestwick Golf Club, Ayrshire","Princes Golf Club, Sandwich","Queenwood Golf Club, Surrey","Remedy Oak Golf Club, Dorset","Royal Aberdeen Golf Club, Aberdeenshire","Royal Belfast Golf Club, Holywood","Royal Birkdale Golf Club, Southport","Royal County Down Golf Club","Royal Dornoch Golf Club, Highland","Royal Guernsey Golf Club","Royal Jersey Golf Club","Royal Liverpool Golf Club, Hoylake","Royal Lytham and St Annes Golf Club","Royal North Devon Golf Club, Westward Ho","Royal Portrush Golf Club - Dunluce Links","Royal Portrush Golf Club - Valley Links","Royal Porthcawl Golf Club, Wales","Royal St Davids Golf Club, Harlech","Royal St Georges Golf Club, Sandwich","Royal Troon Golf Club, Ayrshire","Royal West Norfolk Golf Club, Brancaster","Rye Golf Club, East Sussex","St Andrews Links - Old Course, Fife","St Andrews Links - New Course, Fife","St Andrews Links - Jubilee Course, Fife","St Enodoc Golf Club, Cornwall","St Georges Hill Golf Club, Surrey","Saunton Golf Club - East Course, Devon","Scotscraig Golf Club, Fife","Seaton Carew Golf Club, Durham","Sherwood Forest Golf Club, Nottinghamshire","Silloth on Solway Golf Club, Cumbria","Slaley Hall Golf Resort, Northumberland","Southerndown Golf Club, Wales","Southport and Ainsdale Golf Club","Stoke Park Club, Buckinghamshire","Sunningdale Golf Club - Old Course, Surrey","Sunningdale Golf Club - New Course, Surrey","Swinley Forest Golf Club, Berkshire","Tenby Golf Club, Wales","The Belfry - Brabazon Course, Warwickshire","The Grove, Hertfordshire","Trevose Golf and Country Club, Cornwall","Trump International Golf Links, Aberdeenshire","Trump Turnberry - Ailsa Course, Ayrshire","Walton Heath Golf Club, Surrey","Wentworth Club - West Course, Surrey","West Lancashire Golf Club","Western Gailes Golf Club, Ayrshire","Windermere Golf Club, Cumbria","Woburn Golf Club - Dukes Course, Buckinghamshire","Woburn Golf Club - Marquess Course, Buckinghamshire","Woodbridge Golf Club, Suffolk","Woodhall Spa Golf Club, Lincolnshire"].sort();
+var DPARS=[4,4,3,4,5,3,4,4,5,4,4,3,4,5,3,4,4,5];
+var DSI=[7,11,15,3,1,17,9,13,5,8,12,16,4,2,18,10,14,6];
+
+var S={np:4,mode:'strokeplay',course:'',curl:'',names:Array(16).fill(0).map(function(_,i){return'Player '+(i+1)}),hcps:Array(16).fill(0),pars:DPARS.slice(),si:DSI.slice()};
+var R=null,RC='',AP=0,AH=0,PT=null,LS=null;
+
+function $(id){return document.getElementById(id)}
+function show(id){document.querySelectorAll('.page').forEach(function(p){p.classList.remove('on')});$(id).classList.add('on');window.scrollTo(0,0)}
+function genCode(){return Math.random().toString(36).substring(2,8).toUpperCase()}
+
+function fbGet(path){return fetch(FB+'/'+path+'.json').then(function(r){if(!r.ok)throw new Error(r.status);return r.json()})}
+function fbPut(path,d){return fetch(FB+'/'+path+'.json',{method:'PUT',body:JSON.stringify(d)}).then(function(r){if(!r.ok)throw new Error(r.status);return r.json()})}
+function fbPatch(path,d){return fetch(FB+'/'+path+'.json',{method:'PATCH',body:JSON.stringify(d)}).then(function(r){if(!r.ok)throw new Error(r.status);return r.json()})}
+
+function hcpS(h,si){if(h<=0)return 0;if(h>=36)return 2;return si<=h?1:0}
+function sbPts(s,par,hs){if(!s)return 0;var d=s-hs-par;if(d>=2)return 0;if(d===1)return 1;if(d===0)return 2;if(d===-1)return 3;if(d===-2)return 4;return 5}
+function sLabel(s,par){if(!s)return{t:'-',c:'#9ca3af'};var d=s-par;if(s===1)return{t:'Hole in one!',c:'#8b5cf6'};if(d<=-2)return{t:'Eagle',c:'#f59e0b'};if(d===-1)return{t:'Birdie',c:'#10b981'};if(d===0)return{t:'Par',c:'#6b7280'};if(d===1)return{t:'Bogey',c:'#ef4444'};if(d===2)return{t:'Dbl Bogey',c:'#dc2626'};return{t:'+'+d,c:'#991b1b'}}
+function sCls(s,par){if(!s)return'';var d=s-par;if(d<=-2)return'eag';if(d===-1)return'bir';if(d===1)return'bog';if(d>=2)return'dbl';return''}
+
+// ── SETUP ──
+function goSetup(){
+  buildSetup();
+  show('p-setup');
+}
+
+function buildSetup(){
+  // num players
+  var nr=$('npRow');nr.innerHTML='';
+  [2,3,4,6,8,10,12,14,16].forEach(function(n){
+    var b=document.createElement('button');
+    b.className='btn-sm'+(n===S.np?' on':'');
+    b.textContent=n;
+    b.onclick=function(){S.np=n;buildSetup()};
+    nr.appendChild(b);
+  });
+  // player fields
+  var pf=$('pFields');pf.innerHTML='<div class="prow" style="margin-bottom:2px"><span style="font-size:11px;color:#9ca3af;font-weight:600">Name</span><span style="font-size:11px;color:#9ca3af;font-weight:600;text-align:center">HCP</span></div>';
+  for(var i=0;i<S.np;i++){
+    var r=document.createElement('div');r.className='prow';
+    r.innerHTML='<input placeholder="Player '+(i+1)+'" value="'+S.names[i]+'" data-pi="'+i+'" oninput="S.names[this.dataset.pi]=this.value"/>'
+      +'<input type="number" min="0" max="36" value="'+S.hcps[i]+'" data-pi="'+i+'" style="text-align:center" oninput="S.hcps[this.dataset.pi]=parseInt(this.value)||0"/>';
+    pf.appendChild(r);
+  }
+  // par grid
+  var pg=$('parGrid');pg.innerHTML='';
+  for(var i=0;i<18;i++){
+    pg.innerHTML+='<div class="cell"><span>'+(i+1)+'</span><input type="number" min="3" max="6" value="'+S.pars[i]+'" data-i="'+i+'" oninput="S.pars[this.dataset.i]=parseInt(this.value)||4"/></div>';
+  }
+  // si grid
+  var sg=$('siGrid');sg.innerHTML='';
+  for(var i=0;i<18;i++){
+    sg.innerHTML+='<div class="cell"><span>'+(i+1)+'</span><input type="number" min="1" max="18" value="'+S.si[i]+'" data-i="'+i+'" oninput="S.si[this.dataset.i]=parseInt(this.value)||'+(i+1)+'"/></div>';
+  }
+}
+
+function setMode(m){
+  S.mode=m;
+  $('mStroke').className='btn-sm'+(m==='strokeplay'?' on':'');
+  $('mStable').className='btn-sm'+(m==='stableford'?' on':'');
+}
+
+var PROXY='https://golf-two-psi.vercel.app/api/proxy';
+var RAPIDAPI_KEY='f8df13357amsha8624aaa181b5aep1421c5jsn9143711ad0ff';
+
+function apiGet(path){
+  var url=encodeURIComponent('https://uk-golf-api.vercel.app'+path);
+  return fetch(PROXY+'?url='+url,{
+    headers:{
+      'x-rapidapi-key':RAPIDAPI_KEY,
+      'x-rapidapi-host':'uk-golf-course-data-api.p.rapidapi.com'
+    }
+  }).then(function(r){if(!r.ok)throw new Error(r.status);return r.json();});
+}
+
+var DF=[],DI=0,DO=false,searchTimer=null;
+function ddFilter(q){
+  clearTimeout(searchTimer);
+  var dl=$('ddlist');
+  if(!q||q.trim().length<2){DF=[];dl.style.display='none';return;}
+  dl.style.display='block';
+  dl.innerHTML='<div style="padding:12px 16px;font-size:13px;color:#6b7280">Searching...</div>';
+  searchTimer=setTimeout(function(){
+    apiGet('/clubs?name='+encodeURIComponent(q.trim())+'&per_page=20')
+    .then(function(d){
+      DF=(d.clubs||d.data||d||[]).slice(0,20);
+      DI=0;ddRender();
+    })
+    .catch(function(e){
+      // fallback to static list
+      var lq=q.trim().toLowerCase();
+      DF=COURSES.filter(function(c){return c.toLowerCase().indexOf(lq)>=0}).slice(0,40).map(function(c){
+        var pts=c.split(',');return{name:pts[0].trim(),county:pts.slice(1).join(',').trim(),static:true};
+      });
+      DI=0;ddRender();
+    });
+  },400);
+}
+function ddOpen(){DO=true;ddFilter($('courseIn').value);}
+function ddRender(){
+  var dl=$('ddlist');
+  if(!DF.length){dl.innerHTML='<div style="padding:12px 16px;font-size:13px;color:#6b7280">No courses found</div>';dl.style.display='block';return;}
+  dl.style.display='block';
+  var html='';
+  DF.forEach(function(c,i){
+    var nm=c.name||c.club_name||c;
+    var rg=c.county||c.region||'';
+    var safe=JSON.stringify({name:nm,county:rg,id:c.id||''}).replace(/'/g,"&#39;");
+    html+='<div class="dditem'+(i===DI?' hi':'')+'" onmousedown="ddPickObj(\''+safe.replace(/"/g,'&quot;')+'\')">'
+      +'<span class="dn">'+nm+'</span>'+(rg?'<span class="dr">'+rg+'</span>':'')+'</div>';
+  });
+  html+='<div class="ddfoot">'+DF.length+' results</div>';
+  dl.innerHTML=html;
+}
+function ddKey(e){
+  if(!DO)return;
+  if(e.key==='ArrowDown'){e.preventDefault();DI=Math.min(DI+1,DF.length-1);ddRender();}
+  else if(e.key==='ArrowUp'){e.preventDefault();DI=Math.max(DI-1,0);ddRender();}
+  else if(e.key==='Enter'&&DF[DI])ddPickObj(JSON.stringify(DF[DI]));
+  else if(e.key==='Escape'){DO=false;$('ddlist').style.display='none';}
+}
+document.addEventListener('click',function(e){if($('ddwrap')&&!$('ddwrap').contains(e.target)){DO=false;if($('ddlist'))$('ddlist').style.display='none';}});
+function ddPickObj(json){
+  try{
+    var c=typeof json==='string'?JSON.parse(json.replace(/&quot;/g,'"').replace(/&#39;/g,"'")):json;
+    var nm=c.name||'';
+    S.course=nm;S.curl='';
+    $('courseIn').value=nm;DO=false;$('ddlist').style.display='none';
+    lookupSite(nm);
+    loadCourseCard(c);
+  }catch(e){console.log('ddPickObj error',e);}
+}
+
+function loadCourseCard(club){
+  var ci=$('courseInfo');
+  if(!ci){
+    var d=document.createElement('div');d.id='courseInfo';
+    d.style='padding:10px 14px;border-radius:8px;border:1px solid #bbf7d0;margin-bottom:12px;font-size:13px;display:none';
+    $('wsrow').parentNode.insertBefore(d,$('wsrow').nextSibling);
+    ci=$('courseInfo');
+  }
+  ci.style.display='block';
+  ci.style.background='#f0fdf4';ci.style.borderColor='#bbf7d0';ci.style.color='#166534';
+  ci.textContent='Loading scorecard for '+(club.name||'course')+'...';
+
+  // if we have a real club ID, fetch live scorecard
+  if(club.id){
+    apiGet('/clubs/'+club.id+'/courses')
+    .then(function(d){
+      var courses=d.courses||d.data||d||[];
+      if(!courses.length)throw new Error('no courses');
+      return apiGet('/courses/'+courses[0].id+'/scorecard');
+    })
+    .then(function(d){
+      var holes=d.holes||d.data||d||[];
+      if(!holes||!holes.length)throw new Error('no holes');
+      holes.sort(function(a,b){return(a.hole_number||a.number||0)-(b.hole_number||b.number||0);});
+      var np=[],ns=[];
+      holes.slice(0,18).forEach(function(h){
+        np.push(parseInt(h.par)||4);
+        ns.push(parseInt(h.stroke_index||h.si||h.handicap)||0);
+      });
+      while(np.length<18){np.push(4);ns.push(np.length);}
+      var siSum=ns.reduce(function(a,b){return a+b},0);
+      if(siSum===0)ns=DSI.slice();
+      S.pars=np;S.si=ns;buildSetup();
+      ci.textContent='Live scorecard loaded from UK Golf API!';
+      ci.style.background='#f0fdf4';ci.style.borderColor='#bbf7d0';ci.style.color='#166534';
+    })
+    .catch(function(){fallbackScorecard(club,ci);});
+  } else {
+    fallbackScorecard(club,ci);
+  }
+}
+
+function fallbackScorecard(club,ci){
+  // fall back to AI lookup
+  fetch('https://api.anthropic.com/v1/messages',{
+    method:'POST',headers:{'Content-Type':'application/json'},
+    body:JSON.stringify({model:'claude-sonnet-4-20250514',max_tokens:600,
+      system:'Return ONLY JSON: {"par":[4,4,3,4,5,3,4,4,5,4,4,3,4,5,3,4,4,5],"si":[7,11,15,3,1,17,9,13,5,8,12,16,4,2,18,10,14,6],"found":true}. Par = 18 hole pars, si = 18 stroke indexes. If unknown set found:false.',
+      messages:[{role:'user',content:'Par and stroke index for all 18 holes at '+(club.name||'')+' golf course UK'}]
+    })
+  })
+  .then(function(r){return r.json();})
+  .then(function(d){
+    var text=d.content.map(function(b){return b.text||''}).join('');
+    var p=JSON.parse(text.replace(/```json|```/g,'').trim());
+    if(p.par&&p.si&&p.par.length===18){
+      S.pars=p.par;S.si=p.si;buildSetup();
+      ci.textContent=p.found?'Scorecard loaded for '+(club.name||'course')+'!':'Default scorecard — edit manually if needed.';
+      ci.style.background=p.found?'#f0fdf4':'#fffbeb';
+      ci.style.borderColor=p.found?'#bbf7d0':'#fde68a';
+      ci.style.color=p.found?'#166534':'#92400e';
+    }
+  })
+  .catch(function(){
+    ci.textContent='Could not load scorecard — using defaults.';
+    ci.style.background='#fffbeb';ci.style.borderColor='#fde68a';ci.style.color='#92400e';
+  });
+}
+function lookupSite(name){
+  var wr=$('wsrow');wr.style.display='flex';
+  $('wsdot').style.background='#f59e0b';$('wstext').textContent='Finding website...';$('wsbtn').style.display='none';
+  var k=name.toLowerCase();
+  for(var key in KNOWN){if(k.indexOf(key)>=0){setSite(KNOWN[key]);return}}
+  fetch('https://api.anthropic.com/v1/messages',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({model:'claude-sonnet-4-20250514',max_tokens:150,system:'Return ONLY JSON: {"url":"https://...","found":true} or {"url":"","found":false}',messages:[{role:'user',content:'Official website for UK golf course: '+name}]})})
+  .then(function(r){return r.json()}).then(function(d){
+    var t=d.content.map(function(b){return b.text||''}).join('');
+    var p=JSON.parse(t.replace(/```json|```/g,'').trim());
+    if(p.found)setSite(p.url);else setNoSite();
+  }).catch(setNoSite);
+}
+function setSite(url){S.curl=url;$('wsdot').style.background='#10b981';$('wstext').textContent=url.replace('https://','').replace(/\/$/,'');$('wsbtn').style.display='inline-block';}
+function setNoSite(){$('wsdot').style.background='#9ca3af';$('wstext').textContent='No website found';}
+function openUrl(){if(S.curl)window.open(S.curl,'_blank');}
+function openCourseUrl(){if(R&&R.curl)window.open(R.curl,'_blank');}
+
+function doCreate(){
+  $('setupErr').style.display='none';
+  $('setupErr').textContent='';
+  var code=genCode();
+  var r={course:S.course||$('courseIn').value,curl:S.curl,np:S.np,mode:S.mode,
+    names:S.names.slice(0,S.np),hcps:S.hcps.slice(0,S.np),
+    pars:S.pars.slice(),si:S.si.slice(),
+    scores:Array(16).fill(0).map(function(){return Array(18).fill(0)}),
+    ts:Date.now()};
+  var url=FB+'/rounds/'+code+'.json';
+  $('setupErr').textContent='Connecting to: '+url;
+  $('setupErr').style.display='block';
+  fetch(url,{method:'PUT',body:JSON.stringify(r)})
+  .then(function(res){
+    $('setupErr').textContent='HTTP status: '+res.status;
+    if(!res.ok)throw new Error('HTTP '+res.status);
+    return res.json();
+  })
+  .then(function(){
+    $('setupErr').style.display='none';
+    RC=code;R=r;startPlay();
+  })
+  .catch(function(e){
+    $('setupErr').textContent='FAILED: '+e.toString()+' | URL was: '+url;
+    $('setupErr').style.display='block';
+  });
+}
+
+function doJoin(){
+  $('joinErr').style.display='none';
+  var code=$('joinInput').value.trim().toUpperCase();
+  if(!code)return;
+  fbGet('rounds/'+code).then(function(d){
+    if(!d)throw new Error('Room not found');
+    RC=code;R=d;startPlay();
+  }).catch(function(){
+    $('joinErr').textContent='Room not found — check the code and try again.';
+    $('joinErr').style.display='block';
+  });
+}
+
+// ── PLAY ──
+function startPlay(){
+  AP=0;AH=0;
+  $('codeDisp').textContent=RC;
+  $('lbCode').textContent=RC;
+  $('playName').textContent=(R.course||'Golf Round').split(',')[0];
+  if(R.curl){$('playWebBtn').style.display='inline-block'}
+  var tp=R.pars.reduce(function(a,b){return a+b},0);
+  $('playMeta').textContent=R.np+' players · Par '+tp+' · '+(R.mode==='stableford'?'Stableford':'Stroke play');
+  show('p-play');
+  renderAll();
+  startPoll();
+}
+
+function startPoll(){
+  if(PT)clearInterval(PT);
+  PT=setInterval(function(){
+    fbGet('rounds/'+RC).then(function(d){
+      if(d&&d.ts>R.ts){R=d;LS=new Date();renderAll()}
+      $('liveDisp').className='live';$('liveDisp').textContent='● Live';
+      if(!LS)LS=new Date();
+      $('timeDisp').textContent=LS.toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'});
+    }).catch(function(){});
+  },5000);
+}
+
+function doEnd(){if(PT)clearInterval(PT);R=null;RC='';show('p-home')}
+
+function switchTab(t,el){
+  document.querySelectorAll('.tab').forEach(function(b){b.classList.remove('on')});
+  el.classList.add('on');
+  document.querySelectorAll('.panel').forEach(function(p){p.classList.remove('on')});
+  $('tab-'+t).classList.add('on');
+  if(t==='summary')renderSummary();
+  if(t==='leaderboard')renderLB();
+}
+
+function renderAll(){renderPBtns();renderHBtns();renderEntry();renderSC();renderLB()}
+
+function renderPBtns(){
+  ['pBtns','sBtns'].forEach(function(id){
+    var el=$(id);if(!el)return;el.innerHTML='';
+    for(var i=0;i<R.np;i++){
+      var b=document.createElement('button');
+      b.className='btn-sm'+(i===AP?' on':'');
+      b.textContent=R.names[i]||'P'+(i+1);
+      (function(pi){b.onclick=function(){AP=pi;renderPBtns();if(id==='pBtns'){renderHBtns();renderEntry()}else renderSummary()}})(i);
+      el.appendChild(b);
+    }
+  });
+}
+
+function renderHBtns(){
+  var hg=$('hBtns');hg.innerHTML='';
+  for(var i=0;i<18;i++){
+    var v=R.scores[AP][i]||0;
+    var b=document.createElement('button');
+    b.className='hbtn'+(i===AH?' on':''+(v&&i!==AH?' '+sCls(v,R.pars[i]):''));
+    b.textContent=i+1;
+    (function(hi){b.onclick=function(){AH=hi;renderHBtns();renderEntry()}})(i);
+    hg.appendChild(b);
+  }
+}
+
+function renderEntry(){
+  var s=R.scores[AP][AH]||0,par=R.pars[AH],si=R.si[AH],hcp=R.hcps[AP]||0,hs=hcpS(hcp,si);
+  $('eTitle').textContent=(R.names[AP]||'P'+(AP+1))+' — Hole '+(AH+1);
+  $('eMeta').textContent='Par '+par+' · SI '+si+' · HCP '+hcp+(hs>0?' · +'+hs+' stroke':'');
+  $('eBig').textContent=s||'—';
+  var lb=sLabel(s,par),pts=sbPts(s,par,hs);
+  $('eLabel').innerHTML=s?'<div style="font-size:13px;font-weight:700;color:'+lb.c+'">'+lb.t+'</div>'+(R.mode==='stableford'?'<div style="font-size:12px;color:#6b7280">'+pts+' pts</div>':''):'';
+  document.querySelectorAll('.nbtn').forEach(function(b){b.classList.toggle('on',parseInt(b.textContent)===s)});
+  $('prevBtn').style.display=AH>0?'block':'none';
+  $('nextBtn').style.display=AH<17?'block':'none';
+}
+
+function adj(d){var cur=R.scores[AP][AH]||0;setVal(Math.max(1,Math.min(15,cur+d)))}
+function prevH(){if(AH>0){AH--;renderHBtns();renderEntry()}}
+function nextH(){if(AH<17){AH++;renderHBtns();renderEntry()}}
+function setVal(v){
+  R.scores[AP][AH]=v;R.ts=Date.now();
+  fbPatch('rounds/'+RC,{scores:R.scores,ts:R.ts}).then(function(){
+    LS=new Date();$('liveDisp').className='live';$('liveDisp').textContent='● Live';
+    $('timeDisp').textContent=LS.toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'});
+  }).catch(function(){});
+  renderHBtns();renderEntry();renderSC();renderLB();
+}
+
+function renderSC(){
+  var tp=R.pars.reduce(function(a,b){return a+b},0);
+  var h='<thead><tr><th>Player</th>';
+  for(var i=0;i<18;i++)h+='<th>'+(i+1)+'</th>';
+  h+='<th>Tot</th><th>'+(R.mode==='stableford'?'Pts':'+/-')+'</th></tr>';
+  h+='<tr style="color:#9ca3af"><td>Par</td>';
+  R.pars.forEach(function(p){h+='<td>'+p+'</td>'});
+  h+='<td style="font-weight:700">'+tp+'</td><td></td></tr></thead><tbody>';
+  for(var pi=0;pi<R.np;pi++){
+    var gross=0,stable=0,played=0,toPar=0,hcp=R.hcps[pi]||0;
+    var cells='';
+    R.scores[pi].forEach(function(v,hi){
+      var s=v||0,hs=hcpS(hcp,R.si[hi]),pts=sbPts(s,R.pars[hi],hs);
+      if(s){gross+=s;stable+=pts;toPar+=s-R.pars[hi];played++}
+      var cls=s?sCls(s,R.pars[hi]):'';
+      cells+='<td class="'+cls+'">'+(s||'')+(hs>0&&s?'<sup style="font-size:7px;color:#10b981">'+('•'.repeat(hs))+'</sup>':'')+'</td>';
+    });
+    var toParStr=gross?(R.mode==='stableford'?stable:(toPar===0?'E':toPar>0?'+'+toPar:toPar)):'';
+    var tc=R.mode==='stableford'?'#111':(toPar<0?'#10b981':toPar>0?'#ef4444':'#6b7280');
+    h+='<tr><td style="font-weight:700">'+(R.names[pi]||'P'+(pi+1))+'<br><span style="font-size:10px;font-weight:400;color:#9ca3af">HCP '+hcp+'</span></td>'+cells+'<td style="font-weight:700">'+(gross||'')+'</td><td style="font-weight:700;color:'+tc+'">'+toParStr+'</td></tr>';
+  }
+  h+='</tbody>';
+  $('scTable').innerHTML=h;
+}
+
+function renderSummary(){
+  var pi=AP,hcp=R.hcps[pi]||0,gross=0,stable=0,played=0,toPar=0,birds=0,bogs=0,pars_=0;
+  var rows=R.scores[pi].map(function(v,hi){
+    var s=v||0,hs=hcpS(hcp,R.si[hi]),pts=sbPts(s,R.pars[hi],hs);
+    if(s){gross+=s;stable+=pts;toPar+=s-R.pars[hi];played++;
+      if(s-R.pars[hi]<=-1)birds++;else if(s-R.pars[hi]>=1)bogs++;else pars_++}
+    return{s:s,hs:hs,pts:pts,hi:hi};
+  });
+  var tpStr=gross?(R.mode==='stableford'?stable:(toPar===0?'E':toPar>0?'+'+toPar:toPar)):'—';
+  var html='<div class="g4">'
+    +'<div class="sbox"><div class="sl">Gross</div><div class="sv">'+(gross||'—')+'</div></div>'
+    +'<div class="sbox"><div class="sl">'+(R.mode==='stableford'?'Points':'To par')+'</div><div class="sv">'+tpStr+'</div></div>'
+    +'<div class="sbox"><div class="sl">Holes</div><div class="sv">'+played+'</div></div>'
+    +'<div class="sbox"><div class="sl">HCP</div><div class="sv">'+hcp+'</div></div>'
+    +'</div><div class="g3">'
+    +'<div class="sbox"><div class="sl">Birdies+</div><div class="sv green">'+birds+'</div></div>'
+    +'<div class="sbox"><div class="sl">Pars</div><div class="sv">'+pars_+'</div></div>'
+    +'<div class="sbox"><div class="sl">Bogeys+</div><div class="sv red">'+bogs+'</div></div></div>';
+  rows.forEach(function(r){
+    if(!r.s)return;
+    var lb=sLabel(r.s,R.pars[r.hi]),cls=sCls(r.s,R.pars[r.hi]);
+    html+='<div class="hrow '+cls+'">'
+      +'<div style="min-width:30px;font-weight:700">H'+(r.hi+1)+'</div>'
+      +'<div style="flex:1;font-size:12px;color:#6b7280">Par '+R.pars[r.hi]+' · SI '+R.si[r.hi]+(r.hs>0?' · +'+r.hs+' hcp':'')+'</div>'
+      +'<div style="font-size:13px;font-weight:700;color:'+lb.c+';min-width:72px;text-align:right">'+lb.t+'</div>'
+      +'<div style="font-size:20px;font-weight:700;min-width:30px;text-align:right">'+r.s+'</div>'
+      +(R.mode==='stableford'?'<div style="font-size:12px;color:#6b7280;min-width:30px;text-align:right">'+r.pts+'pts</div>':'')
+      +'</div>';
+  });
+  if(!played)html+='<p style="color:#9ca3af;font-size:14px">No scores yet.</p>';
+  $('sContent').innerHTML=html;
+}
+
+function renderLB(){
+  var stats=[];
+  for(var pi=0;pi<R.np;pi++){
+    var hcp=R.hcps[pi]||0,gross=0,stable=0,played=0,toPar=0;
+    R.scores[pi].forEach(function(v,hi){
+      var s=v||0,hs=hcpS(hcp,R.si[hi]),pts=sbPts(s,R.pars[hi],hs);
+      if(s){gross+=s;stable+=pts;toPar+=s-R.pars[hi];played++}
+    });
+    if(played)stats.push({pi:pi,name:R.names[pi]||'P'+(pi+1),gross:gross,stable:stable,played:played,toPar:toPar,hcp:hcp});
+  }
+  stats.sort(function(a,b){return R.mode==='stableford'?b.stable-a.stable:a.toPar-b.toPar});
+  var lbc=$('lbContent');
+  if(!stats.length){lbc.innerHTML='<p style="color:#9ca3af;font-size:14px;padding:1rem 0">No scores yet.</p>';$('lbFooter').style.display='none';return}
+  var ranks=['1st','2nd','3rd'];
+  lbc.innerHTML=stats.map(function(p,i){
+    var sc=R.mode==='stableford'?p.stable:p.gross;
+    var sub=R.mode==='stableford'?'pts':(p.toPar===0?'Even':p.toPar>0?'+'+p.toPar:p.toPar);
+    var sc2=R.mode==='stableford'?(p.stable>=36?'#10b981':'#6b7280'):(p.toPar<0?'#10b981':p.toPar>0?'#ef4444':'#6b7280');
+    return'<div class="lbrow'+(i===0?' gold':'')+'">'
+      +'<div class="rank">'+(ranks[i]||((i+1)+'th'))+'</div>'
+      +'<div style="flex:1"><div style="font-weight:700;font-size:15px">'+p.name+'</div><div style="font-size:12px;color:#6b7280">HCP '+p.hcp+' · '+p.played+' holes</div></div>'
+      +'<div class="lbscore"><div class="big">'+sc+'</div><div style="font-size:13px;font-weight:700;color:'+sc2+'">'+sub+'</div></div>'
+      +'</div>';
+  }).join('');
+  $('lbFooter').style.display='block';
+}
+</script>
+</body>
+</html>
