@@ -308,39 +308,75 @@ function setMode(m){
   $('mStable').className='btn-sm'+(m==='stableford'?' on':'');
 }
 
+var PROXY='https://golf-two-psi.vercel.app/api/proxy';
+var RAPIDAPI_KEY='f8df13357amsha8624aaa181b5aep1421c5jsn9143711ad0ff';
+
+function apiGet(path){
+  var url=encodeURIComponent('https://uk-golf-api.vercel.app'+path);
+  return fetch(PROXY+'?url='+url,{
+    headers:{
+      'x-rapidapi-key':RAPIDAPI_KEY,
+      'x-rapidapi-host':'uk-golf-course-data-api.p.rapidapi.com'
+    }
+  }).then(function(r){if(!r.ok)throw new Error(r.status);return r.json();});
+}
+
 var DF=[],DI=0,DO=false,searchTimer=null;
 function ddFilter(q){
-  var lq=q.trim().toLowerCase();
-  DF=lq?COURSES.filter(function(c){return c.toLowerCase().indexOf(lq)>=0}).slice(0,60):COURSES.slice(0,50);
-  DI=0;ddRender();
+  clearTimeout(searchTimer);
+  var dl=$('ddlist');
+  if(!q||q.trim().length<2){DF=[];dl.style.display='none';return;}
+  dl.style.display='block';
+  dl.innerHTML='<div style="padding:12px 16px;font-size:13px;color:#6b7280">Searching...</div>';
+  searchTimer=setTimeout(function(){
+    apiGet('/clubs?name='+encodeURIComponent(q.trim())+'&per_page=20')
+    .then(function(d){
+      DF=(d.clubs||d.data||d||[]).slice(0,20);
+      DI=0;ddRender();
+    })
+    .catch(function(e){
+      // fallback to static list
+      var lq=q.trim().toLowerCase();
+      DF=COURSES.filter(function(c){return c.toLowerCase().indexOf(lq)>=0}).slice(0,40).map(function(c){
+        var pts=c.split(',');return{name:pts[0].trim(),county:pts.slice(1).join(',').trim(),static:true};
+      });
+      DI=0;ddRender();
+    });
+  },400);
 }
 function ddOpen(){DO=true;ddFilter($('courseIn').value);}
 function ddRender(){
   var dl=$('ddlist');
-  if(!DO||!DF.length){dl.style.display='none';return;}
+  if(!DF.length){dl.innerHTML='<div style="padding:12px 16px;font-size:13px;color:#6b7280">No courses found</div>';dl.style.display='block';return;}
   dl.style.display='block';
   var html='';
   DF.forEach(function(c,i){
-    var pts=c.split(',');var nm=pts[0];var rg=pts.slice(1).join(',').trim();
-    html+='<div class="dditem'+(i===DI?' hi':'')+'" onmousedown="ddPick(\''+c.replace(/\\/g,'\\\\').replace(/'/g,"\\'")+'\')">'
+    var nm=c.name||c.club_name||c;
+    var rg=c.county||c.region||'';
+    var safe=JSON.stringify({name:nm,county:rg,id:c.id||''}).replace(/'/g,"&#39;");
+    html+='<div class="dditem'+(i===DI?' hi':'')+'" onmousedown="ddPickObj(\''+safe.replace(/"/g,'&quot;')+'\')">'
       +'<span class="dn">'+nm+'</span>'+(rg?'<span class="dr">'+rg+'</span>':'')+'</div>';
   });
-  html+='<div class="ddfoot">'+DF.length+' of '+COURSES.length+' courses</div>';
+  html+='<div class="ddfoot">'+DF.length+' results</div>';
   dl.innerHTML=html;
 }
 function ddKey(e){
   if(!DO)return;
   if(e.key==='ArrowDown'){e.preventDefault();DI=Math.min(DI+1,DF.length-1);ddRender();}
   else if(e.key==='ArrowUp'){e.preventDefault();DI=Math.max(DI-1,0);ddRender();}
-  else if(e.key==='Enter'&&DF[DI])ddPick(DF[DI]);
+  else if(e.key==='Enter'&&DF[DI])ddPickObj(JSON.stringify(DF[DI]));
   else if(e.key==='Escape'){DO=false;$('ddlist').style.display='none';}
 }
 document.addEventListener('click',function(e){if($('ddwrap')&&!$('ddwrap').contains(e.target)){DO=false;if($('ddlist'))$('ddlist').style.display='none';}});
-function ddPick(name){
-  S.course=name;S.curl='';
-  $('courseIn').value=name;DO=false;$('ddlist').style.display='none';
-  lookupSite(name);
-  loadCourseCard({name:name,county:name.split(',').slice(1).join(',').trim()});
+function ddPickObj(json){
+  try{
+    var c=typeof json==='string'?JSON.parse(json.replace(/&quot;/g,'"').replace(/&#39;/g,"'")):json;
+    var nm=c.name||'';
+    S.course=nm;S.curl='';
+    $('courseIn').value=nm;DO=false;$('ddlist').style.display='none';
+    lookupSite(nm);
+    loadCourseCard(c);
+  }catch(e){console.log('ddPickObj error',e);}
 }
 
 function loadCourseCard(club){
@@ -355,30 +391,59 @@ function loadCourseCard(club){
   ci.style.background='#f0fdf4';ci.style.borderColor='#bbf7d0';ci.style.color='#166534';
   ci.textContent='Loading scorecard for '+(club.name||'course')+'...';
 
+  // if we have a real club ID, fetch live scorecard
+  if(club.id){
+    apiGet('/clubs/'+club.id+'/courses')
+    .then(function(d){
+      var courses=d.courses||d.data||d||[];
+      if(!courses.length)throw new Error('no courses');
+      return apiGet('/courses/'+courses[0].id+'/scorecard');
+    })
+    .then(function(d){
+      var holes=d.holes||d.data||d||[];
+      if(!holes||!holes.length)throw new Error('no holes');
+      holes.sort(function(a,b){return(a.hole_number||a.number||0)-(b.hole_number||b.number||0);});
+      var np=[],ns=[];
+      holes.slice(0,18).forEach(function(h){
+        np.push(parseInt(h.par)||4);
+        ns.push(parseInt(h.stroke_index||h.si||h.handicap)||0);
+      });
+      while(np.length<18){np.push(4);ns.push(np.length);}
+      var siSum=ns.reduce(function(a,b){return a+b},0);
+      if(siSum===0)ns=DSI.slice();
+      S.pars=np;S.si=ns;buildSetup();
+      ci.textContent='Live scorecard loaded from UK Golf API!';
+      ci.style.background='#f0fdf4';ci.style.borderColor='#bbf7d0';ci.style.color='#166534';
+    })
+    .catch(function(){fallbackScorecard(club,ci);});
+  } else {
+    fallbackScorecard(club,ci);
+  }
+}
+
+function fallbackScorecard(club,ci){
+  // fall back to AI lookup
   fetch('https://api.anthropic.com/v1/messages',{
-    method:'POST',
-    headers:{'Content-Type':'application/json'},
-    body:JSON.stringify({
-      model:'claude-sonnet-4-20250514',
-      max_tokens:600,
-      system:'You are a golf course database. Return ONLY a JSON object, no markdown. Format: {"par":[4,4,3,4,5,3,4,4,5,4,4,3,4,5,3,4,4,5],"si":[7,11,15,3,1,17,9,13,5,8,12,16,4,2,18,10,14,6],"found":true}. Par is 18 hole par values, si is 18 stroke index values. If unknown set found:false with default values.',
-      messages:[{role:'user',content:'Exact par and stroke index for all 18 holes at '+( club.name||'')+(club.county?', '+club.county:'')+' golf course UK'}]
+    method:'POST',headers:{'Content-Type':'application/json'},
+    body:JSON.stringify({model:'claude-sonnet-4-20250514',max_tokens:600,
+      system:'Return ONLY JSON: {"par":[4,4,3,4,5,3,4,4,5,4,4,3,4,5,3,4,4,5],"si":[7,11,15,3,1,17,9,13,5,8,12,16,4,2,18,10,14,6],"found":true}. Par = 18 hole pars, si = 18 stroke indexes. If unknown set found:false.',
+      messages:[{role:'user',content:'Par and stroke index for all 18 holes at '+(club.name||'')+' golf course UK'}]
     })
   })
   .then(function(r){return r.json();})
   .then(function(d){
     var text=d.content.map(function(b){return b.text||''}).join('');
     var p=JSON.parse(text.replace(/```json|```/g,'').trim());
-    if(p.par&&p.si&&p.par.length===18&&p.si.length===18){
+    if(p.par&&p.si&&p.par.length===18){
       S.pars=p.par;S.si=p.si;buildSetup();
-      ci.textContent=p.found?'Real scorecard loaded for '+(club.name||'course')+'!':'Default scorecard used — edit manually if needed.';
+      ci.textContent=p.found?'Scorecard loaded for '+(club.name||'course')+'!':'Default scorecard — edit manually if needed.';
       ci.style.background=p.found?'#f0fdf4':'#fffbeb';
       ci.style.borderColor=p.found?'#bbf7d0':'#fde68a';
       ci.style.color=p.found?'#166534':'#92400e';
     }
   })
   .catch(function(){
-    ci.textContent='Could not load scorecard — using defaults. Edit manually if needed.';
+    ci.textContent='Could not load scorecard — using defaults.';
     ci.style.background='#fffbeb';ci.style.borderColor='#fde68a';ci.style.color='#92400e';
   });
 }
