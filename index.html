@@ -315,7 +315,8 @@ body{padding-bottom:38px!important}
         <span style="color:#9ca3af;font-size:18px">›</span>
       </div>
     </a>
-<div onclick="openVote()" style="display:flex;align-items:center;gap:14px;padding:16px 14px;border:2px solid #0d2d6e;border-left:5px solid #c8102e;background:#fff;cursor:pointer;margin-bottom:10px"><span style="font-size:28px">&#127881;</span><div style="flex:1"><div style="font-size:15px;font-weight:700;color:#0d2d6e">Who Will Win ROGS 2026?</div><div style="font-size:12px;color:#6b7280;margin-top:2px">Anonymous vote &#8212; 1 per device</div></div><span style="font-size:18px;color:#0d2d6e">&#8250;</span></div>
+<div onclick="openVote()" style="display:flex;align-items:center;gap:14px;padding:16px 14px;border:2px solid #0d2d6e;border-left:5px solid #c8102e;background:#fff;cursor:pointer;margin-bottom:10px"><span style="font-size:28px">&#127881;</span><div style="flex:1"><div style="font-size:15px;font-weight:700;color:#0d2d6e">Who Will Win ROGS 2026?</div><div style="font-size:12px;color:#6b7280;margin-top:2px">Cast your anonymous vote</div></div><span style="font-size:18px;color:#0d2d6e">&#8250;</span></div>
+<div style="font-size:12px;color:#6b7280;margin-top:2px">Anonymous vote &#8212; 1 per device</div></div><span style="font-size:18px;color:#0d2d6e">&#8250;</span></div>
 
     <div id="archiveList" style="margin-top:12px"></div>
 
@@ -2240,28 +2241,7 @@ function launchComp(id){
 }
 
 
-function openVote(){show("p-vote");loadVotes();}
-function _vkey(n){return n?n.toLowerCase().replace(/[^a-z0-9]/g,"_"):"";}
-var VPLAYERS=["Ally McKinlay","Anthony Parkinson","Bernie Brennan","Brian McSherry","Bryan Bennett","Jim Chadwick","John Douglas","Karl Atkinson","Neil Sanderson","Owen Evans","Paul Simpson","Rick Kennedy","Robbie Strange","Steve Kelly"];
-function loadVotes(){var myName=window._myVoterName||"";document.getElementById("vote-list").innerHTML="Loading...";fbGet("rogs_votes").then(function(votes){votes=votes||{};var counts={},total=0,myVote=null;VPLAYERS.forEach(function(p){counts[p]=0;});Object.keys(votes).forEach(function(k){var v=votes[k];if(v&&v.pick){counts[v.pick]=(counts[v.pick]||0)+1;total++;if(k===_vkey(myName))myVote=v.pick;}});var sorted=VPLAYERS.slice().sort(function(a,b){return counts[b]-counts[a];});var html="";sorted.forEach(function(p){var pct=total>0?Math.round(counts[p]/total*100):0;var mv=p===myVote;html+="<div onclick='castVote(this)' data-p='"+p+"'>"+( mv?"[v] ":"")+escHtml(p)+" "+pct+"%</div>";});document.getElementById("vote-list").innerHTML=html;var vf=document.getElementById("vote-footer");if(myVote)vf.innerHTML="Your vote: "+escHtml(myVote);else if(myName)vf.innerHTML="Tap a player to vote";else vf.innerHTML="Open My Profile first";}).catch(function(e){document.getElementById("vote-list").innerHTML="Error: "+e.message;});}
-function castVote(el){var player=el.getAttribute("data-p");var myName=window._myVoterName||"";if(!myName){alert("Open My Profile first");return;}fbPut("rogs_votes/"+_vkey(myName),{pick:player,voter:myName,ts:Date.now()}).then(function(){loadVotes();});}
-function _captureVoter(){if(window._profilePlayer&&window._rogsProfiles&&window._rogsProfiles[window._profilePlayer]){window._myVoterName=window._rogsProfiles[window._profilePlayer].name||"";}}
-
-function openVote(){show("p-vote");loadVotes();}
-function _anonKey(){var k=localStorage.getItem("rogs_anon_key");if(!k){k="anon_"+Math.random().toString(36).substring(2,10);localStorage.setItem("rogs_anon_key",k);}return k;}
-var VPLAYERS=["Ally McKinlay","Anthony Parkinson","Bernie Brennan","Brian McSherry","Bryan Bennett","Jim Chadwick","John Douglas","Karl Atkinson","Neil Sanderson","Owen Evans","Paul Simpson","Rick Kennedy","Robbie Strange","Steve Kelly"];
-function loadVotes(targetId){var listId=targetId||"vote-list";var footId=targetId==="profile-vote-list"?"profile-vote-footer":"vote-footer";document.getElementById(listId).innerHTML="Loading...";var myKey=_anonKey();fbGet("rogs_votes").then(function(votes){votes=votes||{};var counts={},total=0,myVote=null;VPLAYERS.forEach(function(p){counts[p]=0;});Object.keys(votes).forEach(function(k){var v=votes[k];if(v&&v.pick){counts[v.pick]=(counts[v.pick]||0)+1;total++;if(k===myKey)myVote=v.pick;}});var sorted=VPLAYERS.slice().sort(function(a,b){return counts[b]-counts[a];});var mx=Math.max(1,Math.max.apply(null,Object.values(counts)));var html="";sorted.forEach(function(p){var pct=total>0?Math.round(counts[p]/total*100):0;var bw=Math.round(counts[p]/mx*100);var mv=p===myVote;html+='<div onclick="castVote(this,\"'+listId+'\"")' +' data-p="'+p+'" style="background:'+( mv?"#f0fdf4":"#f0f4ff")+';border:2px solid #0d2d6e;border-left:5px solid '+( mv?"#16a34a":"#c8102e")+';padding:10px 12px;margin-bottom:6px;cursor:pointer;border-radius:2px">';html+='<div style="display:flex;align-items:center;gap:8px">';html+='<div style="flex:1;font-size:14px;font-weight:700;color:#0d2d6e">'+escHtml(p)+(mv?" ✓":"")+'<\/div>';html+='<div style="font-size:11px;color:#9ca3af">'+counts[p]+" vote"+(counts[p]===1?"":"s")+'<\/div><\/div>';html+='<div style="height:8px;background:#dce3ee;border-radius:4px;margin-top:6px;overflow:hidden"><div style="height:100%;width:'+bw+'%;background:#0d2d6e;border-radius:4px"><\/div><\/div>';html+='<\/div>';});if(total>0)html+='<div style="font-size:11px;color:#9ca3af;text-align:center;margin-top:6px">'+total+" vote"+(total===1?"":"s")+" cast<\/div>";document.getElementById(listId).innerHTML=html;var vf=document.getElementById(footId);if(vf){if(myVote)vf.innerHTML='<div style="color:#166534;font-size:13px;font-weight:700;margin-top:8px">✓ Your anonymous vote: '+escHtml(myVote)+'<\/div>';else vf.innerHTML='<div style="color:#6b7280;font-size:13px;margin-top:8px">Tap a player to cast your anonymous vote<\/div>';}}).catch(function(e){document.getElementById(listId).innerHTML="Error: "+e.message;});}
-function castVote(el,listId){var player=el.getAttribute("data-p");var myKey=_anonKey();fbPut("rogs_votes/"+myKey,{pick:player,ts:Date.now()}).then(function(){loadVotes(listId||"vote-list");});}
-function profileVoteInit(){var el=document.getElementById("profile-vote-list");if(el&&el.innerHTML==="")loadVotes("profile-vote-list");}
-function _captureVoter(){if(window._profilePlayer&&window._rogsProfiles&&window._rogsProfiles[window._profilePlayer]){window._myVoterName=window._rogsProfiles[window._profilePlayer].name||"";}}
-</script>
-
-<script>if("serviceWorker"in navigator){var swBlob=new Blob([`
-self.addEventListener('install',function(e){
-  e.waitUntil(caches.open('rogs-v1').then(function(c){
-    return c.addAll(['/golf/','/golf/index.html']);
-  }));
-});
+);
 self.addEventListener('fetch',function(e){
   e.respondWith(caches.match(e.request).then(function(r){
     return r||fetch(e.request).then(function(resp){
@@ -2270,13 +2250,41 @@ self.addEventListener('fetch',function(e){
       });
     });
   }).catch(function(){return caches.match('/golf/index.html');}));
-});`],{type:"text/javascript"});var swUrl=URL.createObjectURL(swBlob);navigator.serviceWorker.register(swUrl).then(function(){console.log("SW registered");}).catch(function(e){console.log("SW error",e);});}</script>
+});`],{type:"text/javascript"});var swUrl=URL.createObjectURL(swBlob);navigator.serviceWorker.register(swUrl).then(function(){console.log("SW registered");}).catch(function(e){console.log("SW error",e);});}
+// ROGS 2026 Anonymous Vote
+function openVote(){show("p-vote");loadVoteResults();}
+function _anonKey(){var k=localStorage.getItem("rogs_vote_key");if(!k){k="v_"+Math.random().toString(36).substring(2,10);localStorage.setItem("rogs_vote_key",k);}return k;}
+var VPLAYERS=["Ally McKinlay","Anthony Parkinson","Bernie Brennan","Brian McSherry","Bryan Bennett","Jim Chadwick","John Douglas","Karl Atkinson","Neil Sanderson","Owen Evans","Paul Simpson","Rick Kennedy","Robbie Strange","Steve Kelly"];
+function loadVoteResults(){
+  var listEl=document.getElementById("vote-list");
+  if(!listEl)return;
+  listEl.innerHTML="Loading...";
+  var myKey=_anonKey();
+  fbGet("rogs_votes").then(function(votes){
+    votes=votes||{};
+    var counts={},total=0,myVote=null;
+    VPLAYERS.forEach(function(p){counts[p]=0;});
+    Object.keys(votes).forEach(function(k){var v=votes[k];if(v&&v.pick){counts[v.pick]=(counts[v.pick]||0)+1;total++;if(k===myKey)myVote=v.pick;}});
+    var sorted=VPLAYERS.slice().sort(function(a,b){return counts[b]-counts[a];});
+    var mx=Math.max(1,Math.max.apply(null,Object.values(counts)));
+    var html="";
+    sorted.forEach(function(p){
+      var pct=total>0?Math.round(counts[p]/total*100):0;
+      var bw=Math.round(counts[p]/mx*100);
+      var mv=p===myVote;
+      html+='<div onclick="castVote(this)" data-p="'+p+'" style="background:'+(mv?'#f0fdf4':'#f8f9ff')+';border:2px solid #0d2d6e;border-left:5px solid '+(mv?'#16a34a':'#c8102e')+';padding:12px 14px;margin-bottom:8px;cursor:pointer">';
+      html+='<div style="display:flex;align-items:center;gap:8px"><div style="flex:1;font-size:15px;font-weight:700;color:#0d2d6e">'+escHtml(p)+(mv?' &#10003;':'')+' <\/div><div style="font-size:12px;color:#9ca3af">'+counts[p]+(counts[p]===1?' vote':' votes')+'<\/div><\/div>';
+      html+='<div style="height:8px;background:#dce3ee;border-radius:4px;margin-top:8px;overflow:hidden"><div style="height:100%;width:'+bw+'%;background:#0d2d6e;border-radius:4px"><\/div><\/div><\/div>';
+    });
+    if(total>0)html+='<div style="font-size:11px;color:#9ca3af;text-align:center;margin-top:8px">'+total+(total===1?' vote':' votes')+' cast<\/div>';
+    listEl.innerHTML=html;
+    var vf=document.getElementById("vote-footer");
+    if(vf){if(myVote)vf.innerHTML='<div style="color:#166534;font-size:13px;font-weight:600;margin-top:12px;padding:10px 12px;background:#f0fdf4;border-left:4px solid #16a34a">Your anonymous vote: '+escHtml(myVote)+'<\/div>';else vf.innerHTML='<div style="color:#6b7280;font-size:13px;margin-top:12px">Tap a player above to cast your anonymous vote.<\/div>';}
+  }).catch(function(e){listEl.innerHTML='Error: '+e.message;});
+}
+function castVote(el){var player=el.getAttribute("data-p");fbPut("rogs_votes/"+_anonKey(),{pick:player,ts:Date.now()}).then(function(){loadVoteResults();});}
+</script>
 
-<div id="p-vote" class="page"><div class="topbar"></div><div class="stripe"></div></div><div id="vote-msg" style="display:none;margin-bottom:10px"></div><div id="vote-list">Loading...</div><div id="vote-footer" style="margin-top:10px;font-size:13px;color:#6b7280"></div></div>
-<div id="p-vote" class="page"><div class="topbar"></div><div class="stripe"></div></div><div id="vote-list" style="padding:0 0 16px"></div><div id="vote-footer"></div></div>
-<div id="rogs-ticker">
-  <div id="rogs-ticker-track"><span id="rogs-ticker-msg">⛳ Loading...</span></div>
-</div>
 <script>
 (function(){
   var TEE=new Date('2026-10-04T11:40:00');
@@ -2304,6 +2312,21 @@ self.addEventListener('fetch',function(e){
 })();
 </script>
 
+<div id="p-vote" class="page">
+  <div class="topbar">
+    <div class="topbar-inner">
+      <button class="btn-sm" onclick="show('p-home')" style="margin-bottom:8px">&#8592; Back</button>
+      <h1>&#127881; ROGS 2026 Winner Vote</h1>
+      <div style="font-size:13px;color:#93b4e0;margin-top:4px">Who do you think will lift the trophy?</div>
+    </div>
+    <div class="stripe"></div>
+  </div>
+  <div style="background:#fff3cd;border-left:4px solid #c8102e;padding:10px 14px;margin-bottom:14px;font-size:13px;color:#7f1d1d;border-radius:2px">
+    &#128274; <strong>100% Anonymous</strong> &#8212; your vote is stored with a random key. Nobody can see who you voted for.
+  </div>
+  <div id="vote-list"></div>
+  <div id="vote-footer"></div>
+</div>
 <div id="rogs-ticker"><div id="rogs-ticker-track"><span id="rogs-ticker-msg">Loading...</span></div></div>
 <script>
 (function(){var T=new Date("2026-10-04T11:40:00"),el,tk;function go(){el=document.getElementById("rogs-ticker-msg");tk=document.getElementById("rogs-ticker");tick();}function tick(){if(!el)return;var d=T-new Date();if(d<=0){el.textContent="ROGS 2026 - TEE OFF TIME! Cabopino GC 11:40";if(tk)tk.className="teed-off";}else{var dy=Math.floor(d/86400000),h=Math.floor(d%86400000/3600000),m=Math.floor(d%3600000/60000),s=Math.floor(d%60000/1000),t=dy+"d "+h+"h "+m+"m "+s+"s";el.textContent="ROGS 2026 * Cabopino GC * First Tee 11:40 * T-minus: "+t;}}window.addEventListener("load",function(){go();setInterval(tick,1000);});})();
