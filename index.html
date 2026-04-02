@@ -1303,12 +1303,20 @@ function compCard(id,c,isPast){_COMP_CACHE[id]=c;
     +'<div style="display:flex;gap:8px;margin-top:10px">'
     +(isPast?'':'<button class="btn-sm" style="flex:1;background:#0d2d6e;color:#fff;border-color:#0d2d6e" onclick="launchComp(\'' +id+ '\')">&#9658; Start round</button>')
     +'<button class="btn-sm" onclick="editCompById(\'' +id+ '\')">Edit</button>'
+    +'<button class="btn-sm" onclick="dupComp(\'' +id+ '\')" style="color:#16a34a;border-color:#16a34a">Duplicate</button>'
     +'</div></div>';
 }
 
 function escHtml(s){return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;')}
 
 var _COMP_CACHE={};
+function dupComp(id){
+  var c=_COMP_CACHE[id];
+  if(!c)return;
+  var copy=Object.assign({},c,{name:c.name+' (copy)',created:Date.now()});
+  var newId=Date.now().toString(36);
+  fbPut('comps/'+newId,copy).then(function(){loadDiary();}).catch(function(e){alert('Error duplicating: '+e.message)});
+}
 function editCompById(id){
   if(_COMP_CACHE[id])openEditComp(id,_COMP_CACHE[id]);
   else fbGet('comps/'+id).then(function(c){if(c)openEditComp(id,c)}).catch(function(){});
