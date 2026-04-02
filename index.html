@@ -1062,6 +1062,7 @@ function ta(text,ok,fail){
 
 // ── Admin / PIN ──────────────────────────────────────────────────────────────
 var ADMIN_PIN='9160';
+var IS_ADMIN=false;
 var titleTapCount=0,titleTapTimer=null;
 function titleTap(){
   titleTapCount++;
@@ -1085,7 +1086,7 @@ function updatePinDots(){
   dots.forEach(function(d,i){d.classList.toggle('filled',i<pinVal.length)});
 }
 function pinSubmit(){
-  if(pinVal===ADMIN_PIN){show('p-admin');loadLiveRounds();}
+  if(pinVal===ADMIN_PIN){IS_ADMIN=true;show('p-admin');loadLiveRounds();}
   else{$('pinErr').textContent='Incorrect PIN — try again';pinVal='';updatePinDots()}
 }
 
@@ -1301,7 +1302,7 @@ function compCard(id,c,isPast){_COMP_CACHE[id]=c;
     +(players?'<div style="font-size:12px;color:#4a5a7a;margin-top:3px">'+escHtml(players)+'</div>':'')
     +(c.notes?'<div style="font-size:12px;color:#6b7280;margin-top:3px;font-style:italic">'+escHtml(c.notes)+'</div>':'')
     +'<div style="display:flex;gap:8px;margin-top:10px">'
-    +(isPast?'':'<button class="btn-sm" style="flex:1;background:#0d2d6e;color:#fff;border-color:#0d2d6e" onclick="launchComp(\'' +id+ '\')">&#9658; Start round</button>')
+    +(isPast?'':(IS_ADMIN?'<button class="btn-sm" style="flex:1;background:#0d2d6e;color:#fff;border-color:#0d2d6e" onclick="launchComp(\'' +id+ '\')">&#9658; Start round</button>':''))
     +'<button class="btn-sm" onclick="editCompById(\'' +id+ '\')">Edit</button>'
     +'<button class="btn-sm" onclick="dupComp(\'' +id+ '\')" style="color:#16a34a;border-color:#16a34a">Duplicate</button>'
     +'</div></div>';
