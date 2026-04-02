@@ -1308,8 +1308,63 @@ function compCard(id,c,isPast){_COMP_CACHE[id]=c;
     +(isPast?'':(IS_ADMIN?'<button class="btn-sm" style="flex:1;background:#0d2d6e;color:#fff;border-color:#0d2d6e" onclick="launchComp(\'' +id+ '\')">&#9658; Start round</button>':''))
     +'<button class="btn-sm" onclick="editCompById(\'' +id+ '\')">Edit</button>'
     +'<button class="btn-sm" onclick="dupComp(\'' +id+ '\')" style="color:#16a34a;border-color:#16a34a">Duplicate</button>'
+    +(isPast?'':'<button class="btn-sm" onclick="addToCalendar(\'' +id+ '\')" style="color:#7c3aed;border-color:#7c3aed">&#128197; Calendar</button>')
     +'</div></div>';
 }
+
+
+function addToCalendar(id){
+  var c=_COMP_CACHE[id];
+  if(!c||!c.date){alert('No date set for this competition.');return;}
+
+  // Build date strings — all-day event
+  var dt=c.date.replace(/-/g,''); // YYYYMMDD
+  var dtEnd=dt; // same day, all-day
+
+  // Build description
+  var desc=[];
+  desc.push('Format: '+(c.mode==='stableford'?'Stableford':'Stroke play'));
+  if(c.names&&c.names.length){
+    desc.push('Players: '+(c.names||[]).slice(0,c.np||0).map(function(n,i){return n+' (HCP '+((c.hcps||[])[i]||0)+')'}).join(', '));
+  }
+  if(c.notes)desc.push('Notes: '+c.notes);
+  desc.push('golf-two-psi.vercel.app');
+
+  var ics=[
+    'BEGIN:VCALENDAR',
+    'VERSION:2.0',
+    'PRODID:-//ROGS Golf Scorecard//EN',
+    'CALSCALE:GREGORIAN',
+    'METHOD:PUBLISH',
+    'BEGIN:VEVENT',
+    'UID:rogs-'+id+'@golf-two-psi.vercel.app',
+    'DTSTAMP:'+new Date().toISOString().replace(/[-:.]/g,'').slice(0,15)+'Z',
+    'DTSTART;VALUE=DATE:'+dt,
+    'DTEND;VALUE=DATE:'+dt,
+    'SUMMARY:'+icsEsc((c.name||'Golf Competition')+' — '+(c.course||'')),
+    'DESCRIPTION:'+icsEsc(desc.join('\n')),
+    'LOCATION:'+icsEsc(c.course||''),
+    'BEGIN:VALARM',
+    'TRIGGER:-PT1440M',
+    'ACTION:DISPLAY',
+    'DESCRIPTION:Reminder: '+(c.name||'Golf')+' tomorrow!',
+    'END:VALARM',
+    'END:VEVENT',
+    'END:VCALENDAR'
+  ].join('\r\n');
+
+  // Trigger download
+  var blob=new Blob([ics],{type:'text/calendar;charset=utf-8'});
+  var url=URL.createObjectURL(blob);
+  var a=document.createElement('a');
+  a.href=url;
+  a.download=(c.name||'golf-comp').replace(/[^a-z0-9]/gi,'_')+'.ics';
+  document.body.appendChild(a);
+  a.click();
+  setTimeout(function(){document.body.removeChild(a);URL.revokeObjectURL(url);},1000);
+}
+
+function icsEsc(s){return String(s).replace(/\\/g,'\\\\').replace(/;/g,'\\;').replace(/,/g,'\\,').replace(/\n/g,'\\n');}
 
 function escHtml(s){return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;')}
 
