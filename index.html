@@ -107,7 +107,13 @@ thead tr:nth-child(2) td:first-child{background:#f0f4ff}
     <div class="topbar-inner">
       <h1>Golf Scorecard</h1>
       <p style="color:#93b4e0;font-size:14px;margin-top:4px">Live scoring — share with your group</p>
-    </div>
+      <div class="card" style="margin-top:14px">
+    <h2>Past rounds</h2>
+    <p style="font-size:13px;color:#4a5a7a;margin-bottom:14px">View completed scorecards</p>
+    <button class="btn btn-white" onclick="loadArchive()">View archived rounds</button>
+    <div id="archiveList" style="display:none;margin-top:14px"></div>
+  </div>
+</div>
     <div class="stripe"></div>
   </div>
   <div class="card">
@@ -191,7 +197,10 @@ thead tr:nth-child(2) td:first-child{background:#f0f4ff}
       </div>
       <div style="font-size:13px;color:#4a5a7a;margin-top:2px" id="playMeta"></div>
     </div>
-    <button class="btn-sm" style="background:#c8102e;color:#fff;border-color:#c8102e" onclick="doEnd()">End</button>
+    <div style="display:flex;gap:8px">
+      <button class="btn-sm" style="background:#16a34a;color:#fff;border-color:#16a34a" onclick="confirmComplete()">Round Complete ✓</button>
+      <button class="btn-sm" style="background:#c8102e;color:#fff;border-color:#c8102e" onclick="doEnd()">End</button>
+    </div>
   </div>
 
   <div class="tabs">
@@ -793,7 +802,87 @@ function renderLB(){
   $('emailBox').style.display='block';
 }
 
-function buildText(){
+function confirmComplete(){
+  if(!confirm('Mark this round as complete and archive it?\n\nThe scorecard will be saved and removed from live rounds.'))return;
+  completeRound();
+}
+
+function completeRound(){
+  if(!R||!RC)return;
+  var archived={...R,completedAt:Date.now(),status:'archived'};
+  // Save to archive
+  fbPut('archived_rounds/'+RC,archived).then(function(){
+    // Remove from live rounds
+    return fetch(FB+'/rounds/'+RC+'.json',{method:'DELETE'});
+  }).then(function(){
+    if(PT)clearInterval(PT);
+    alert('Round archived successfully!\n\nYou can view it from the home screen under "Past rounds".');
+    R=null;RC='';
+    show('p-home');
+  }).catch(function(e){
+    alert('Could not archive round: '+e.message);
+  });
+}
+
+function loadArchive(){
+  var al=$('archiveList');
+  al.style.display='block';
+  al.innerHTML='<div style="font-size:13px;color:#4a5a7a">Loading past rounds...</div>';
+  fbGet('archived_rounds').then(function(d){
+    if(!d||!Object.keys(d).length){
+      al.innerHTML='<div style="font-size:13px;color:#9ca3af">No archived rounds yet.</div>';
+      return;
+    }
+    var rounds=Object.entries(d).map(function(e){return{code:e[0],data:e[1]}})
+      .sort(function(a,b){return(b.data.completedAt||0)-(a.data.completedAt||0)});
+    al.innerHTML=rounds.map(function(r){
+      var d=r.data;
+      var date=d.completedAt?new Date(d.completedAt).toLocaleDateString('en-GB',{day:'numeric',month:'short',year:'numeric'}):'Unknown date';
+      var stats=[];
+      for(var pi=0;pi<(d.np||0);pi++){
+        var hcp=(d.hcps&&d.hcps[pi])||0,gross=0,stable=0,played=0,toPar=0;
+        if(d.scores&&d.scores[pi]){
+          d.scores[pi].forEach(function(v,hi){
+            var s=v||0,hs=hcpS(hcp,(d.siValues||d.si||DSI)[hi]||DSI[hi]),pts=sbPts(s,(d.pars||DPARS)[hi]||DPARS[hi],hs);
+            if(s){gross+=s;stable+=pts;toPar+=s-(d.pars||DPARS)[hi];played++}
+          });
+        }
+        if(played)stats.push({name:(d.names||d.playerNames||[])[pi]||'P'+(pi+1),gross:gross,stable:stable,toPar:toPar,hcp:hcp,played:played});
+      }
+      stats.sort(function(a,b){return d.mode==='stableford'?b.stable-a.stable:a.toPar-b.toPar});
+      var winner=stats[0];
+      var winStr=winner?(winner.name+' — '+(d.mode==='stableford'?winner.stable+' pts':winner.gross+' ('+(winner.toPar===0?'E':winner.toPar>0?'+'+winner.toPar:winner.toPar)+')')):'-';
+      return '<div style="padding:12px 14px;margin-bottom:8px;border:2px solid #0d2d6e;border-left:5px solid #c8102e;background:#fff;cursor:pointer" onclick="viewArchived(\''+r.code+'\')">'
+        +'<div style="display:flex;justify-content:space-between;align-items:flex-start;flex-wrap:wrap;gap:4px">'
+        +'<div style="font-weight:700;font-size:14px;color:#0d2d6e">'+(d.course||d.courseName||'Golf Round').split(',')[0]+'</div>'
+        +'<div style="font-size:12px;color:#9ca3af">'+date+'</div></div>'
+        +'<div style="font-size:12px;color:#4a5a7a;margin-top:4px">'+(d.np||0)+' players · '+(d.mode==='stableford'?'Stableford':'Stroke play')+'</div>'
+        +'<div style="font-size:13px;color:#c8102e;font-weight:700;margin-top:4px">🏆 '+winStr+'</div>'
+        +'<div style="font-size:11px;color:#9ca3af;margin-top:2px">Room: '+r.code+' · Tap to view full scorecard</div>'
+        +'</div>';
+    }).join('');
+  }).catch(function(){
+    al.innerHTML='<div style="font-size:13px;color:#c8102e">Could not load archived rounds.</div>';
+  });
+}
+
+function viewArchived(code){
+  fbGet('archived_rounds/'+code).then(function(d){
+    if(!d)return;
+    RC=code;R={...d,scores:d.scores||[],pars:d.pars||DPARS,si:d.siValues||d.si||DSI,np:d.np||0,names:d.names||d.playerNames||[],hcps:d.hcps||[],mode:d.mode||'strokeplay',course:d.course||d.courseName||'',curl:d.curl||d.courseUrl||''};
+    AP=0;AH=0;
+    $('codeDisp').textContent=code;$('lbCode').textContent=code;
+    $('playName').textContent=(R.course||'Golf Round').split(',')[0];
+    $('playMeta').textContent=R.np+' players · Par '+R.pars.reduce(function(a,b){return a+b},0)+' · '+(R.mode==='stableford'?'Stableford':'Stroke play')+' · ARCHIVED';
+    if(R.curl)$('playWebBtn').style.display='inline-block';
+    // Hide live controls for archived rounds
+    $('liveDisp').className='offline';$('liveDisp').textContent='📁 Archived';
+    $('timeDisp').textContent=d.completedAt?new Date(d.completedAt).toLocaleDateString('en-GB'):'';
+    show('p-play');
+    renderAll();
+    // Don't start polling for archived rounds
+  }).catch(function(){alert('Could not load this round.')});
+}
   var L=[],date=new Date().toLocaleDateString('en-GB',{weekday:'long',year:'numeric',month:'long',day:'numeric'});
   L.push('GOLF SCORECARD');L.push('==============');
   L.push('Course: '+(R.course||'Golf Round'));L.push('Date: '+date);
