@@ -8,14 +8,14 @@
 *{box-sizing:border-box;margin:0;padding:0}
 body{font-family:-apple-system,BlinkMacSystemFont,sans-serif;background:#fff;min-height:100vh;padding:0}
 .page{display:none}.page.on{display:block;padding:0 16px 24px}
-.card{background:#fff;padding:20px;margin-bottom:0;border-bottom:3px solid #c8102e}
-h1{font-size:22px;font-weight:700;color:#fff;margin-bottom:4px}
-h2{font-size:18px;font-weight:700;color:#0d2d6e;margin-bottom:16px}
 input,select{width:100%;padding:11px 12px;border:2px solid #0d2d6e;border-radius:0;font-size:14px;margin-bottom:10px;background:#fff;color:#111;-webkit-appearance:none;appearance:none}
 input:focus,select:focus{border-color:#c8102e;outline:none}
 label{font-size:12px;color:#0d2d6e;display:block;margin-bottom:4px;margin-top:12px;font-weight:700;text-transform:uppercase;letter-spacing:.5px}
+h1{font-size:22px;font-weight:700;color:#fff;margin-bottom:4px}
+h2{font-size:18px;font-weight:700;color:#0d2d6e;margin-bottom:12px}
 .btn{width:100%;padding:13px;border:none;font-size:15px;font-weight:700;cursor:pointer;margin-bottom:8px;border-radius:0}
 .btn-dark{background:#0d2d6e;color:#fff}
+.btn-green{background:#16a34a;color:#fff}
 .btn-red{background:#c8102e;color:#fff}
 .btn-white{background:#fff;color:#0d2d6e;border:2px solid #0d2d6e}
 .btn-sm{width:auto;padding:7px 14px;font-size:13px;font-weight:700;border:2px solid #0d2d6e;background:#fff;cursor:pointer;color:#0d2d6e;border-radius:0}
@@ -29,6 +29,7 @@ label{font-size:12px;color:#0d2d6e;display:block;margin-bottom:4px;margin-top:12
 .code{font-size:26px;font-weight:700;letter-spacing:5px;font-family:monospace;color:#fff}
 .live{font-size:12px;font-weight:700;color:#4ade80}
 .offline{font-size:12px;font-weight:700;color:#fbbf24}
+.archived-badge{font-size:12px;font-weight:700;color:#93b4e0}
 .tabs{display:flex;gap:0;flex-wrap:wrap;border-bottom:3px solid #0d2d6e;margin-bottom:14px}
 .tab{padding:10px 16px;border:none;border-right:2px solid #c8102e;background:#fff;font-size:13px;font-weight:700;cursor:pointer;color:#0d2d6e}
 .tab:last-child{border-right:none}
@@ -80,7 +81,7 @@ thead tr:nth-child(2) td:first-child{background:#f0f4ff}
 .green{color:#15803d}.red{color:#c8102e}.amber{color:#d97706}
 .ddwrap{position:relative;margin-bottom:8px}
 .ddwrap input{margin-bottom:0}
-.ddlist{display:none;position:absolute;top:100%;left:0;right:0;background:#fff;border:2px solid #0d2d6e;border-top:3px solid #c8102e;max-height:250px;overflow-y:auto;z-index:999;box-shadow:0 6px 20px rgba(13,45,110,0.2)}
+.ddlist{display:none;position:absolute;top:100%;left:0;right:0;background:#fff;border:2px solid #0d2d6e;border-top:3px solid #c8102e;max-height:260px;overflow-y:auto;z-index:999;box-shadow:0 6px 20px rgba(13,45,110,0.2)}
 .dditem{padding:12px 16px;cursor:pointer;display:flex;justify-content:space-between;align-items:center;border-bottom:1px solid #e5eaf3}
 .dditem.hi,.dditem:active{background:#0d2d6e}
 .dditem.hi .dn,.dditem:active .dn{color:#fff}
@@ -97,6 +98,8 @@ thead tr:nth-child(2) td:first-child{background:#f0f4ff}
 .selrow{display:flex;gap:8px;flex-wrap:wrap;align-items:flex-end;margin-bottom:10px}
 .selcol{flex:1;min-width:90px}
 .selcol label{margin-top:0}
+.arc-row{padding:12px 14px;margin-bottom:8px;border:2px solid #0d2d6e;border-left:5px solid #c8102e;background:#fff;cursor:pointer}
+.arc-row:active{background:#f0f4ff}
 </style>
 </head>
 <body>
@@ -107,27 +110,28 @@ thead tr:nth-child(2) td:first-child{background:#f0f4ff}
     <div class="topbar-inner">
       <h1>Golf Scorecard</h1>
       <p style="color:#93b4e0;font-size:14px;margin-top:4px">Live scoring — share with your group</p>
-      <div class="card" style="margin-top:14px">
-    <h2>Past rounds</h2>
-    <p style="font-size:13px;color:#4a5a7a;margin-bottom:14px">View completed scorecards</p>
-    <button class="btn btn-white" onclick="loadArchive()">View archived rounds</button>
-    <div id="archiveList" style="display:none;margin-top:14px"></div>
-  </div>
-</div>
+    </div>
     <div class="stripe"></div>
   </div>
-  <div class="card">
+  <div style="background:#fff;padding:20px;border-bottom:3px solid #c8102e">
     <h2>Start a new round</h2>
     <p style="font-size:13px;color:#4a5a7a;margin-bottom:14px">Set up course, players & handicaps. Get a Room Code to share in WhatsApp.</p>
     <button class="btn btn-dark" onclick="goSetup()">Set up round</button>
   </div>
   <div style="height:14px"></div>
-  <div class="card">
+  <div style="background:#fff;padding:20px;border-bottom:3px solid #c8102e">
     <h2>Join a round</h2>
     <p style="font-size:13px;color:#4a5a7a;margin-bottom:14px">Enter the Room Code from your WhatsApp group.</p>
     <input id="joinInput" placeholder="Room Code e.g. AB12CD" maxlength="6" style="text-align:center;font-size:22px;font-weight:700;letter-spacing:6px" oninput="this.value=this.value.toUpperCase()"/>
     <div id="joinErr" class="err"></div>
     <button class="btn btn-dark" onclick="doJoin()">Join round</button>
+  </div>
+  <div style="height:14px"></div>
+  <div style="background:#fff;padding:20px;border-bottom:3px solid #c8102e">
+    <h2>Past rounds</h2>
+    <p style="font-size:13px;color:#4a5a7a;margin-bottom:14px">View completed scorecards</p>
+    <button class="btn btn-white" onclick="loadArchive()">View archived rounds</button>
+    <div id="archiveList" style="display:none;margin-top:14px"></div>
   </div>
 </div>
 
@@ -140,11 +144,9 @@ thead tr:nth-child(2) td:first-child{background:#f0f4ff}
     </div>
     <div class="stripe"></div>
   </div>
-
   <label>Golf course</label>
   <div class="ddwrap" id="ddwrap">
-    <input id="courseIn" placeholder="Search UK courses..." autocomplete="off"
-      oninput="ddFilter(this.value)" onfocus="ddOpen()" onkeydown="ddKey(event)"/>
+    <input id="courseIn" placeholder="Search courses..." autocomplete="off" oninput="ddFilter(this.value)" onfocus="ddOpen()" onkeydown="ddKey(event)"/>
     <div class="ddlist" id="ddlist"></div>
   </div>
   <div id="wsrow" class="wsrow" style="display:none">
@@ -153,25 +155,19 @@ thead tr:nth-child(2) td:first-child{background:#f0f4ff}
     <button class="btn-sm" id="wsbtn" onclick="openUrl()" style="display:none">Visit ↗</button>
   </div>
   <div id="courseInfo" style="display:none;padding:10px 14px;border-left:4px solid #16a34a;background:#f0fdf4;color:#166534;font-size:13px;margin-bottom:12px"></div>
-
   <label>Scoring mode</label>
   <div class="row">
     <button class="btn-sm on" id="mStroke" onclick="setMode('strokeplay')">Stroke play</button>
     <button class="btn-sm" id="mStable" onclick="setMode('stableford')">Stableford</button>
   </div>
-
   <label>Number of players</label>
   <div class="row" id="npRow"></div>
-
   <label>Players & handicaps</label>
   <div id="pFields"></div>
-
   <label>Par per hole</label>
   <div class="g9" id="parGrid"></div>
-
   <label>Stroke index per hole</label>
   <div class="g9" id="siGrid"></div>
-
   <div id="setupErr" class="err"></div>
   <button class="btn btn-dark" style="margin-top:16px" onclick="doCreate()">Create round & get Room Code</button>
 </div>
@@ -188,8 +184,7 @@ thead tr:nth-child(2) td:first-child{background:#f0f4ff}
       <div id="timeDisp" style="font-size:11px;color:#9ca3af;margin-top:2px"></div>
     </div>
   </div>
-
-  <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px">
+  <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;flex-wrap:wrap;gap:8px">
     <div>
       <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap">
         <span style="font-size:17px;font-weight:700;color:#0d2d6e" id="playName"></span>
@@ -197,12 +192,11 @@ thead tr:nth-child(2) td:first-child{background:#f0f4ff}
       </div>
       <div style="font-size:13px;color:#4a5a7a;margin-top:2px" id="playMeta"></div>
     </div>
-    <div style="display:flex;gap:8px">
-      <button class="btn-sm" style="background:#16a34a;color:#fff;border-color:#16a34a" onclick="confirmComplete()">Round Complete ✓</button>
+    <div style="display:flex;gap:8px;flex-wrap:wrap">
+      <button id="completeBtn" class="btn-sm" style="background:#16a34a;color:#fff;border-color:#16a34a" onclick="confirmComplete()">Round Complete ✓</button>
       <button class="btn-sm" style="background:#c8102e;color:#fff;border-color:#c8102e" onclick="doEnd()">End</button>
     </div>
   </div>
-
   <div class="tabs">
     <button class="tab on" onclick="switchTab('entry',this)">Entry</button>
     <button class="tab" onclick="switchTab('scorecard',this)">Scorecard</button>
@@ -259,22 +253,12 @@ thead tr:nth-child(2) td:first-child{background:#f0f4ff}
       <span><span style="display:inline-block;width:14px;height:14px;background:#f87171;border:1px solid #991b1b;border-radius:2px;vertical-align:middle"></span> Dbl+</span>
       <span><span style="color:#15803d;font-weight:700">•</span> = hcp stroke</span>
     </div>
-    <!-- EDIT SCORE -->
     <div class="editbox">
       <div style="font-size:13px;font-weight:700;color:#0d2d6e;margin-bottom:10px">Edit a score</div>
       <div class="selrow">
-        <div class="selcol">
-          <label>Player</label>
-          <select id="edP" onchange="edBuildScore()" style="margin-bottom:0"></select>
-        </div>
-        <div class="selcol">
-          <label>Hole</label>
-          <select id="edH" onchange="edBuildScore()" style="margin-bottom:0"></select>
-        </div>
-        <div class="selcol">
-          <label>Score</label>
-          <select id="edS" style="margin-bottom:0;border-color:#c8102e"></select>
-        </div>
+        <div class="selcol"><label>Player</label><select id="edP" onchange="edBuildScore()" style="margin-bottom:0"></select></div>
+        <div class="selcol"><label>Hole</label><select id="edH" onchange="edBuildScore()" style="margin-bottom:0"></select></div>
+        <div class="selcol"><label>Score</label><select id="edS" style="margin-bottom:0;border-color:#c8102e"></select></div>
       </div>
       <button class="btn btn-dark" onclick="edApply()" style="margin-bottom:0">Update score</button>
       <div id="edMsg" style="display:none"></div>
@@ -308,144 +292,12 @@ thead tr:nth-child(2) td:first-child{background:#f0f4ff}
 <script>
 var FB='https://rogs-9f527-default-rtdb.europe-west1.firebasedatabase.app';
 var KNOWN={"carlisle golf club":"https://www.carlislegolfclub.org/the-course","pollok golf club":"https://pollokgolf.com/","cabopino golf":"https://www.cabopinogolfmarbella.com/en/home/","la cala golf":"https://www.lacala.com/","calanova golf":"https://www.calanovagolf.es/web/en/index.php","torrequebrada golf":"https://golftorrequebrada.com/","chaparral golf":"https://golfelchaparral.com/en/","tewkesbury park":"https://tewkesburypark.co.uk/golf/"};
-var COURSES=[
-// BEDFORDSHIRE
-"Aspley Guise & Woburn Sands Golf Club, Bedfordshire","Aylesbury Vale Golf Club, Bedfordshire","Bedford & County Golf Club, Bedfordshire","Bedfordshire Golf Club, Bedfordshire","Cainhoe Wood Golf Club, Bedfordshire","Chalgrave Manor Golf Club, Bedfordshire","Colmworth Golf Club, Bedfordshire","Dunstable Downs Golf Club, Bedfordshire","John O'Gaunt Golf Club – Carthagena, Bedfordshire","John O'Gaunt Golf Club – John O'Gaunt, Bedfordshire","Leighton Buzzard Golf Club, Bedfordshire","Luton Hoo Hotel Golf Club, Bedfordshire","Millbrook Golf Club, Bedfordshire","Mowsbury Golf Club, Bedfordshire","Pavenham Park Golf Club, Bedfordshire","South Beds Golf Club, Bedfordshire","Stockwood Park Golf Club, Bedfordshire","Tilsworth Golf Club, Bedfordshire","Wyboston Lakes Golf Club, Bedfordshire",
-// BERKSHIRE
-"Bearwood Lakes Golf Club, Berkshire","Berkshire Golf Club – Blue Course, Berkshire","Berkshire Golf Club – Red Course, Berkshire","Billingbear Park Golf Club, Berkshire","Bird Hills Golf Club, Berkshire","Calcot Park Golf Club, Berkshire","Castle Royle Golf Club, Berkshire","Donnington Grove Golf Club, Berkshire","Donnington Valley Golf Club, Berkshire","East Berkshire Golf Club, Berkshire","Goring & Streatley Golf Club, Berkshire","Maidenhead Golf Club, Berkshire","Mill Ride Golf Club, Berkshire","Newbury & Crookham Golf Club, Berkshire","Royal Ascot Golf Club, Berkshire","Sand Martins Golf Club, Berkshire","Sonning Golf Club, Berkshire","Swinley Forest Golf Club, Berkshire","Temple Golf Club, Berkshire","West Berkshire Golf Club, Berkshire","Winter Hill Golf Club, Berkshire",
-// BUCKINGHAMSHIRE
-"Abbey Hill Golf Club, Buckinghamshire","Beaconsfield Golf Club, Buckinghamshire","Buckingham Golf Club, Buckinghamshire","Buckinghamshire Golf Club, Buckinghamshire","Burnham Beeches Golf Club, Buckinghamshire","Chartridge Park Golf Club, Buckinghamshire","Chesham & Ley Hill Golf Club, Buckinghamshire","Chiltern Forest Golf Club, Buckinghamshire","Denham Golf Club, Buckinghamshire","Ellesborough Golf Club, Buckinghamshire","Flackwell Heath Golf Club, Buckinghamshire","Gerrards Cross Golf Club, Buckinghamshire","Harewood Downs Golf Club, Buckinghamshire","Harleyford Golf Club, Buckinghamshire","Hazlemere Golf Club, Buckinghamshire","Ivinghoe Golf Club, Buckinghamshire","Lambourne Golf Club, Buckinghamshire","Princes Risborough Golf Club, Buckinghamshire","Richings Park Golf Club, Buckinghamshire","Stoke Park Club – Colt & Alison, Buckinghamshire","The Three Locks Golf Club, Buckinghamshire","Wexham Park Golf Club, Buckinghamshire","Windmill Hill Golf Club, Buckinghamshire","Woburn Golf Club – Duchess Course, Buckinghamshire","Woburn Golf Club – Duke's Course, Buckinghamshire","Woburn Golf Club – Marquess Course, Buckinghamshire","Wycombe Heights Golf Club, Buckinghamshire",
-// CAMBRIDGESHIRE
-"Brampton Park Golf Club, Cambridgeshire","Cambridge Meridian Golf Club, Cambridgeshire","Ely City Golf Club, Cambridgeshire","Girton Golf Club, Cambridgeshire","Gog Magog Golf Club – Old Course, Cambridgeshire","Gog Magog Golf Club – Wandlebury, Cambridgeshire","Lakeside Lodge Golf Club, Cambridgeshire","Nene Park Golf Club – Orton Meadows, Cambridgeshire","Nene Park Golf Club – Thorpe Wood, Cambridgeshire","Ramsey Golf Club, Cambridgeshire","St Ives Golf Club, Cambridgeshire","St Neots Golf Club, Cambridgeshire","The Cambridgeshire Golf Club, Cambridgeshire",
-// CHESHIRE
-"Alderley Edge Golf Club, Cheshire","Alsager Golf Club, Cheshire","Altrincham Golf Club, Cheshire","Antrobus Golf Club, Cheshire","Arrowe Park Golf Club, Cheshire","Astbury Golf Club, Cheshire","Bidston Golf Club, Cheshire","Birchwood Golf Club, Cheshire","Bramall Park Golf Club, Cheshire","Bramhall Golf Club, Cheshire","Bromborough Golf Club, Cheshire","Caldy Golf Club, Cheshire","Carden Park Golf Club – Cheshire, Cheshire","Carden Park Golf Club – Nicklaus, Cheshire","Cheadle Golf Club, Cheshire","Chester Golf Club, Cheshire","Congleton Golf Club, Cheshire","Davenport Golf Club, Cheshire","Delamere Forest Golf Club, Cheshire","Disley Golf Club, Cheshire","Dunham Forest Golf Club, Cheshire","Eastham Lodge Golf Club, Cheshire","Gatley Golf Club, Cheshire","Hazel Grove Golf Club, Cheshire","Heaton Moor Golf Club, Cheshire","Helsby Golf Club, Cheshire","Heswall Golf Club, Cheshire","Heyrose Golf Club, Cheshire","High Legh Park Golf Club, Cheshire","Knutsford Golf Club, Cheshire","Leasowe Golf Club, Cheshire","Lymm Golf Club, Cheshire","Macclesfield Golf Club, Cheshire","Malkins Bank Golf Club, Cheshire","Marple Golf Club, Cheshire","Mellor & Townscliffe Golf Club, Cheshire","Mottram Hall Golf Club, Cheshire","Northenden Golf Club, Cheshire","Portal Golf Club – Championship, Cheshire","Prestbury Golf Club, Cheshire","Pryors Hayes Golf Club, Cheshire","Reddish Vale Golf Club, Cheshire","Ringway Golf Club, Cheshire","Romiley Golf Club, Cheshire","Royal Liverpool Golf Club, Hoylake, Cheshire","Runcorn Golf Club, Cheshire","Sandbach Golf Club, Cheshire","Sandiway Golf Club, Cheshire","Shrigley Hall Golf Club, Cheshire","Stockport Golf Club, Cheshire","Styal Golf Club, Cheshire","The Mere Golf Resort & Spa, Cheshire","Tytherington Golf Club, Cheshire","Upton By Chester Golf Club, Cheshire","Wallasey Golf Club, Cheshire","Warrington Golf Club, Cheshire","Widnes Golf Club, Cheshire","Wilmslow Golf Club, Cheshire","Wychwood Park Golf Club, Cheshire",
-// CORNWALL
-"Bowood Park Golf Club, Cornwall","Bude & North Cornwall Golf Club, Cornwall","Budock Vean Golf Club, Cornwall","Cape Cornwall Golf Club, Cornwall","Carlyon Bay Golf Club, Cornwall","China Fleet Golf Club, Cornwall","Falmouth Golf Club, Cornwall","Launceston Golf Club, Cornwall","Looe Golf Club, Cornwall","Mullion Golf Club, Cornwall","Newquay Golf Club, Cornwall","Perranporth Golf Club, Cornwall","St Austell Golf Club, Cornwall","St Enodoc Golf Club – Church Course, Cornwall","St Enodoc Golf Club – Holywell Course, Cornwall","St Mellion Golf Club – Kernow, Cornwall","St Mellion Golf Club – Nicklaus, Cornwall","Tehidy Park Golf Club, Cornwall","Trevose Golf Club – Championship, Cornwall","Trevose Golf Club – Headland, Cornwall","Truro Golf Club, Cornwall","West Cornwall Golf Club, Cornwall",
-// CUMBRIA
-"Alston Moor Golf Club, Cumbria","Appleby Golf Club, Cumbria","Barrow Golf Club, Cumbria","Brampton Golf Club, Cumbria","Carlisle Golf Club, Cumbria","Carus Green Golf Club, Cumbria","Cockermouth Golf Club, Cumbria","Eden Golf Club, Cumbria","Furness Old Links Golf Club, Cumbria","Grange Over Sands Golf Club, Cumbria","Kendal Golf Club, Cumbria","Keswick Golf Club, Cumbria","Kirkby Lonsdale Golf Club, Cumbria","Maryport Golf Club, Cumbria","Penrith Golf Club, Cumbria","Seascale Golf Club, Cumbria","Sedbergh Golf Club, Cumbria","Silloth on Solway Golf Club, Cumbria","Ulverston Golf Club, Cumbria","Whitehaven Golf Club, Cumbria","Windermere Golf Club, Cumbria","Workington Golf Club, Cumbria",
-// DERBYSHIRE
-"Alfreton Golf Club, Derbyshire","Bakewell Golf Club, Derbyshire","Breadsall Priory Golf Club – Moorland, Derbyshire","Breadsall Priory Golf Club – Priory, Derbyshire","Burton-on-Trent Golf Club, Derbyshire","Buxton & High Peak Golf Club, Derbyshire","Cavendish Golf Club, Derbyshire","Chatsworth Golf Club, Derbyshire","Chesterfield Golf Club, Derbyshire","Chevin Golf Club, Derbyshire","Derby Golf Club, Derbyshire","Erewash Valley Golf Club, Derbyshire","Glossop & District Golf Club, Derbyshire","Horsley Lodge Golf Club, Derbyshire","Kedleston Park Golf Club, Derbyshire","Matlock Golf Club, Derbyshire","Mickleover Golf Club, Derbyshire","Morley Hayes Golf Club, Derbyshire","Shirland Golf Club, Derbyshire",
-// DEVON
-"Bigbury Golf Club, Devon","Dartmouth Golf & CC, Devon","East Devon Golf Club, Devon","Exeter Golf & CC, Devon","Fingle Glen Golf Club, Devon","Holsworthy Golf Club, Devon","Hurdwick Golf Club, Devon","Ilfracombe Golf Club, Devon","Libbaton Golf Club, Devon","Manor House Hotel Golf, Devon","Newton Abbot Golf Club, Devon","Royal North Devon Golf Club, Westward Ho!, Devon","Saunton Golf Club – East Course, Devon","Saunton Golf Club – West Course, Devon","Sidmouth Golf Club, Devon","Staddon Heights Golf Club, Devon","Tavistock Golf Club, Devon","Teignmouth Golf Club, Devon","Thurlestone Golf Club, Devon","Torquay Golf Club, Devon","Warren Golf Club, Devon","Wrangaton Golf Club, Devon","Yelverton Golf Club, Devon",
-// DORSET
-"Ashley Wood Golf Club, Dorset","Bournemouth & Meyrick Park Golf Club, Dorset","Bridport & West Dorset Golf Club, Dorset","Broadstone Golf Club, Dorset","Came Down Golf Club, Dorset","Canford Magna Golf Club, Dorset","Crane Valley Golf Club – Valley, Dorset","Dudsbury Golf Club, Dorset","East Dorset Golf Club, Dorset","Ferndown Golf Club – Old Course, Dorset","Ferndown Golf Club – Presidents, Dorset","Highcliffe Castle Golf Club, Dorset","Isle of Purbeck Golf Club, Dorset","Knighton Heath Golf Club, Dorset","Lyme Regis Golf Club, Dorset","Parkstone Golf Club, Dorset","Remedy Oak Golf Club, Dorset","Sherborne Golf Club, Dorset","Wareham Golf Club, Dorset","Weymouth Golf Club, Dorset",
-// DURHAM
-"Barnard Castle Golf Club, Durham","Beamish Park Golf Club, Durham","Billingham Golf Club, Durham","Bishop Auckland Golf Club, Durham","Blackwell Grange Golf Club, Durham","Brancepeth Castle Golf Club, Durham","Castle Eden Golf Club, Durham","Chester-le-Street Golf Club, Durham","Crook Golf Club, Durham","Darlington Golf Club, Durham","Durham City Golf Club, Durham","Hartlepool Golf Club, Durham","Hobson Municipal Golf Course, Durham","Ingelby Barwick Golf Club, Durham","Mount Oswald Golf Club, Durham","Ramsidge Hall Golf Club, Durham","Seaton Carew Golf Club, Durham","South Moor Golf Club, Durham","Stressholme Golf Club, Durham","Teesside Golf Club, Durham","Woodham Golf Club, Durham","Wynyard Golf Club, Durham",
-// ESSEX
-"Abridge Golf & CC, Essex","Ballards Gore Golf Club, Essex","Basildon Golf Club, Essex","Belfairs Golf Club, Essex","Bentley Golf Club, Essex","Birch Grove Golf Club, Essex","Boyce Hill Golf Club, Essex","Burnham-on-Crouch Golf Club, Essex","Canons Brook Golf Club, Essex","Castle Point Golf Club, Essex","Channels Golf Club, Essex","Chelmsford Golf Club, Essex","Chigwell Golf Club, Essex","Clacton Golf Club, Essex","Colchester Golf Club, Essex","Crondon Park Golf Club, Essex","Epping Golf Club, Essex","Frinton Golf Club, Essex","Gosfield Lake Golf Club, Essex","Hanover Golf Club, Essex","Harwich & Dovercourt Golf Club, Essex","Heybridge Golf Club, Essex","Maldon Golf Club, Essex","Maylands Golf Club, Essex","Orsett Golf Club, Essex","Reignley Park Golf Club, Essex","Romford Golf Club, Essex","Stapleford Abbotts Golf Club, Essex","Stock Brook Manor Golf Club, Essex","Thorndon Park Golf Club, Essex","Thorpe Hall Golf Club, Essex","Three Rivers Golf Club, Essex","Top Meadow Golf Club, Essex","Toot Hill Golf Club, Essex","Warren Golf Club Essex, Essex","Warley Park Golf Club, Essex",
-// GLOUCESTERSHIRE
-"Bristol & Clifton Golf Club, Gloucestershire","Brockhampton Castle Golf Club, Gloucestershire","Cherington Golf Club, Gloucestershire","Chipping Sodbury Golf Club, Gloucestershire","Cirencester Golf Club, Gloucestershire","Cleeve Hill Golf Club, Gloucestershire","Cotswold Edge Golf Club, Gloucestershire","Cotswold Hills Golf Club, Gloucestershire","Filton Golf Club, Gloucestershire","Forest Hills Golf Club, Gloucestershire","Forest of Dean Golf Club, Gloucestershire","Gloucester Golf Club, Gloucestershire","Knowle Golf Club, Gloucestershire","Lilley Brook Golf Club, Gloucestershire","Long Ashton Golf Club, Gloucestershire","Lydney Golf Club, Gloucestershire","Minchinhampton Golf Club – New Course, Gloucestershire","Minchinhampton Golf Club – Old Course, Gloucestershire","Naunton Downs Golf Club, Gloucestershire","Painswick Golf Club, Gloucestershire","Rodway Hill Golf Club, Gloucestershire","Stinchcombe Hill Golf Club, Gloucestershire","Tewkesbury Park Golf Club – Deerpark Course, Gloucestershire","Tewkesbury Park Golf Club – Acorn Course, Gloucestershire","Tracy Park Golf Club, Gloucestershire",
-// HAMPSHIRE
-"Alresford Golf Club, Hampshire","Alton Golf Club, Hampshire","Ampfield Golf Club, Hampshire","Army Golf Club, Hampshire","Barton-on-Sea Golf Club, Hampshire","Basingstoke Golf Club, Hampshire","Blackmoor Golf Club, Hampshire","Blacknest Golf Club, Hampshire","Bramshaw Golf Club – Brook, Hampshire","Bramshaw Golf Club – Forest, Hampshire","Brokenhurst Manor Golf Club, Hampshire","Burley Golf Club, Hampshire","Corhampton Golf Club, Hampshire","Dibden Golf Centre, Hampshire","Dunwood Manor Golf Club, Hampshire","Fleetlands Golf Club, Hampshire","Four Marks Golf Club, Hampshire","Furzeley Golf Club, Hampshire","Gosport & Stokes Bay Golf Club, Hampshire","Hartley Wintney Golf Club, Hampshire","Hayling Golf Club, Hampshire","Hockley Golf Club, Hampshire","Hollybush Golf Centre, Hampshire","Hook Golf Club, Hampshire","Lee-on-the-Solent Golf Club, Hampshire","Liphook Golf Club, Hampshire","Meon Valley Golf & CC, Hampshire","Micheldever Golf Club, Hampshire","New Forest Golf Club, Hampshire","North Hants Golf Club, Hampshire","Old Thorns Golf & CC, Hampshire","Paultons Golf Centre, Hampshire","Petersfield Golf Club, Hampshire","Portsmouth Golf Centre, Hampshire","Romsey Golf Club, Hampshire","Rowlands Castle Golf Club, Hampshire","Royal Winchester Golf Club, Hampshire","Sandford Springs Golf Club, Hampshire","Sherfield Oaks Golf Club, Hampshire","South Winchester Golf Club, Hampshire","Southampton City Golf Club, Hampshire","Southwick Park Golf Club, Hampshire","Stoneham Golf Club, Hampshire","Test Valley Golf Club, Hampshire","Tylney Park Golf Club, Hampshire","Waterlooville Golf Club, Hampshire","Wickham Park Golf Club, Hampshire",
-// HEREFORDSHIRE
-"Belmont Lodge Golf Club, Herefordshire","Brampton Bryan Golf Club, Herefordshire","Burghill Valley Golf Club, Herefordshire","Hereford Municipal Golf Club, Herefordshire","Kington Golf Club, Herefordshire","Leominster Golf Club, Herefordshire","Ross-on-Wye Golf Club, Herefordshire","Sapey Golf Club, Herefordshire","Shropshire Hills Golf Club, Herefordshire","Summerhill Golf Club, Herefordshire","Wormsley Golf Club, Herefordshire",
-// HERTFORDSHIRE
-"Aldwickbury Park Golf Club, Hertfordshire","Aldenham Golf & CC, Hertfordshire","Arkley Golf Club, Hertfordshire","Ashridge Golf Club, Hertfordshire","Batchwood Hall Golf Club, Hertfordshire","Berkhamsted Golf Club, Hertfordshire","Boxmoor Golf Club, Hertfordshire","Bridgedown Golf Club, Hertfordshire","Brocket Hall Golf Club – Melbourne, Hertfordshire","Brocket Hall Golf Club – Palmerston, Hertfordshire","Brookmans Park Golf Club, Hertfordshire","Bushey Country Club, Hertfordshire","Bushey Hall Golf Club, Hertfordshire","Chadwell Springs Golf Club, Hertfordshire","Cheshunt Golf Club, Hertfordshire","Chorleywood Golf Club, Hertfordshire","East Herts Golf Club, Hertfordshire","Hadley Wood Golf Club, Hertfordshire","Hanbury Manor Golf Club, Hertfordshire","Harpenden Common Golf Club, Hertfordshire","Harpenden Golf Club, Hertfordshire","Hartham Park Golf Club, Hertfordshire","Knebworth Golf Club, Hertfordshire","Letchworth Golf Club, Hertfordshire","Little Hay Golf Club, Hertfordshire","Mid Herts Golf Club, Hertfordshire","Moor Park Golf Club – High Course, Hertfordshire","Moor Park Golf Club – West Course, Hertfordshire","Panshanger Golf Club, Hertfordshire","Porters Park Golf Club, Hertfordshire","Redbourn Golf Club, Hertfordshire","Royston Golf Club, Hertfordshire","Sandy Lodge Golf Club, Hertfordshire","Shendish Manor Golf Club, Hertfordshire","Stapleford Golf Club, Hertfordshire","Stocks Hotel Golf Club, Hertfordshire","Verulam Golf Club, Hertfordshire","Welwyn Garden City Golf Club, Hertfordshire","West Herts Golf Club, Hertfordshire","Whitehill Golf Centre, Hertfordshire",
-// KENT
-"Ashford Golf Club, Kent","Bearsted Golf Club, Kent","Bexleyheath Golf Club, Kent","Birchwood Park Golf Club, Kent","Bromley Golf Centre, Kent","Canterbury Golf Club, Kent","Chart Hills Golf Club, Kent","Cherry Lodge Golf Club, Kent","Chestfield Golf Club, Kent","Chislehurst Golf Club, Kent","Cobtree Manor Park Golf Club, Kent","Darenth Valley Golf Club, Kent","Dunton Green Golf Club, Kent","Etchinghill Golf Club, Kent","Faversham Golf Club, Kent","Four Elms Golf Club, Kent","Gillingham Golf Club, Kent","Hawkhurst Golf Club, Kent","Herne Bay Golf Club, Kent","Hever Golf Club, Kent","High Elms Golf Club, Kent","Knole Park Golf Club, Kent","Laleham Golf Club, Kent","Leeds Castle Golf Club, Kent","Littlestone Golf Club, Kent","London Golf Club – Heritage Course, Kent","London Golf Club – International Course, Kent","Lullingstone Park Golf Club, Kent","Mid Kent Golf Club, Kent","North Foreland Golf Club, Kent","Prince's Golf Club, Sandwich, Kent","Rochester & Cobham Golf Club, Kent","Royal Cinque Ports Golf Club, Deal, Kent","Royal St George's Golf Club, Sandwich, Kent","Ruxley Golf Club, Kent","Sandway Golf Club, Kent","Sene Valley Golf Club, Kent","Sheerness Golf Club, Kent","Shortlands Golf Club, Kent","Sidcup Golf Club, Kent","St Augustines Golf Club, Kent","Sundridge Park Golf Club – East, Kent","Sundridge Park Golf Club – West, Kent","Sweetwoods Park Golf Club, Kent","Tudor Park Golf Club, Kent","Tunbridge Wells Golf Club, Kent","Walmer & Kingsdown Golf Club, Kent","West Kent Golf Club, Kent","Whitstable & Seasalter Golf Club, Kent","Woodlands Manor Golf Club, Kent",
-// LANCASHIRE
-"Accrington & District Golf Club, Lancashire","Bacup Golf Club, Lancashire","Barnoldswick Golf Club, Lancashire","Beacon Park Golf Club, Lancashire","Blackburn Golf Club, Lancashire","Blackpool North Shore Golf Club, Lancashire","Blackpool Park Golf Club, Lancashire","Burnley Golf Club, Lancashire","Bury Golf Club, Lancashire","Castle Hawk Golf Club, Lancashire","Chorley Golf Club, Lancashire","Clitheroe Golf Club, Lancashire","Colne Golf Club, Lancashire","Darwen Golf Club, Lancashire","Dunkenhalgh Hotel Golf Club, Lancashire","Fairhaven Golf Club, Lancashire","Fishwick Hall Golf Club, Lancashire","Fleetwood Golf Club, Lancashire","Garstang Golf Club, Lancashire","Great Harwood Golf Club, Lancashire","Green Haworth Golf Club, Lancashire","Harwood Golf Club, Lancashire","Heysham Golf Club, Lancashire","Hillside Golf Club, Southport, Lancashire","Hurlston Hall Golf Club, Lancashire","Ingol Golf Club, Lancashire","Knott End Golf Club, Lancashire","Lancaster Golf Club, Lancashire","Lansil Golf Club, Lancashire","Leyland Golf Club, Lancashire","Longridge Golf Club, Lancashire","Lytham Green Drive Golf Club, Lancashire","Marsden Park Golf Club, Lancashire","Morecambe Golf Club, Lancashire","Nelson Golf Club, Lancashire","Ormskirk Golf Club, Lancashire","Penwortham Golf Club, Lancashire","Pleasington Golf Club, Lancashire","Preston Golf Club, Lancashire","Rishton Golf Club, Lancashire","Rossendale Golf Club, Lancashire","Royal Birkdale Golf Club, Southport, Lancashire","Royal Lytham & St Annes Golf Club, Lancashire","Silverdale Golf Club, Lancashire","Southport & Ainsdale Golf Club, Lancashire","Southport Municipal Golf Club, Lancashire","Towneley Golf Club, Lancashire","West Lancashire Golf Club, Lancashire","Whalley Golf Club, Lancashire","Wigan Golf Club, Lancashire","Wilpshire Golf Club, Lancashire",
-// LEICESTERSHIRE
-"Birstall Golf Club, Leicestershire","Blaby Golf Centre, Leicestershire","Boulton & Paul Sports Ground Golf, Leicestershire","Charnwood Forest Golf Club, Leicestershire","Churchill & Blakedown Golf Club, Leicestershire","Cosby Golf Club, Leicestershire","Enderby Golf Club, Leicestershire","Glen Gorse Golf Club, Leicestershire","Hinckley Golf Club, Leicestershire","Humberstone Heights Golf Club, Leicestershire","Kibworth Golf Club, Leicestershire","Kirby Muxloe Golf Club, Leicestershire","Leicestershire Golf Club, Leicestershire","Lingdale Golf Club, Leicestershire","Longcliffe Golf Club, Leicestershire","Luffenham Heath Golf Club, Leicestershire","Lutterworth Golf Club, Leicestershire","Market Harborough Golf Club, Leicestershire","Melton Mowbray Golf Club, Leicestershire","Oadby Golf Club, Leicestershire","Rothley Park Golf Club, Leicestershire","Rushcliffe Golf Club, Leicestershire","Scraptoft Golf Club, Leicestershire","Ullesthorpe Golf Club, Leicestershire","Western Park Golf Club, Leicestershire",
-// LINCOLNSHIRE
-"Belton Park Golf Club, Lincolnshire","Blankney Golf Club, Lincolnshire","Boston Golf Club, Lincolnshire","Burghley Park Golf Club, Lincolnshire","Canwick Park Golf Club, Lincolnshire","Carholme Golf Club, Lincolnshire","Cleethorpes Golf Club, Lincolnshire","Forest Pines Golf Club, Lincolnshire","Gainsborough Golf Club, Lincolnshire","Gedney Hill Golf Club, Lincolnshire","Grimsby Golf Club, Lincolnshire","Holme Hall Golf Club, Lincolnshire","Horncastle Golf Club, Lincolnshire","Humber Bridge Golf Club, Lincolnshire","Kenwick Park Golf Club, Lincolnshire","Lincoln Golf Club, Lincolnshire","Louth Golf Club, Lincolnshire","Market Rasen Golf Club, Lincolnshire","Normanby Hall Golf Club, Lincolnshire","Sandilands Golf Club, Lincolnshire","Seacroft Golf Club, Lincolnshire","Sleaford Golf Club, Lincolnshire","South Kyme Golf Club, Lincolnshire","Spalding Golf Club, Lincolnshire","Stoke Rochford Golf Club, Lincolnshire","Sudbrook Moor Golf Club, Lincolnshire","Toft Hotel Golf Club, Lincolnshire","Woodhall Spa Golf Club – Bracken Course, Lincolnshire","Woodhall Spa Golf Club – Hotchkin Course, Lincolnshire",
-// LONDON
-"Aquarius Golf Club, London","Barnehurst Golf Club, London","Beckenham Place Park Golf Club, London","Bexley Golf Club, London","Chingford Golf Club, London","Crews Hill Golf Club, London","Dulwich & Sydenham Golf Club, London","Ealing Golf Club, London","Eltham Warren Golf Club, London","Enfield Golf Club, London","Finchley Golf Club, London","Fulwell Golf Club, London","Hainault Forest Golf Club, London","Hampstead Golf Club, London","Hendon Golf Club, London","Highgate Golf Club, London","Hounslow Heath Golf Centre, London","Ilford Golf Club, London","Langley Park Golf Club, London","Mill Hill Golf Club, London","North Middlesex Golf Club, London","Northwood Golf Club, London","Osterley Park Golf Club, London","Richmond Golf Club, London","Richmond Park Golf Club, London","Roehampton Club, London","Royal Blackheath Golf Club, London","Royal Epping Forest Golf Club, London","Royal Wimbledon Golf Club, London","Stanmore Golf Club, London","Stockley Park Golf Club, London","Strawberry Hill Golf Club, London","Sundridge Park Golf Club, London","Twickenham Golf Club, London","Wanstead Golf Club, London","West Essex Golf Club, London","Wimbledon Common Golf Club, London","Wimbledon Park Golf Club, London",
-// MANCHESTER (GREATER)
-"Ashton & Lea Golf Club, Greater Manchester","Ashton-under-Lyne Golf Club, Greater Manchester","Bolton Golf Club, Greater Manchester","Bolton Old Links Golf Club, Greater Manchester","Brackley Golf Club, Greater Manchester","Breightmet Golf Club, Greater Manchester","Brookdale Golf Club, Greater Manchester","Crompton & Royton Golf Club, Greater Manchester","Davyhulme Park Golf Club, Greater Manchester","Denton Golf Club, Greater Manchester","Didsbury Golf Club, Greater Manchester","Dukinfield Golf Club, Greater Manchester","Dunham Forest Golf Club, Greater Manchester","Ellesmere Golf Club, Greater Manchester","Flixton Golf Club, Greater Manchester","Great Lever & Farnworth Golf Club, Greater Manchester","Heaton Park Golf Centre, Greater Manchester","Hindley Hall Golf Club, Greater Manchester","Horwich Golf Club, Greater Manchester","Leigh Golf Club, Greater Manchester","Manchester Golf Club, Greater Manchester","Mellor & Townscliffe Golf Club, Greater Manchester","North Manchester Golf Club, Greater Manchester","Oldham Golf Club, Greater Manchester","Prestwich Golf Club, Greater Manchester","Rochdale Golf Club, Greater Manchester","Sale Golf Club, Greater Manchester","Stamford Golf Club, Greater Manchester","Stand Golf Club, Greater Manchester","Swinton Park Golf Club, Greater Manchester","Turton Golf Club, Greater Manchester","Walmersley Golf Club, Greater Manchester","Werneth Low Golf Club, Greater Manchester","Whitefield Golf Club, Greater Manchester","Withington Golf Club, Greater Manchester","Worsley Park Golf Club, Greater Manchester",
-// MERSEYSIDE
-"Allerton Municipal Golf Club, Merseyside","Arrowe Park Golf Club, Merseyside","Bidston Golf Club, Merseyside","Bowring Golf Club, Merseyside","Brackenwood Golf Club, Merseyside","Bromborough Golf Club, Merseyside","Caldy Golf Club, Merseyside","Childwall Golf Club, Merseyside","Eastham Lodge Golf Club, Merseyside","Formby Golf Club, Merseyside","Formby Hall Golf Club, Merseyside","Formby Ladies Golf Club, Merseyside","Grange Park Golf Club, Merseyside","Heswall Golf Club, Merseyside","Hillside Golf Club, Merseyside","Houghwood Golf Club, Merseyside","Hoylake Municipal Golf Club, Merseyside","Huyton & Prescot Golf Club, Merseyside","Leasowe Golf Club, Merseyside","Lee Park Golf Club, Merseyside","Liverpool Municipal Golf Course, Merseyside","Prenton Golf Club, Merseyside","Royal Birkdale Golf Club, Merseyside","Royal Liverpool Golf Club, Merseyside","Sherdley Park Golf Club, Merseyside","Southport & Ainsdale Golf Club, Merseyside","Southport Municipal Golf Club, Merseyside","St Helens Golf Club, Merseyside","Wallasey Golf Club, Merseyside","Warren Golf Club, Merseyside","Wellington Golf Club, Merseyside","West Lancashire Golf Club, Merseyside","Wirral Ladies Golf Club, Merseyside",
-// NORFOLK
-"Barnham Broom Golf Club – Hill, Norfolk","Barnham Broom Golf Club – Valley, Norfolk","Bawburgh Golf Club, Norfolk","Caldecott Hall Golf Club, Norfolk","Costessey Park Golf Club, Norfolk","Dereham Golf Club, Norfolk","Diss Golf Club, Norfolk","Eaton Golf Club, Norfolk","Fakenham Golf Club, Norfolk","Feltwell Golf Club, Norfolk","Gorleston Golf Club, Norfolk","Great Yarmouth & Caister Golf Club, Norfolk","Heacham Manor Golf Club, Norfolk","Hunstanton Golf Club, Norfolk","King's Lynn Golf Club, Norfolk","Links Country Park Golf Club, Norfolk","Mundesley Golf Club, Norfolk","Norfolk Golf & CC, Norfolk","Royal Cromer Golf Club, Norfolk","Royal Norwich Golf Club, Norfolk","Royal West Norfolk Golf Club, Norfolk","Ryston Park Golf Club, Norfolk","Sheringham Golf Club, Norfolk","Sprowston Park Golf Club, Norfolk","Swaffham Golf Club, Norfolk","Thetford Golf Club, Norfolk","Wensum Valley Golf Club, Norfolk","Weston Park Golf Club, Norfolk",
-// NORTHAMPTONSHIRE
-"Brampton Heath Golf Centre, Northamptonshire","Cherwell Edge Golf Club, Northamptonshire","Cold Ashby Golf Club, Northamptonshire","Collingtree Park Golf Club, Northamptonshire","Daventry & District Golf Club, Northamptonshire","Delapre Golf Complex, Northamptonshire","Hellidon Lakes Golf Club, Northamptonshire","Kettering Golf Club, Northamptonshire","Kingsthorpe Golf Club, Northamptonshire","Northampton Golf Club, Northamptonshire","Northamptonshire County Golf Club, Northamptonshire","Overstone Park Golf Club, Northamptonshire","Priors Hall Golf Club, Northamptonshire","Rushden Golf Club, Northamptonshire","Staverton Park Golf Club, Northamptonshire","Wellingborough Golf Club, Northamptonshire","Whittlebury Park Golf Club, Northamptonshire",
-// NORTHUMBERLAND
-"Alnmouth Golf Club, Northumberland","Alnmouth Village Golf Club, Northumberland","Alnwick Castle Golf Club, Northumberland","Bamburgh Castle Golf Club, Northumberland","Bedlingtonshire Golf Club, Northumberland","Bellingham Golf Club, Northumberland","Berwick-upon-Tweed Golf Club, Northumberland","Blyth Golf Club, Northumberland","Burgham Park Golf Club, Northumberland","Close House Golf Club – Colt, Northumberland","Close House Golf Club – Wellesley, Northumberland","Dunstanburgh Castle Golf Club, Northumberland","Hexham Golf Club, Northumberland","Longhirst Hall Golf Club, Northumberland","Matfen Hall Golf Club, Northumberland","Morpeth Golf Club, Northumberland","Newbiggin Golf Club, Northumberland","Ponteland Golf Club, Northumberland","Prudhoe Golf Club, Northumberland","Rothbury Golf Club, Northumberland","Seahouses Golf Club, Northumberland","Slaley Hall Golf Club – Hunting, Northumberland","Slaley Hall Golf Club – Priestman, Northumberland","Stocksfield Golf Club, Northumberland","Warkworth Golf Club, Northumberland",
-// NOTTINGHAMSHIRE
-"Beeston Fields Golf Club, Nottinghamshire","Bramcote Hills Golf Club, Nottinghamshire","Bulwell Forest Golf Club, Nottinghamshire","Calverton Golf Club, Nottinghamshire","Coxmoor Golf Club, Nottinghamshire","Edwalton Municipal Golf Course, Nottinghamshire","Hollinwell Golf Club – see Notts Golf Club, Nottinghamshire","Kilton Forest Golf Club, Nottinghamshire","Mansfield Woodhouse Golf Club, Nottinghamshire","Newark Golf Club, Nottinghamshire","Norwood Park Golf Club, Nottinghamshire","Notts Golf Club – Hollinwell, Nottinghamshire","Oakmere Park Golf Club, Nottinghamshire","Oxton Golf Club, Nottinghamshire","Radcliffe-on-Trent Golf Club, Nottinghamshire","Retford Golf Club, Nottinghamshire","Ruddington Grange Golf Club, Nottinghamshire","Rufford Park Golf Club, Nottinghamshire","Rushcliffe Golf Club, Nottinghamshire","Sherwood Forest Golf Club, Nottinghamshire","Southwell Golf Club, Nottinghamshire","Springwater Golf Club, Nottinghamshire","Stanton-on-the-Wolds Golf Club, Nottinghamshire","Wollaton Park Golf Club, Nottinghamshire","Worksop Golf Club, Nottinghamshire",
-// OXFORDSHIRE
-"Aspect Park Golf Club, Oxfordshire","Badgemore Park Golf Club, Oxfordshire","Burford Golf Club, Oxfordshire","Cherwell Valley Golf Club, Oxfordshire","Chesterton Golf Club, Oxfordshire","Chipping Norton Golf Club, Oxfordshire","Combe Golf Club, Oxfordshire","Drayton Park Golf Club, Oxfordshire","Frilford Heath Golf Club – Blue, Oxfordshire","Frilford Heath Golf Club – Green, Oxfordshire","Frilford Heath Golf Club – Red, Oxfordshire","Henley Golf Club, Oxfordshire","Huntercombe Golf Club, Oxfordshire","Kirtlington Golf Club, Oxfordshire","North Oxford Golf Club, Oxfordshire","Tadmarton Heath Golf Club, Oxfordshire","The Oxfordshire Golf Club, Oxfordshire","Waterstock Golf Club, Oxfordshire","Witney Lakes Golf Club, Oxfordshire",
-// SHROPSHIRE
-"Arscott Golf Club, Shropshire","Bridgnorth Golf Club, Shropshire","Church Stretton Golf Club, Shropshire","Cleobury Mortimer Golf Club, Shropshire","Hawkstone Park Golf Club – Hawkstone, Shropshire","Hawkstone Park Golf Club – Weston, Shropshire","Lilleshall Hall Golf Club, Shropshire","Ludlow Golf Club, Shropshire","Market Drayton Golf Club, Shropshire","Meole Brace Golf Club, Shropshire","Oswestry Golf Club, Shropshire","Patshull Park Golf Club, Shropshire","Shrewsbury Golf Club, Shropshire","Shifnal Golf Club, Shropshire","Telford Golf & Spa Hotel, Shropshire","The Shropshire Golf Centre, Shropshire","Wrekin Golf Club, Shropshire",
-// SOMERSET
-"Bath Golf Club, Somerset","Brean Golf Club, Somerset","Burnham & Berrow Golf Club, Somerset","Entry Hill Golf Club, Somerset","Enmore Park Golf Club, Somerset","Farrington Golf & CC, Somerset","Frome Golf Club, Somerset","Isle of Wedmore Golf Club, Somerset","Keynsham Golf Club, Somerset","Lansdown Golf Club, Somerset","Long Sutton Golf Club, Somerset","Mendip Golf Club, Somerset","Mendip Spring Golf Club, Somerset","Minehead & West Somerset Golf Club, Somerset","Oake Manor Golf Club, Somerset","Orchardleigh Golf Club, Somerset","Taunton & Pickeridge Golf Club, Somerset","Vivary Golf Club, Somerset","Wells Golf Club, Somerset","Weston-super-Mare Golf Club, Somerset","Wheathill Golf Club, Somerset","Yeovil Golf Club – Newton, Somerset","Yeovil Golf Club – Old, Somerset",
-// STAFFORDSHIRE
-"Beau Desert Golf Club, Staffordshire","Branston Golf & CC, Staffordshire","Brocton Hall Golf Club, Staffordshire","Burslem Golf Club, Staffordshire","Burton-on-Trent Golf Club, Staffordshire","Cannock Park Golf Club, Staffordshire","Craythorne Golf Club, Staffordshire","Druids Heath Golf Club, Staffordshire","Four Ashes Golf Club, Staffordshire","Greenway Hall Golf Club, Staffordshire","Himley Hall Golf Club, Staffordshire","Ingestre Park Golf Club, Staffordshire","Lakeside Golf Club, Staffordshire","Leek Golf Club, Staffordshire","Lichfield Golf Club, Staffordshire","Little Aston Golf Club, Staffordshire","Newcastle-under-Lyme Golf Club, Staffordshire","Oxley Park Golf Club, Staffordshire","Penn Golf Club, Staffordshire","Perton Park Golf Club, Staffordshire","St Thomas Priory Golf Club, Staffordshire","Stafford Castle Golf Club, Staffordshire","Stone Golf Club, Staffordshire","Swindon Golf Club, Staffordshire","Tamworth Golf Centre, Staffordshire","Trentham Golf Club, Staffordshire","Trentham Park Golf Club, Staffordshire","Uttoxeter Golf Club, Staffordshire","Whittington Heath Golf Club, Staffordshire","Wolstanton Golf Club, Staffordshire","Wyrley & Essington Golf Club, Staffordshire",
-// SUFFOLK
-"Aldeburgh Golf Club, Suffolk","Bungay & Waveney Valley Golf Club, Suffolk","Bury St Edmunds Golf Club, Suffolk","Cretingham Golf Club, Suffolk","Diss Golf Club, Suffolk","Felixstowe Ferry Golf Club, Suffolk","Flempton Golf Club, Suffolk","Hintlesham Golf Club, Suffolk","Ipswich Golf Club, Suffolk","Ipswich Purdis Farm Golf Club, Suffolk","Links Golf Club Newmarket, Suffolk","Newton Green Golf Club, Suffolk","Rookery Park Golf Club, Suffolk","Royal Worlington & Newmarket Golf Club, Suffolk","Rushmere Golf Club, Suffolk","Seckford Golf Club, Suffolk","Southwold Golf Club, Suffolk","Stowmarket Golf Club, Suffolk","Thorpeness Golf Club, Suffolk","Waldringfield Golf Club, Suffolk","Woodbridge Golf Club, Suffolk",
-// SURREY
-"Addington Golf Club, Surrey","Addington Court Golf Club, Surrey","Addington Palace Golf Club, Surrey","Banstead Downs Golf Club, Surrey","Bearwood Golf Club, Surrey","Betchworth Park Golf Club, Surrey","Bramley Golf Club, Surrey","Burhill Golf Club – New, Surrey","Burhill Golf Club – Old, Surrey","Camberley Heath Golf Club, Surrey","Clandon Regis Golf Club, Surrey","Coombe Hill Golf Club, Surrey","Coombe Wood Golf Club, Surrey","Cuddington Golf Club, Surrey","Dorking Golf Club, Surrey","Drift Golf Club, Surrey","Duke's Dene Golf Club, Surrey","Effingham Golf Club, Surrey","Epsom Golf Club, Surrey","Farleigh Golf Club, Surrey","Farnham Golf Club, Surrey","Farnham Park Golf Club, Surrey","Foxhills Golf Club – Bernard Hunt, Surrey","Foxhills Golf Club – Longcross, Surrey","Gatton Manor Hotel Golf Club, Surrey","Guildford Golf Club, Surrey","Ham Manor Golf Club, Surrey","Hankley Common Golf Club, Surrey","Hindhead Golf Club, Surrey","Horton Park Golf Club, Surrey","Kingswood Golf & CC, Surrey","Laleham Golf Club, Surrey","Leatherhead Golf Club, Surrey","Limpsfield Chart Golf Club, Surrey","Lingfield Park Golf Club, Surrey","Milford Golf Club, Surrey","Mitcham Golf Club, Surrey","Moore Place Golf Club, Surrey","New Zealand Golf Club, Surrey","North Downs Golf Club, Surrey","Oaks Sports Centre Golf Club, Surrey","Pachesham Park Golf Club, Surrey","Purley Downs Golf Club, Surrey","Puttenham Golf Club, Surrey","Queenwood Golf Club, Surrey","Redhill & Reigate Golf Club, Surrey","Reigate Heath Golf Club, Surrey","Richmond Golf Club, Surrey","Royal Mid-Surrey Golf Club – Inner, Surrey","Royal Mid-Surrey Golf Club – Outer, Surrey","Sandown Golf Centre, Surrey","Selsdon Park Golf Club, Surrey","Sheeplea Park Golf Club, Surrey","Silvermere Golf Club, Surrey","St George's Hill Golf Club, Surrey","Sunningdale Golf Club – New Course, Surrey","Sunningdale Golf Club – Old Course, Surrey","Sunningdale Ladies Golf Club, Surrey","Surrey Downs Golf Club, Surrey","Sutton Green Golf Club, Surrey","Tandridge Golf Club, Surrey","Thames Ditton & Esher Golf Club, Surrey","The Addington Golf Club, Surrey","The Berkshire Golf Club, Surrey","Traditions Golf Club, Surrey","Tyrrells Wood Golf Club, Surrey","Walton Heath Golf Club – New Course, Surrey","Walton Heath Golf Club – Old Course, Surrey","Wentworth Club – Edinburgh Course, Surrey","Wentworth Club – East Course, Surrey","Wentworth Club – West Course, Surrey","West Byfleet Golf Club, Surrey","West Hill Golf Club, Surrey","West Surrey Golf Club, Surrey","Wildwood Golf Club, Surrey","Wimbledon Common Golf Club, Surrey","Woking Golf Club, Surrey","Woodcote Park Golf Club, Surrey","Worplesdon Golf Club, Surrey",
-// EAST SUSSEX
-"Ashdown Forest Golf Club, East Sussex","Beauport Park Golf Club, East Sussex","Brighton & Hove Golf Club, East Sussex","Cooden Beach Golf Club, East Sussex","Crowborough Beacon Golf Club, East Sussex","Dale Hill Golf Club – The Ian Woosnam, East Sussex","Dale Hill Golf Club – The Old, East Sussex","Eastbourne Downs Golf Club, East Sussex","East Brighton Golf Club, East Sussex","East Sussex National – East, East Sussex","East Sussex National – West, East Sussex","Hastings Golf Club, East Sussex","Horam Park Golf Club, East Sussex","Lewes Golf Club, East Sussex","Piltdown Golf Club, East Sussex","Royal Eastbourne Golf Club, East Sussex","Rye Golf Club, East Sussex","Seaford Golf Club, East Sussex","Seaford Head Golf Club, East Sussex","Singing Hills Golf Club, East Sussex","Waterhall Golf Club, East Sussex",
-// WEST SUSSEX
-"Avisford Park Golf Club, West Sussex","Bognor Regis Golf Club, West Sussex","Chichester Golf Club – Cathedral, West Sussex","Chichester Golf Club – Tower, West Sussex","Copthorne Golf Club, West Sussex","Cottesmore Golf Club – Griffin, West Sussex","Cottesmore Golf Club – Phoenix, West Sussex","Cowdray Park Golf Club, West Sussex","Effingham Park Golf Club, West Sussex","Gatwick Manor Golf Club, West Sussex","Ham Manor Golf Club, West Sussex","Haywards Heath Golf Club, West Sussex","Horsham Golf Park, West Sussex","Ifield Golf Club, West Sussex","Littlehampton Golf Club, West Sussex","Mannings Heath Golf Club – Kingfisher, West Sussex","Mannings Heath Golf Club – Waterfall, West Sussex","Mid Sussex Golf Club, West Sussex","Pulborough Golf Club, West Sussex","Pease Pottage Golf Club, West Sussex","Pyecombe Golf Club, West Sussex","Selsey Golf Club, West Sussex","Singing Hills Golf Club, West Sussex","Slinfold Park Golf Club, West Sussex","Tilgate Forest Golf Club, West Sussex","Treetops Golf Club, West Sussex","Tulleys Farm Golf Club, West Sussex","Wellshurst Golf Club, West Sussex","West Chiltington Golf Club, West Sussex","West Sussex Golf Club, West Sussex","Worthing Golf Club – Lower, West Sussex","Worthing Golf Club – Upper, West Sussex",
-// TYNE & WEAR
-"Backworth Golf Club, Tyne & Wear","Beamish Park Golf Club, Tyne & Wear","Boldon Golf Club, Tyne & Wear","City of Newcastle Golf Club, Tyne & Wear","Garesfield Golf Club, Tyne & Wear","George Washington Golf Club, Tyne & Wear","Gosforth Golf Club, Tyne & Wear","Houghton-le-Spring Golf Club, Tyne & Wear","Montagu Golf Club, Tyne & Wear","Newburn Golf Club, Tyne & Wear","Newcastle United Golf Club, Tyne & Wear","Northumberland Golf Club, Tyne & Wear","Parklands Golf Club, Tyne & Wear","Ravensworth Golf Club, Tyne & Wear","Ryton Golf Club, Tyne & Wear","South Shields Golf Club, Tyne & Wear","Sunderland Golf Club, Tyne & Wear","Tynemouth Golf Club, Tyne & Wear","Wallsend Golf Club, Tyne & Wear","Wearside Golf Club, Tyne & Wear","Westerhope Golf Club, Tyne & Wear","Whitburn Golf Club, Tyne & Wear","Whitley Bay Golf Club, Tyne & Wear",
-// WARWICKSHIRE
-"Arden Leys Golf Club, Warwickshire","Bidford Grange Golf Club, Warwickshire","Brandon Wood Golf Club, Warwickshire","City Golf Club, Warwickshire","Copt Heath Golf Club, Warwickshire","Coventry Golf Club, Warwickshire","Coventry Hearsall Golf Club, Warwickshire","Edgbaston Golf Club, Warwickshire","Kenilworth Golf Club, Warwickshire","Ladbrook Park Golf Club, Warwickshire","Leamington & County Golf Club, Warwickshire","Maxstoke Park Golf Club, Warwickshire","Moseley Golf Club, Warwickshire","North Warwickshire Golf Club, Warwickshire","Nuneaton Golf Club, Warwickshire","Purley Chase Golf Club, Warwickshire","Rugby Golf Club, Warwickshire","Shirley Golf Club, Warwickshire","Stratford-on-Avon Golf Club, Warwickshire","The Belfry – Brabazon Course, Warwickshire","The Belfry – Derby Course, Warwickshire","The Belfry – PGA National, Warwickshire","Welcombe Hotel Golf Club, Warwickshire","Windmill Village Golf Club, Warwickshire",
-// WEST MIDLANDS
-"Aston Wood Golf Club, West Midlands","Boldmere Golf Club, West Midlands","Brand Hall Golf Club, West Midlands","Bromwich Castle Golf Club, West Midlands","Calderfields Golf Club, West Midlands","Cocks Moors Woods Golf Club, West Midlands","Dartmouth Golf Club, West Midlands","Druids Heath Golf Club, West Midlands","Dudley Golf Club, West Midlands","Enville Golf Club – Lodge, West Midlands","Enville Golf Club – Highgate, West Midlands","Forest of Arden – Aylesford, West Midlands","Forest of Arden – Arden, West Midlands","Four Ashes Golf Club, West Midlands","Great Barr Golf Club, West Midlands","Halesowen Golf Club, West Midlands","Handsworth Golf Club, West Midlands","Harborne Church Farm Golf Club, West Midlands","Harborne Golf Club, West Midlands","Hill Valley Golf Club – Emerald, West Midlands","Hill Valley Golf Club – Sapphire, West Midlands","Himley Hall Golf Club, West Midlands","Lickey Hills Golf Club, West Midlands","Little Aston Golf Club, West Midlands","Moor Hall Golf Club, West Midlands","North Worcestershire Golf Club, West Midlands","Olton Golf Club, West Midlands","Penn Golf Club, West Midlands","Robin Hood Golf Club, West Midlands","Sandwell Park Golf Club, West Midlands","Swindon Golf Club, West Midlands","Sutton Coldfield Golf Club, West Midlands","Three Hammers Golf Club, West Midlands","Walmley Golf Club, West Midlands","Walsall Golf Club, West Midlands","West Bromwich Golf Club, West Midlands","Widney Manor Golf Club, West Midlands","Wolverhampton Golf Club, West Midlands",
-// WILTSHIRE
-"Bowood Hotel Golf Club, Wiltshire","Bradford-on-Avon Golf Club, Wiltshire","Broome Manor Golf Club, Wiltshire","Chippenham Golf Club, Wiltshire","Erlestoke Golf Club, Wiltshire","High Post Golf Club, Wiltshire","Kingsdown Golf Club, Wiltshire","Laccock Golf Club, Wiltshire","Marlborough Golf Club, Wiltshire","Monkton Park Golf Club, Wiltshire","North Wilts Golf Club, Wiltshire","Ogbourne Downs Golf Club, Wiltshire","Rushmore Golf Club, Wiltshire","Swindon Golf Club, Wiltshire","Tidworth Garrison Golf Club, Wiltshire","Upavon Golf Club, Wiltshire","West Wilts Golf Club, Wiltshire","Whitley Golf Club, Wiltshire","Wrag Barn Golf Club, Wiltshire",
-// WORCESTERSHIRE
-"Bewdley Pines Golf Club, Worcestershire","Blackwell Golf Club, Worcestershire","Brandhall Golf Club, Worcestershire","Broadway Golf Club, Worcestershire","Bromsgrove Golf Centre, Worcestershire","Churchill & Blakedown Golf Club, Worcestershire","Evesham Golf Club, Worcestershire","Gaudet Luce Golf Club, Worcestershire","Gay Hill Golf Club, Worcestershire","Habberley Golf Club, Worcestershire","Kidderminster Golf Club, Worcestershire","Kings Norton Golf Club, Worcestershire","Kington Golf Club, Worcestershire","Lakeside Golf Club, Worcestershire","Little Lakes Golf Club, Worcestershire","Perdiswell Park Golf Club, Worcestershire","Pitcheroak Golf Club, Worcestershire","Redditch Golf Club, Worcestershire","Ross-on-Wye Golf Club, Worcestershire","Stourbridge Golf Club, Worcestershire","Tolladine Golf Club, Worcestershire","Vale Golf & CC – International, Worcestershire","Vale Golf & CC – Village, Worcestershire","Wharton Park Golf Club, Worcestershire","Worcester Golf & CC, Worcestershire","Worcestershire Golf Club, Worcestershire",
-// YORKSHIRE (EAST)
-"Beverley & East Riding Golf Club, East Yorkshire","Bridlington Golf Club, East Yorkshire","Driffield Golf Club, East Yorkshire","Flamborough Head Golf Club, East Yorkshire","Hornsea Golf Club, East Yorkshire","Hull Golf Club, East Yorkshire","Humber Bridge Golf Club, East Yorkshire","Kilnwick Percy Golf Club, East Yorkshire","Leven Golf Club, East Yorkshire","Withernsea Golf Club, East Yorkshire",
-// YORKSHIRE (NORTH)
-"Catterick Golf Club, North Yorkshire","Cleveland Golf Club, North Yorkshire","Easingwold Golf Club, North Yorkshire","Filey Golf Club, North Yorkshire","Fulford Golf Club, North Yorkshire","Ganton Golf Club, North Yorkshire","Harrogate Golf Club, North Yorkshire","Kirkbymoorside Golf Club, North Yorkshire","Knaresborough Golf Club, North Yorkshire","Malton & Norton Golf Club, North Yorkshire","Masham Golf Club, North Yorkshire","Pannal Golf Club, North Yorkshire","Pike Hills Golf Club, North Yorkshire","Richmond Golf Club, North Yorkshire","Ripon City Golf Club, North Yorkshire","Romanby Golf Club, North Yorkshire","Scarborough North Cliff Golf Club, North Yorkshire","Scarborough South Cliff Golf Club, North Yorkshire","Selby Golf Club, North Yorkshire","Settle Golf Club, North Yorkshire","Skipton Golf Club, North Yorkshire","Thirsk & Northallerton Golf Club, North Yorkshire","Whitby Golf Club, North Yorkshire","York Golf Club, North Yorkshire",
-// YORKSHIRE (SOUTH)
-"Abbeydale Golf Club, South Yorkshire","Austerfield Park Golf Club, South Yorkshire","Barnsley Golf Club, South Yorkshire","Concord Park Golf Club, South Yorkshire","Doncaster Golf Club, South Yorkshire","Doncaster Town Moor Golf Club, South Yorkshire","Grange Park Golf Club, South Yorkshire","Hallamshire Golf Club, South Yorkshire","Hickleton Golf Club, South Yorkshire","Hillsborough Golf Club, South Yorkshire","Lees Hall Golf Club, South Yorkshire","Lindrick Golf Club, South Yorkshire","Owston Hall Golf Club, South Yorkshire","Phoenix Golf Club, South Yorkshire","Rotherham Golf Club, South Yorkshire","Sheffield Golf Club, South Yorkshire","Sitwell Park Golf Club, South Yorkshire","Tankersley Park Golf Club, South Yorkshire","Thorne Golf Club, South Yorkshire","Tinsley Park Golf Club, South Yorkshire","Wheatley Golf Club, South Yorkshire","Wombwell Hillies Golf Club, South Yorkshire","Worksop Golf Club, South Yorkshire",
-// YORKSHIRE (WEST)
-"Alwoodley Golf Club, West Yorkshire","Baildon Golf Club, West Yorkshire","Ben Rhydding Golf Club, West Yorkshire","Bingley St Ives Golf Club, West Yorkshire","Bradford Golf Club, West Yorkshire","Bradley Park Golf Club, West Yorkshire","Branshaw Golf Club, West Yorkshire","Calverley Golf Club, West Yorkshire","Cleckheaton & District Golf Club, West Yorkshire","Cookridge Hall Golf Club, West Yorkshire","Crosland Heath Golf Club, West Yorkshire","Dewsbury District Golf Club, West Yorkshire","East Bierley Golf Club, West Yorkshire","Fulneck Golf Club, West Yorkshire","Gotts Park Golf Club, West Yorkshire","Halifax Golf Club, West Yorkshire","Halifax Bradley Hall Golf Club, West Yorkshire","Hanging Heaton Golf Club, West Yorkshire","Headingley Golf Club, West Yorkshire","Hebden Bridge Golf Club, West Yorkshire","Horsforth Golf Club, West Yorkshire","Howley Hall Golf Club, West Yorkshire","Huddersfield Golf Club, West Yorkshire","Ilkley Golf Club, West Yorkshire","Keighley Golf Club, West Yorkshire","Leeds Golf Club, West Yorkshire","Lightcliffe Golf Club, West Yorkshire","Longley Park Golf Club, West Yorkshire","Low Laithes Golf Club, West Yorkshire","Marsden Golf Club, West Yorkshire","Mid Yorkshire Golf Club, West Yorkshire","Moor Allerton Golf Club, West Yorkshire","Moortown Golf Club, West Yorkshire","Normanton Golf Club, West Yorkshire","Northcliffe Golf Club, West Yorkshire","Otley Golf Club, West Yorkshire","Outlane Golf Club, West Yorkshire","Painthorpe House Golf Club, West Yorkshire","Pontefract & District Golf Club, West Yorkshire","Queensbury Golf Club, West Yorkshire","Rawdon Golf Club, West Yorkshire","Roundhay Golf Club, West Yorkshire","Sand Moor Golf Club, West Yorkshire","Scarcroft Golf Club, West Yorkshire","Shipley Golf Club, West Yorkshire","Silsden Golf Club, West Yorkshire","South Bradford Golf Club, West Yorkshire","South Leeds Golf Club, West Yorkshire","Temple Newsam Golf Club, West Yorkshire","Todmorden Golf Club, West Yorkshire","Wakefield Golf Club, West Yorkshire","Waterton Park Golf Club, West Yorkshire","Wetherby Golf Club, West Yorkshire","Woodhall Hills Golf Club, West Yorkshire","Woodsome Hall Golf Club, West Yorkshire",
-// SCOTLAND – ABERDEENSHIRE
-"Aboyne Golf Club, Aberdeenshire","Alford Golf Club, Aberdeenshire","Ballater Golf Club, Aberdeenshire","Balmoral Golf Club, Aberdeenshire","Banchory Golf Club, Aberdeenshire","Buckpool Golf Club, Aberdeenshire","Cruden Bay Golf Club, Aberdeenshire","Duff House Royal Golf Club, Aberdeenshire","Elgin Golf Club, Aberdeenshire","Fraserburgh Golf Club, Aberdeenshire","Hazlehead Golf Club, Aberdeen","Huntly Golf Club, Aberdeenshire","Inverurie Golf Club, Aberdeenshire","Keith Golf Club, Aberdeenshire","Kings Links Golf Centre, Aberdeen","Kintore Golf Club, Aberdeenshire","Longside Golf Club, Aberdeenshire","Murcar Links Golf Club, Aberdeen","Newburgh on Ythan Golf Club, Aberdeenshire","Newmachar Golf Club – Hawkshill, Aberdeenshire","Newmachar Golf Club – Swailend, Aberdeenshire","Old Meldrum Golf Club, Aberdeenshire","Peterculter Golf Club, Aberdeenshire","Peterhead Golf Club, Aberdeenshire","Portlethen Golf Club, Aberdeenshire","Royal Aberdeen Golf Club – Balgownie, Aberdeenshire","Stonehaven Golf Club, Aberdeenshire","Tarland Golf Club, Aberdeenshire","Torphins Golf Club, Aberdeenshire","Turriff Golf Club, Aberdeenshire","Trump International Golf Links, Aberdeenshire",
-// SCOTLAND – ANGUS & DUNDEE
-"Arbroath Golf Links, Angus","Brechin Golf Club, Angus","Caird Park Golf Club, Angus","Carnoustie Golf Links – Burnside, Angus","Carnoustie Golf Links – Championship, Angus","Carnoustie Golf Links – Meadows, Angus","Dundee Golf Club, Angus","Edzell Golf Club, Angus","Forfar Golf Club, Angus","Kirriemuir Golf Club, Angus","Letham Grange Golf Club, Angus","Monifieth Golf Links – Medal, Angus","Monifieth Golf Links – Ashludie, Angus","Montrose Golf Links, Angus","Panmure Golf Club, Angus",
-// SCOTLAND – ARGYLL & BUTE
-"Carradale Golf Club, Argyll","Colonsay Golf Club, Argyll","Craignure Golf Club, Mull","Dalmally Golf Club, Argyll","Dunaverty Golf Club, Argyll","Glencruitten Golf Club, Argyll","Innellan Golf Club, Argyll","Isle of Colonsay Golf Club, Argyll","Isle of Gigha Golf Club, Argyll","Lochgilphead Golf Club, Argyll","Machrihanish Dunes Golf Club, Argyll","Machrihanish Golf Club, Argyll","Millport Golf Club, Arran","Taynuilt Golf Club, Argyll","Tobermory Golf Club, Mull",
-// SCOTLAND – ARRAN
-"Brodick Golf Club, Arran","Corrie Golf Club, Arran","Lamlash Golf Club, Arran","Lochranza Golf Club, Arran","Machrie Bay Golf Club, Arran","Shiskine Golf & Tennis Club, Arran","Whiting Bay Golf Club, Arran",
-// SCOTLAND – AYRSHIRE
-"Ardeer Golf Club, Ayrshire","Ayr Belleisle Golf Club, Ayrshire","Ayr Dalmilling Golf Club, Ayrshire","Ayr Seafield Golf Club, Ayrshire","Ballochmyle Golf Club, Ayrshire","Beith Golf Club, Ayrshire","Brunston Castle Golf Club, Ayrshire","Caprington Golf Club, Ayrshire","Dalmilling Golf Club, Ayrshire","Dundonald Links, Ayrshire","Girvan Golf Club, Ayrshire","Glasgow Golf Club – Gailes Links, Ayrshire","Irvine Golf Club, Ayrshire","Irvine Ravenspark Golf Club, Ayrshire","Kilbirnie Place Golf Club, Ayrshire","Kilmarnock Barassie Golf Club, Ayrshire","Largs Golf Club, Ayrshire","Largs Routenburn Golf Club, Ayrshire","Loudoun Golf Club, Ayrshire","Maybole Golf Club, Ayrshire","Muirkirk Golf Club, Ayrshire","New Cumnock Golf Club, Ayrshire","Prestwick Golf Club, Ayrshire","Prestwick St Cuthbert Golf Club, Ayrshire","Prestwick St Nicholas Golf Club, Ayrshire","Royal Troon – Old Course, Ayrshire","Royal Troon – Portland Course, Ayrshire","Skelmorlie Golf Club, Ayrshire","Troon Darley Golf Club, Ayrshire","Troon Fullarton Golf Club, Ayrshire","Troon Lochgreen Golf Club, Ayrshire","Trump Turnberry – Ailsa Course, Ayrshire","Trump Turnberry – King Robert the Bruce, Ayrshire","West Kilbride Golf Club, Ayrshire","Western Gailes Golf Club, Ayrshire",
-// SCOTLAND – BORDERS
-"Duns Golf Club, Borders","Eyemouth Golf Club, Borders","Galashiels Golf Club, Borders","Hawick Golf Club, Borders","Innerleithen Golf Club, Borders","Jedburgh Golf Club, Borders","Kelso Golf Club, Borders","Lauder Golf Club, Borders","Melrose Golf Club, Borders","Minto Golf Club, Borders","Newcastleton Golf Club, Borders","Peebles Golf Club, Borders","Selkirk Golf Club, Borders","St Boswells Golf Club, Borders","The Roxburghe Golf Club, Borders","Torwoodlee Golf Club, Borders","West Linton Golf Club, Borders",
-// SCOTLAND – DUMFRIES & GALLOWAY
-"Castle Douglas Golf Club, Dumfries & Galloway","Colvend Golf Club, Dumfries & Galloway","Dalbeattie Golf Club, Dumfries & Galloway","Dumfries & County Golf Club, Dumfries & Galloway","Dumfries & Galloway Golf Club, Dumfries & Galloway","Gatehouse of Fleet Golf Club, Dumfries & Galloway","Kirkcudbright Golf Club, Dumfries & Galloway","Langholm Golf Club, Dumfries & Galloway","Lochmaben Golf Club, Dumfries & Galloway","Lockerbie Golf Club, Dumfries & Galloway","Moffat Golf Club, Dumfries & Galloway","Newton Stewart Golf Club, Dumfries & Galloway","New Galloway Golf Club, Dumfries & Galloway","Portpatrick Dunskey Golf Club, Dumfries & Galloway","Powfoot Golf Club, Dumfries & Galloway","Sanquhar Golf Club, Dumfries & Galloway","Southerness Golf Club, Dumfries & Galloway","Stranraer Golf Club, Dumfries & Galloway","Thornhill Golf Club, Dumfries & Galloway","Wigtown & Bladnoch Golf Club, Dumfries & Galloway","Wigtownshire County Golf Club, Dumfries & Galloway",
-// SCOTLAND – EAST LOTHIAN
-"Archerfield Links – Dirleton Course, East Lothian","Archerfield Links – Fidra Course, East Lothian","Dunbar Golf Club, East Lothian","Gifford Golf Club, East Lothian","Glen Golf Club, East Lothian","Gullane Golf Club – No.1, East Lothian","Gullane Golf Club – No.2, East Lothian","Gullane Golf Club – No.3, East Lothian","Haddington Golf Club, East Lothian","Kilspindie Golf Club, East Lothian","Longniddry Golf Club, East Lothian","Luffness New Golf Club, East Lothian","Muirfield, East Lothian","Musselburgh Links, East Lothian","Musselburgh Old Course Golf Club, East Lothian","North Berwick Golf Club – West Links, East Lothian","Renaissance Club The, East Lothian","Royal Musselburgh Golf Club, East Lothian","Tantallon Golf Club, East Lothian","Whitekirk Golf Club, East Lothian",
-// SCOTLAND – EDINBURGH & LOTHIANS
-"Baberton Golf Club, Edinburgh","Braid Hills Golf Course, Edinburgh","Broomieknowe Golf Club, Edinburgh","Bruntsfield Links Golfing Society, Edinburgh","Carrick Knowe Golf Club, Edinburgh","Castle Golf Club, Edinburgh","Craigentinny Golf Club, Edinburgh","Craigielaw Golf Club, Edinburgh","Dalmahoy Hotel & CC – East Course, Edinburgh","Dalmahoy Hotel & CC – West Course, Edinburgh","Duddingston Golf Club, Edinburgh","Dundas Parks Golf Club, Edinburgh","Fairmilehead Golf Club, Edinburgh","Glencorse Golf Club, Edinburgh","Kingsknowe Golf Club, Edinburgh","Liberton Golf Club, Edinburgh","Lothianburn Golf Club, Edinburgh","Merchants of Edinburgh Golf Club, Edinburgh","Mortonhall Golf Club, Edinburgh","Murrayfield Golf Club, Edinburgh","Prestonfield Golf Club, Edinburgh","Ratho Park Golf Club, Edinburgh","Royal Burgess Golfing Society, Edinburgh","Silverknowes Golf Club, Edinburgh","Swanston Golf Club, Edinburgh","Torphin Hill Golf Club, Edinburgh","Turnhouse Golf Club, Edinburgh","Uphall Golf Club, West Lothian","West Lothian Golf Club, West Lothian",
-// SCOTLAND – FIFE
-"Aberdour Golf Club, Fife","Anstruther Golf Club, Fife","Balbirnie Park Golf Club, Fife","Burntisland Golf Club, Fife","Canmore Golf Club, Fife","Charleton Golf Club, Fife","Crail Golfing Society – Balcomie Links, Fife","Crail Golfing Society – Craighead Links, Fife","Cupar Golf Club, Fife","Dumbarnie Links, Fife","Dunfermline Golf Club, Fife","Earlsferry Thistle Golf Club, Fife","Elie Golf Club, Fife","Fairmont St Andrews – Kittocks, Fife","Fairmont St Andrews – Torrance, Fife","Inverkeithing Golf Club, Fife","Kilrenny Golf Club, Fife","Kingsbarns Golf Links, Fife","Kinghorn Golf Club, Fife","Kirkcaldy Golf Club, Fife","Ladybank Golf Club, Fife","Leven Golf Club, Fife","Leven Links Golf Club, Fife","Lundin Golf Club, Fife","Lundin Ladies Golf Club, Fife","Methil Golf Club, Fife","Saline Golf Club, Fife","Scotscraig Golf Club, Fife","St Andrews Links – Balgove Course, Fife","St Andrews Links – Eden Course, Fife","St Andrews Links – Jubilee Course, Fife","St Andrews Links – New Course, Fife","St Andrews Links – Old Course, Fife","St Andrews Links – Strathtyrum, Fife","Thornton Golf Club, Fife",
-// SCOTLAND – GLASGOW & LANARKSHIRE
-"Bearsden Golf Club, Glasgow","Bishopbriggs Golf Club, Glasgow","Blairbeth Golf Club, Glasgow","Bothwell Castle Golf Club, Lanarkshire","Burnside Golf Club, Glasgow","Carluke Golf Club, Lanarkshire","Carnwath Golf Club, Lanarkshire","Cathcart Castle Golf Club, Glasgow","Cathkin Braes Golf Club, Glasgow","Cawder Golf Club – Cawder, Glasgow","Cawder Golf Club – Keir, Glasgow","Clober Golf Club, Glasgow","Cowglen Golf Club, Glasgow","Dalziel Park Golf Club, Lanarkshire","Douglas Park Golf Club, Glasgow","Douglas Water Golf Club, Lanarkshire","East Kilbride Golf Club, Lanarkshire","Giffnock Golf Club, Glasgow","Glasgow Golf Club – Killermont, Glasgow","Hamilton Golf Club, Lanarkshire","Hayston Golf Club, Glasgow","Kirkhill Golf Club, Glasgow","Kirkintilloch Golf Club, Glasgow","Lanark Golf Club, Lanarkshire","Larkhall Golf Club, Lanarkshire","Loch Lomond Golf Club, Dunbartonshire","Pollock Golf Club, Glasgow","Ralston Golf Club, Glasgow","Rouken Glen Golf Club, Glasgow","Sandyhills Golf Club, Glasgow","Shotts Golf Club, Lanarkshire","Strathaven Golf Club, Lanarkshire","Strathclyde Park Golf Club, Lanarkshire","Torrance House Golf Club, Lanarkshire","Williamwood Golf Club, Glasgow",
-// SCOTLAND – HIGHLAND
-"Bonar Bridge Golf Club, Highland","Brora Golf Club, Highland","Carnegie Club Skibo Castle, Highland","Castle Stuart Golf Links, Highland","Fort Augustus Golf Club, Highland","Fort William Golf Club, Highland","Fortrose & Rosemarkie Golf Club, Highland","Gairloch Golf Club, Highland","Golspie Golf Club, Highland","Grantown-on-Spey Golf Club, Highland","Inverness Golf Club, Highland","Kingussie Golf Club, Highland","Lochbroom Golf Club, Highland","Muir of Ord Golf Club, Highland","Nairn Dunbar Golf Club, Highland","Nairn Golf Club, Highland","Reay Golf Club, Highland","Royal Dornoch Golf Club – Championship, Highland","Royal Dornoch Golf Club – Struie, Highland","Skeabost Golf Club, Highland","Strathpeffer Spa Golf Club, Highland","Tain Golf Club, Highland","Tarbat Golf Club, Highland","Thurso Golf Club, Highland","Torvean Golf Club, Highland","Ullapool Golf Club, Highland","Wick Golf Club, Highland",
-// SCOTLAND – ISLANDS
-"Barra Golf Club, Western Isles","Benbecula Golf Club, Western Isles","Durness Golf Club, Highland","Harris Golf Club, Western Isles","Isle of Skye Golf Club, Highland","Lochanza Golf Club, Arran","Machrie Hotel & Golf Links, Islay","Orkney Golf Club, Orkney","Shetland Golf Club, Shetland","Stornoway Golf Club, Western Isles","Stromness Golf Club, Orkney",
-// SCOTLAND – MORAY
-"Buckpool Golf Club, Moray","Dufftown Golf Club, Moray","Elgin Golf Club, Moray","Forres Golf Club, Moray","Hopeman Golf Club, Moray","Moray Golf Club – New Course, Moray","Moray Golf Club – Old Course, Moray","Rothes Golf Club, Moray","Spey Bay Golf Club, Moray",
-// SCOTLAND – PERTH & KINROSS
-"Aberfeldy Golf Club, Perthshire","Alyth Golf Club, Perthshire","Auchterarder Golf Club, Perthshire","Blairgowrie Golf Club – Lansdowne, Perthshire","Blairgowrie Golf Club – Rosemount, Perthshire","Blair Atholl Golf Club, Perthshire","Callander Golf Club, Perthshire","Comrie Golf Club, Perthshire","Crieff Golf Club – Dornock, Perthshire","Crieff Golf Club – Ferntower, Perthshire","Dalmunzie Golf Club, Perthshire","Dunning Golf Club, Perthshire","Gleneagles – King's Course, Perthshire","Gleneagles – PGA Centenary Course, Perthshire","Gleneagles – Queen's Course, Perthshire","Green Hotel Golf Club, Perthshire","Kenmore Golf Club, Perthshire","Killin Golf Club, Perthshire","King James VI Golf Club, Perthshire","Murrayshall Golf Club, Perthshire","Muthill Golf Club, Perthshire","North Inch Golf Course, Perthshire","Pitlochry Golf Club, Perthshire","St Fillans Golf Club, Perthshire","Strathtay Golf Club, Perthshire","Taymouth Castle Golf Club, Perthshire",
-// SCOTLAND – RENFREWSHIRE
-"Cochrane Castle Golf Club, Renfrewshire","East Renfrewshire Golf Club, Renfrewshire","Elderslie Golf Club, Renfrewshire","Erskine Golf Club, Renfrewshire","Fereneze Golf Club, Renfrewshire","Gourock Golf Club, Renfrewshire","Greenock Golf Club, Renfrewshire","Greenock Whinhill Golf Club, Renfrewshire","Inverkip Golf Club, Renfrewshire","Kilmacolm Golf Club, Renfrewshire","Paisley Golf Club, Renfrewshire","Port Glasgow Golf Club, Renfrewshire","Ranfurly Castle Golf Club, Renfrewshire","Whinhill Golf Club, Renfrewshire",
-// SCOTLAND – STIRLINGSHIRE
-"Aberfoyle Golf Club, Stirlingshire","Alloa Golf Club, Stirlingshire","Alva Golf Club, Stirlingshire","Bonnybridge Golf Club, Stirlingshire","Bridge of Allan Golf Club, Stirlingshire","Buchanan Castle Golf Club, Stirlingshire","Dollar Golf Club, Stirlingshire","Dumbarton Golf Club, Dunbartonshire","Dunblane New Golf Club, Stirlingshire","Falkirk Golf Club, Stirlingshire","Falkirk Tryst Golf Club, Stirlingshire","Glenbervie Golf Club, Stirlingshire","Grangemouth Golf Club, Stirlingshire","Helensburgh Golf Club, Dunbartonshire","Kilsyth Lennox Golf Club, Stirlingshire","Loch Lomond Golf Club, Dunbartonshire","Polmont Golf Club, Stirlingshire","Stirling Golf Club, Stirlingshire",
-// SCOTLAND – TAYSIDE
-"Alyth Golf Club, Tayside","Downfield Golf Club, Tayside","Forfar Golf Club, Tayside",
-// WALES
-"Aberdovey Golf Club, Wales","Abersoch Golf Club, Wales","Abergele Golf Club, Wales","Aberystwyth Golf Club, Wales","Anglesey Golf Club, Wales","Ashburnham Golf Club, Wales","Baron Hill Golf Club, Wales","Brecon Golf Club, Wales","Bryn Meadows Golf Club, Wales","Builth Wells Golf Club, Wales","Caernarfon Golf Club, Wales","Caerphilly Golf Club, Wales","Cardiff Golf Club, Wales","Cardigan Golf Club, Wales","Carmarthen Golf Club, Wales","Celtic Manor Resort – Montgomerie, Wales","Celtic Manor Resort – Roman Road, Wales","Celtic Manor Resort – Twenty Ten Course, Wales","Chirk Golf Club, Wales","Clays Golf Centre, Wales","Clyne Golf Club, Wales","Conwy Golf Club, Wales","Creigiau Golf Club, Wales","Criccieth Golf Club, Wales","Denbigh Golf Club, Wales","Dewstow Golf Club – Garden, Wales","Dewstow Golf Club – Valley, Wales","Flint Golf Club, Wales","Grove Golf Club, Wales","Hawarden Golf Club, Wales","Holyhead Golf Club, Wales","Knighton Golf Club, Wales","Langland Bay Golf Club, Wales","Llandrindod Wells Golf Club, Wales","Llandudno Maesdu Golf Club, Wales","Llandudno North Wales Golf Club, Wales","Llanfairfechan Golf Club, Wales","Llanwrtyd Wells Golf Club, Wales","Machynys Peninsula Golf Club, Wales","Mold Golf Club, Wales","Monmouth Golf Club, Wales","Nefyn & District Golf Club, Wales","Newport Golf Club – Treowen, Wales","North Wales Golf Club, Wales","Northop Country Park Golf Club, Wales","Old Colwyn Golf Club, Wales","Porthmadog Golf Club, Wales","Prestatyn Golf Club, Wales","Pwllheli Golf Club, Wales","Pyle & Kenfig Golf Club, Wales","Raglan Parc Golf Club, Wales","Rhondda Golf Club, Wales","Rhos-on-Sea Golf Club, Wales","Rhyl Golf Club, Wales","Royal Porthcawl Golf Club, Wales","Royal St David's Golf Club, Harlech, Wales","Ruthin-Pwllglas Golf Club, Wales","Southerndown Golf Club, Wales","St Giles Golf Club, Wales","St Idloes Golf Club, Wales","St Pierre Golf & CC, Wales","Tenby Golf Club, Wales","The Vale Hotel Golf – Lake Course, Wales","The Vale Hotel Golf – Wales National, Wales","Tredegar & Rhymney Golf Club, Wales","Vale of Glamorgan Golf Club, Wales","Vale of Llangollen Golf Club, Wales","Welshpool Golf Club, Wales","Wrexham Golf Club, Wales",
-// NORTHERN IRELAND
-"Ardglass Golf Club, County Down","Balmoral Golf Club, Belfast","Ballycastle Golf Club, County Antrim","Ballyclare Golf Club, County Antrim","Ballymena Golf Club, County Antrim","Banbridge Golf Club, County Down","Bangor Golf Club, County Down","Belvoir Park Golf Club, Belfast","Bentra Golf Club, County Antrim","Brown Trout Golf Club, County Londonderry","Bushfoot Golf Club, County Antrim","Castlerock Golf Club – Bann, County Londonderry","Castlerock Golf Club – Mussenden, County Londonderry","Clandeboye Golf Club – Ava, County Down","Clandeboye Golf Club – Dufferin, County Down","Cliftonville Golf Club, Belfast","County Armagh Golf Club, County Armagh","Cushendall Golf Club, County Antrim","Donaghadee Golf Club, County Down","Down Royal Golf Club, County Down","Downpatrick Golf Club, County Down","Dungannon Golf Club, County Tyrone","Dunmurry Golf Club, Belfast","Enniskillen Golf Club, County Fermanagh","Fortwilliam Golf Club, Belfast","Galgorm Castle Golf Club, County Antrim","Greenacres Golf Centre, County Antrim","Greenisland Golf Club, County Antrim","Helen's Bay Golf Club, County Down","Holywood Golf Club, County Down","Kilkeel Golf Club, County Down","Kirkistown Castle Golf Club, County Down","Knock Golf Club, Belfast","Larne Golf Club, County Antrim","Lisburn Golf Club, County Antrim","Lurgan Golf Club, County Armagh","Mahon Golf Club, County Down","Malone Golf Club, Belfast","Massereene Golf Club, County Antrim","Millar's Golf Centre, County Antrim","Moyola Park Golf Club, County Londonderry","Newtownstewart Golf Club, County Tyrone","Omagh Golf Club, County Tyrone","Portadown Golf Club, County Armagh","Portstewart Golf Club – Riverside, County Londonderry","Portstewart Golf Club – Strand, County Londonderry","Portstewart Golf Club – Town, County Londonderry","Ringdufferin Golf Club, County Down","Roe Park Golf Club, County Londonderry","Royal Belfast Golf Club, Holywood","Royal County Down Golf Club – Annesley, County Down","Royal County Down Golf Club – Championship, County Down","Royal Portrush Golf Club – Dunluce Links, County Antrim","Royal Portrush Golf Club – Valley Links, County Antrim","Scrabo Golf Club, County Down","Silverwood Golf Club, County Armagh","Spa Golf Club, County Down","Strabane Golf Club, County Tyrone","Tandragee Golf Club, County Armagh","Warrenpoint Golf Club, County Down","Whitehead Golf Club, County Antrim",
-// CHANNEL ISLANDS & ISLE OF MAN
-"Alderney Golf Club, Channel Islands","Castletown Golf Links, Isle of Man","Isle of Man Golf Club, Isle of Man","La Grande Mare Golf Club, Guernsey","La Moye Golf Club, Jersey","Ramsey Golf Club, Isle of Man","Rowany Golf Club, Isle of Man","Royal Guernsey Golf Club, Guernsey","Royal Jersey Golf Club, Jersey","St Pierre Park Golf Club, Jersey",
-// SPAIN (COSTA DEL SOL)
-"Cabopino Golf Marbella, Marbella, Spain","Calanova Golf Club, Mijas, Spain","Chaparral Golf Club, Mijas, Spain","La Cala Golf – Campo America, Mijas, Spain","La Cala Golf – Campo Asia, Mijas, Spain","La Cala Golf – Campo Europa, Mijas, Spain","Torrequebrada Golf Club, Benalmadena, Spain"
-].sort();
 var DPARS=[4,4,3,4,5,3,4,4,5,4,4,3,4,5,3,4,4,5];
 var DSI=[7,11,15,3,1,17,9,13,5,8,12,16,4,2,18,10,14,6];
+var COURSES=["Aberdovey Golf Club, Wales","Aberfeldy Golf Club, Perthshire","Aberfoyle Golf Club, Stirlingshire","Abergele Golf Club, Wales","Aberystwyth Golf Club, Wales","Aboyne Golf Club, Aberdeenshire","Accrington & District Golf Club, Lancashire","Aldeburgh Golf Club, Suffolk","Alford Golf Club, Aberdeenshire","Alfreton Golf Club, Derbyshire","Alloa Golf Club, Stirlingshire","Alness Golf Club, Highland","Alnmouth Golf Club, Northumberland","Alnwick Castle Golf Club, Northumberland","Alresford Golf Club, Hampshire","Alston Moor Golf Club, Cumbria","Altrincham Golf Club, Cheshire","Alva Golf Club, Stirlingshire","Alwoodley Golf Club, West Yorkshire","Alyth Golf Club, Perthshire","Ampfield Golf Club, Hampshire","Anstruther Golf Club, Fife","Archerfield Links – Dirleton Course, East Lothian","Archerfield Links – Fidra Course, East Lothian","Ardeer Golf Club, Ayrshire","Ardglass Golf Club, County Down","Arrochar Golf Club, Argyll","Ashburnham Golf Club, Wales","Ashdown Forest Golf Club, East Sussex","Ashford Golf Club, Kent","Ashridge Golf Club, Hertfordshire","Aspley Guise & Woburn Sands Golf Club, Bedfordshire","Auchterarder Golf Club, Perthshire","Ayr Belleisle Golf Club, Ayrshire","Ayr Dalmilling Golf Club, Ayrshire","Ayr Seafield Golf Club, Ayrshire","Baberton Golf Club, Edinburgh","Bakewell Golf Club, Derbyshire","Bala Golf Club, Wales","Ballater Golf Club, Aberdeenshire","Ballyliffin Golf Club – Glashedy Links, Donegal","Ballyliffin Golf Club – Old Links, Donegal","Balmoral Golf Club, Belfast","Bamburgh Castle Golf Club, Northumberland","Banbridge Golf Club, County Down","Banbury Golf Club, Oxfordshire","Banchory Golf Club, Aberdeenshire","Bangor Golf Club, County Down","Barnard Castle Golf Club, Durham","Barnehurst Golf Club, London","Barnsley Golf Club, South Yorkshire","Barrow Golf Club, Cumbria","Bath Golf Club, Somerset","Beaconsfield Golf Club, Buckinghamshire","Bearwood Lakes Golf Club, Berkshire","Beau Desert Golf Club, Staffordshire","Belfry The – Brabazon Course, Warwickshire","Belfry The – Derby Course, Warwickshire","Belfry The – PGA National, Warwickshire","Bellshill Golf Club, Lanarkshire","Belton Park Golf Club, Lincolnshire","Belvoir Park Golf Club, Belfast","Berkhamsted Golf Club, Hertfordshire","Berkshire Golf Club – Blue Course, Berkshire","Berkshire Golf Club – Red Course, Berkshire","Berwick-upon-Tweed Golf Club, Northumberland","Bingley St Ives Golf Club, West Yorkshire","Birchwood Park Golf Club, Kent","Blackburn Golf Club, Lancashire","Blackpool North Shore Golf Club, Lancashire","Blackpool Park Golf Club, Lancashire","Blairgowrie Golf Club – Lansdowne, Perthshire","Blairgowrie Golf Club – Rosemount, Perthshire","Boat of Garten Golf Club, Highland","Bowood Hotel Golf Club, Cornwall","Bradford Golf Club, West Yorkshire","Braemar Golf Club, Aberdeenshire","Braid Hills Golf Course, Edinburgh","Brampton Golf Club, Cumbria","Brancaster Golf Club, Norfolk","Breadsall Priory Golf Club – Moorland, Derbyshire","Breadsall Priory Golf Club – Priory, Derbyshire","Brechin Golf Club, Angus","Bridlington Golf Club, East Yorkshire","Brighton & Hove Golf Club, East Sussex","Bristol & Clifton Golf Club, Gloucestershire","Brodick Golf Club, Arran","Brocket Hall Golf Club – Melbourne, Hertfordshire","Brocket Hall Golf Club – Palmerston, Hertfordshire","Brora Golf Club, Highland","Bruntsfield Links Golfing Society, Edinburgh","Buckpool Golf Club, Aberdeenshire","Builth Wells Golf Club, Wales","Burnham & Berrow Golf Club, Somerset","Burton-on-Trent Golf Club, Derbyshire","Bury Golf Club, Lancashire","Buxton & High Peak Golf Club, Derbyshire","Caberfeigh Golf Club, Highland","Cabopino Golf Marbella, Marbella, Spain","Caernarfon Golf Club, Wales","Caerphilly Golf Club, Wales","Calanova Golf Club, Mijas, Spain","Caldy Golf Club, Cheshire","Camberley Heath Golf Club, Surrey","Came Down Golf Club, Dorset","Canmore Golf Club, Fife","Carlisle Golf Club, Cumbria","Carnoustie Golf Links – Burnside, Angus","Carnoustie Golf Links – Championship, Angus","Carnoustie Golf Links – Meadows, Angus","Carradale Golf Club, Argyll","Castle Douglas Golf Club, Dumfries & Galloway","Castle Hume Golf Club, County Fermanagh","Castle Stuart Golf Links, Highland","Castlerock Golf Club – Bann, County Londonderry","Castlerock Golf Club – Mussenden, County Londonderry","Celtic Manor Resort – Montgomerie, Wales","Celtic Manor Resort – Roman Road, Wales","Celtic Manor Resort – Twenty Ten Course, Wales","Chaparral Golf Club, Mijas, Spain","Chart Hills Golf Club, Kent","Chelmsford Golf Club, Essex","Chevin Golf Club, Derbyshire","Chichester Golf Club, West Sussex","Chigwell Golf Club, Essex","Chorley Golf Club, Lancashire","Clacton Golf Club, Essex","Clandeboye Golf Club – Ava, County Down","Clandeboye Golf Club – Dufferin, County Down","Clitheroe Golf Club, Lancashire","Close House Golf Club, Northumberland","Colchester Golf Club, Essex","Collingtree Park Golf Club, Northamptonshire","Conwy Golf Club, Wales","County Armagh Golf Club, County Armagh","Crail Golfing Society – Balcomie Links, Fife","Criccieth Golf Club, Wales","Crieff Golf Club, Perthshire","Cruden Bay Golf Club, Aberdeenshire","Dalmahoy Hotel & CC – East Course, Edinburgh","Dalmahoy Hotel & CC – West Course, Edinburgh","Delamere Forest Golf Club, Cheshire","Denbigh Golf Club, Wales","Doncaster Golf Club, South Yorkshire","Douglas Park Golf Club, Glasgow","Dumbarnie Links, Fife","Dunbar Golf Club, East Lothian","Dundonald Links, Ayrshire","Dunfermline Golf Club, Fife","Dungannon Golf Club, County Tyrone","Dunmurry Golf Club, Belfast","Duns Golf Club, Borders","Durham City Golf Club, Durham","East Sussex National – East Course, East Sussex","East Sussex National – West Course, East Sussex","Edgbaston Golf Club, West Midlands","Elie Golf Club, Fife","Enniskillen Golf Club, County Fermanagh","Fairhaven Golf Club, Lancashire","Fairmont St Andrews – Kittocks, Fife","Fairmont St Andrews – Torrance, Fife","Felixstowe Ferry Golf Club, Suffolk","Ferndown Golf Club – Old Course, Dorset","Fleetwood Golf Club, Lancashire","Forest of Arden Golf Club, Warwickshire","Forest of Dean Golf Club, Gloucestershire","Forfar Golf Club, Angus","Formby Golf Club, Merseyside","Fortrose & Rosemarkie Golf Club, Highland","Frilford Heath Golf Club – Blue, Oxfordshire","Frilford Heath Golf Club – Green, Oxfordshire","Frilford Heath Golf Club – Red, Oxfordshire","Fulford Golf Club, North Yorkshire","Galgorm Castle Golf Club, County Antrim","Ganton Golf Club, North Yorkshire","Gatehouse of Fleet Golf Club, Dumfries & Galloway","Girvan Golf Club, Ayrshire","Glasgow Golf Club – Gailes Links, Ayrshire","Glasgow Golf Club – Killermont, Glasgow","Gleneagles – King's Course, Perthshire","Gleneagles – PGA Centenary Course, Perthshire","Gleneagles – Queen's Course, Perthshire","Gog Magog Golf Club – Old Course, Cambridgeshire","Gog Magog Golf Club – Wandlebury, Cambridgeshire","Golspie Golf Club, Highland","Gullane Golf Club – No.1, East Lothian","Gullane Golf Club – No.2, East Lothian","Gullane Golf Club – No.3, East Lothian","Hankley Common Golf Club, Surrey","Harrogate Golf Club, North Yorkshire","Hayling Golf Club, Hampshire","Hazel Grove Golf Club, Cheshire","Heaton Moor Golf Club, Cheshire","Helensburgh Golf Club, Dunbartonshire","Hillside Golf Club, Merseyside","Hollinwell Golf Club, Nottinghamshire","Holyhead Golf Club, Wales","Huddersfield Golf Club, West Yorkshire","Hunstanton Golf Club, Norfolk","Ilkley Golf Club, West Yorkshire","Inverness Golf Club, Highland","Irvine Golf Club, Ayrshire","Isle of Man Golf Club, Isle of Man","Jedburgh Golf Club, Borders","Kenilworth Golf Club, Warwickshire","Kilmacolm Golf Club, Renfrewshire","Kilmarnock Barassie Golf Club, Ayrshire","Kingsbarns Golf Links, Fife","Kingussie Golf Club, Highland","Kirriemuir Golf Club, Angus","La Cala Golf – Campo America, Mijas, Spain","La Cala Golf – Campo Asia, Mijas, Spain","La Cala Golf – Campo Europa, Mijas, Spain","La Moye Golf Club, Jersey","Ladybank Golf Club, Fife","Lamlash Golf Club, Arran","Lancaster Golf Club, Lancashire","Langland Bay Golf Club, Wales","Largs Golf Club, Ayrshire","Lindrick Golf Club, South Yorkshire","Liphook Golf Club, Hampshire","Littlestone Golf Club, Kent","Llandudno Maesdu Golf Club, Wales","Loch Lomond Golf Club, Dunbartonshire","London Golf Club – Heritage Course, Kent","London Golf Club – International Course, Kent","Longniddry Golf Club, East Lothian","Luffness New Golf Club, East Lothian","Lundin Golf Club, Fife","Lyme Regis Golf Club, Dorset","Machrie Hotel & Golf Links, Islay","Machrihanish Golf Club, Argyll","Machynys Peninsula Golf Club, Wales","Malone Golf Club, Belfast","Manchester Golf Club, Greater Manchester","Mannings Heath Golf Club, West Sussex","Mere Golf Resort & Spa, Cheshire","Minchinhampton Golf Club, Gloucestershire","Moffat Golf Club, Dumfries & Galloway","Moor Allerton Golf Club, West Yorkshire","Moor Park Golf Club – High Course, Hertfordshire","Moor Park Golf Club – West Course, Hertfordshire","Moortown Golf Club, West Yorkshire","Moray Golf Club – New Course, Moray","Moray Golf Club – Old Course, Moray","Mortonhall Golf Club, Edinburgh","Moseley Golf Club, West Midlands","Muirfield, East Lothian","Murcar Links Golf Club, Aberdeen","Murrayshall Golf Club, Perthshire","Nairn Dunbar Golf Club, Highland","Nairn Golf Club, Highland","Nefyn & District Golf Club, Wales","New Zealand Golf Club, Surrey","Newburgh on Ythan Golf Club, Aberdeenshire","Newport Golf Club, Wales","North Berwick Golf Club – West Links, East Lothian","Notts Golf Club – Hollinwell, Nottinghamshire","Pannal Golf Club, North Yorkshire","Parkstone Golf Club, Dorset","Pennard Golf Club, Wales","Penrith Golf Club, Cumbria","Peterhead Golf Club, Aberdeenshire","Pitlochry Golf Club, Perthshire","Pollok Golf Club, Glasgow","Portstewart Golf Club – Strand, County Londonderry","Prestwick Golf Club, Ayrshire","Prince's Golf Club, Sandwich, Kent","Queenwood Golf Club, Surrey","Ramsey Golf Club, Isle of Man","Remedy Oak Golf Club, Dorset","Renaissance Club The, East Lothian","Rowany Golf Club, Isle of Man","Royal Aberdeen Golf Club – Balgownie, Aberdeenshire","Royal Ascot Golf Club, Berkshire","Royal Belfast Golf Club, Holywood","Royal Birkdale Golf Club, Merseyside","Royal Burgess Golfing Society, Edinburgh","Royal Cinque Ports Golf Club, Deal, Kent","Royal County Down Golf Club – Annesley, County Down","Royal County Down Golf Club – Championship, County Down","Royal Dornoch Golf Club – Championship, Highland","Royal Dornoch Golf Club – Struie, Highland","Royal Guernsey Golf Club, Guernsey","Royal Jersey Golf Club, Jersey","Royal Liverpool Golf Club, Hoylake, Merseyside","Royal Lytham & St Annes Golf Club, Lancashire","Royal Musselburgh Golf Club, East Lothian","Royal North Devon Golf Club, Devon","Royal Porthcawl Golf Club, Wales","Royal Portrush Golf Club – Dunluce Links, County Antrim","Royal Portrush Golf Club – Valley Links, County Antrim","Royal St David's Golf Club, Harlech, Wales","Royal St George's Golf Club, Sandwich, Kent","Royal Troon – Old Course, Ayrshire","Royal Troon – Portland Course, Ayrshire","Royal West Norfolk Golf Club, Norfolk","Royal Winchester Golf Club, Hampshire","Rye Golf Club, East Sussex","Saunton Golf Club – East Course, Devon","Saunton Golf Club – West Course, Devon","Scotscraig Golf Club, Fife","Seaton Carew Golf Club, Durham","Sheringham Golf Club, Norfolk","Sherwood Forest Golf Club, Nottinghamshire","Shiskine Golf & Tennis Club, Arran","Silloth on Solway Golf Club, Cumbria","Slaley Hall Golf Club – Hunting, Northumberland","Slaley Hall Golf Club – Priestman, Northumberland","Southerndown Golf Club, Wales","Southport & Ainsdale Golf Club, Merseyside","St Andrews Links – Balgove Course, Fife","St Andrews Links – Eden Course, Fife","St Andrews Links – Jubilee Course, Fife","St Andrews Links – New Course, Fife","St Andrews Links – Old Course, Fife","St Andrews Links – Strathtyrum, Fife","St Enodoc Golf Club – Church Course, Cornwall","St Enodoc Golf Club – Holywell Course, Cornwall","St George's Hill Golf Club, Surrey","Stoke Park Club, Buckinghamshire","Sunningdale Golf Club – New Course, Surrey","Sunningdale Golf Club – Old Course, Surrey","Swinley Forest Golf Club, Berkshire","Tain Golf Club, Highland","Tenby Golf Club, Wales","Tewkesbury Park Golf Club – Acorn Course, Gloucestershire","Tewkesbury Park Golf Club – Deerpark Course, Gloucestershire","Torrequebrada Golf Club, Benalmadena, Spain","Trevose Golf Club – Championship, Cornwall","Trump International Golf Links, Aberdeenshire","Trump Turnberry – Ailsa Course, Ayrshire","Trump Turnberry – King Robert the Bruce, Ayrshire","Walton Heath Golf Club – New Course, Surrey","Walton Heath Golf Club – Old Course, Surrey","Wentworth Club – Edinburgh Course, Surrey","Wentworth Club – East Course, Surrey","Wentworth Club – West Course, Surrey","West Cornwall Golf Club, Cornwall","West Kent Golf Club, Kent","West Lancashire Golf Club, Merseyside","West Surrey Golf Club, Surrey","Western Gailes Golf Club, Ayrshire","Whittington Heath Golf Club, Staffordshire","Windermere Golf Club, Cumbria","Woburn Golf Club – Duchess Course, Buckinghamshire","Woburn Golf Club – Duke's Course, Buckinghamshire","Woburn Golf Club – Marquess Course, Buckinghamshire","Woodbridge Golf Club, Suffolk","Woodhall Spa Golf Club – Bracken Course, Lincolnshire","Woodhall Spa Golf Club – Hotchkin Course, Lincolnshire","Woking Golf Club, Surrey","Worksop Golf Club, Nottinghamshire","Worplesdon Golf Club, Surrey","Yeovil Golf Club, Somerset","York Golf Club, North Yorkshire"].sort();
+
 var S={np:4,mode:'strokeplay',course:'',curl:'',names:Array(16).fill(0).map(function(_,i){return'Player '+(i+1)}),hcps:Array(16).fill(0),pars:DPARS.slice(),si:DSI.slice()};
-var R=null,RC='',AP=0,AH=0,PT=null,LS=null;
+var R=null,RC='',AP=0,AH=0,PT=null,LS=null,IS_ARCHIVED=false;
 
 function $(i){return document.getElementById(i)}
 function show(id){document.querySelectorAll('.page').forEach(function(p){p.classList.remove('on')});$(id).classList.add('on');window.scrollTo(0,0)}
@@ -453,14 +305,33 @@ function genCode(){return Math.random().toString(36).substring(2,8).toUpperCase(
 function fbGet(p){return fetch(FB+'/'+p+'.json').then(function(r){if(!r.ok)throw new Error(r.status);return r.json()})}
 function fbPut(p,d){return fetch(FB+'/'+p+'.json',{method:'PUT',body:JSON.stringify(d)}).then(function(r){if(!r.ok)throw new Error(r.status);return r.json()})}
 function fbPatch(p,d){return fetch(FB+'/'+p+'.json',{method:'PATCH',body:JSON.stringify(d)}).then(function(r){if(!r.ok)throw new Error(r.status);return r.json()})}
+function fbDelete(p){return fetch(FB+'/'+p+'.json',{method:'DELETE'}).then(function(r){if(!r.ok)throw new Error(r.status)})}
 function hcpS(h,si){if(h<=0)return 0;if(h>=36)return 2;return si<=h?1:0}
 function sbPts(s,par,hs){if(!s)return 0;var d=s-hs-par;if(d>=2)return 0;if(d===1)return 1;if(d===0)return 2;if(d===-1)return 3;if(d===-2)return 4;return 5}
 function sLabel(s,par){if(!s)return{t:'-',c:'#9ca3af'};var d=s-par;if(s===1)return{t:'Hole in one!',c:'#7c3aed'};if(d<=-2)return{t:'Eagle',c:'#d97706'};if(d===-1)return{t:'Birdie',c:'#15803d'};if(d===0)return{t:'Par',c:'#4a5a7a'};if(d===1)return{t:'Bogey',c:'#c8102e'};if(d===2)return{t:'Dbl Bogey',c:'#991b1b'};return{t:'+'+d,c:'#7f1d1d'}}
 function sCls(s,par){if(!s)return'';var d=s-par;if(d<=-2)return'eag';if(d===-1)return'bir';if(d===1)return'bog';if(d>=2)return'dbl';return''}
 
+// Custom courses
+function loadCustomCourses(){
+  fbGet('custom_courses').then(function(d){
+    if(!d||typeof d!=='object')return;
+    Object.values(d).forEach(function(v){
+      if(!v)return;
+      var name=typeof v==='object'?v.name:v;
+      if(name&&COURSES.indexOf(name)<0)COURSES.push(name);
+      if(typeof v==='object'&&v.url&&name)KNOWN[name.toLowerCase()]=v.url;
+    });
+    COURSES.sort();
+  }).catch(function(){});
+}
+function saveCustomCourse(name,url){
+  var key=name.toLowerCase().replace(/[^a-z0-9]/g,'_').substring(0,60);
+  fbPut('custom_courses/'+key,{name:name,url:url||''}).catch(function(){});
+}
+
 function goSetup(){buildSetup();show('p-setup')}
-// Load any user-added courses from Firebase on startup
 loadCustomCourses();
+
 function buildSetup(){
   var nr=$('npRow');nr.innerHTML='';
   [2,3,4,6,8,10,12,14,16].forEach(function(n){
@@ -481,7 +352,7 @@ function setMode(m){S.mode=m;$('mStroke').className='btn-sm'+(m==='strokeplay'?'
 
 var DF=[],DI=0,DO=false,ST=null;
 function ddFilter(q){
-  clearTimeout(ST);var dl=$('ddlist');
+  clearTimeout(ST);
   ST=setTimeout(function(){
     var lq=q.trim().toLowerCase();
     DF=lq?COURSES.filter(function(c){return c.toLowerCase().indexOf(lq)>=0}).slice(0,60):COURSES.slice(0,50);
@@ -490,27 +361,22 @@ function ddFilter(q){
 }
 function ddOpen(){DO=true;ddFilter($('courseIn').value)}
 function ddRender(){
-  var dl=$('ddlist');
-  if(!DF.length){
-    dl.style.display='block';
-    dl.innerHTML='<div style="padding:12px 16px;font-size:13px;color:#0d2d6e;border-bottom:1px solid #e5eaf3">No courses found for "<b>'+$('courseIn').value+'</b>"</div>'
-      +'<div class="dditem" onmousedown="useCustomCourse()" style="background:#f0f4ff">'
-      +'<span class="dn" style="color:#c8102e">+ Use "'+$('courseIn').value+'" as course name</span></div>'
-      +'<div class="dditem" onmousedown="searchGoogle()" style="background:#fff">'
-      +'<span class="dn">Search Google for this course ↗</span>'
-      +'<span class="dr">Opens in browser</span></div>'
-      +'<div class="ddfoot">'+COURSES.length+' courses in list</div>';
-    return;
-  }
+  var dl=$('ddlist'),q=$('courseIn').value.trim();
   dl.style.display='block';
   var html='';
-  DF.forEach(function(c,i){
-    var pts=c.split(',');var nm=pts[0];var rg=pts.slice(1).join(',').trim();
-    html+='<div class="dditem'+(i===DI?' hi':'')+'" onmousedown="ddPick(\''+c.replace(/\\/g,'\\\\').replace(/'/g,"\\'")+'\')"><span class="dn">'+nm+'</span>'+(rg?'<span class="dr">'+rg+'</span>':'')+'</div>';
-  });
-  html+='<div class="dditem" onmousedown="useCustomCourse()" style="background:#f0f4ff;border-top:2px solid #0d2d6e">'
-    +'<span class="dn" style="color:#c8102e">+ Use "'+$('courseIn').value+'" as course name</span></div>'
-    +'<div class="ddfoot">'+DF.length+' of '+COURSES.length+' courses · Not listed? Use options above</div>';
+  if(DF.length){
+    DF.forEach(function(c,i){
+      var pts=c.split(',');var nm=pts[0];var rg=pts.slice(1).join(',').trim();
+      html+='<div class="dditem'+(i===DI?' hi':'')+'" onmousedown="ddPick(\''+c.replace(/\\/g,'\\\\').replace(/'/g,"\\'")+'\')"><span class="dn">'+nm+'</span>'+(rg?'<span class="dr">'+rg+'</span>':'')+'</div>';
+    });
+  } else {
+    html+='<div style="padding:12px 16px;font-size:13px;color:#4a5a7a;border-bottom:1px solid #e5eaf3">No results for "<b>'+q+'</b>"</div>';
+  }
+  if(q){
+    html+='<div class="dditem" onmousedown="useCustomCourse()" style="background:#f0f4ff;border-top:2px solid #0d2d6e"><span class="dn" style="color:#c8102e">+ Use "'+q+'" as course name</span></div>';
+    html+='<div class="dditem" onmousedown="searchGoogle()"><span class="dn">Search Google ↗</span><span class="dr">Opens browser</span></div>';
+  }
+  html+='<div class="ddfoot">'+(DF.length?DF.length+' of '+COURSES.length+' courses':'No matches — use options above')+'</div>';
   dl.innerHTML=html;
 }
 function ddKey(e){
@@ -521,85 +387,38 @@ function ddKey(e){
   else if(e.key==='Escape'){DO=false;$('ddlist').style.display='none'}
 }
 document.addEventListener('click',function(e){if($('ddwrap')&&!$('ddwrap').contains(e.target)){DO=false;if($('ddlist'))$('ddlist').style.display='none'}});
-function loadCustomCourses(){
-  fbGet('custom_courses').then(function(d){
-    if(d&&typeof d==='object'){
-      Object.values(d).forEach(function(v){
-        if(!v)return;
-        var name=typeof v==='object'?v.name:v;
-        if(name&&COURSES.indexOf(name)<0)COURSES.push(name);
-        if(typeof v==='object'&&v.url)KNOWN[name.toLowerCase()]=v.url;
-      });
-      COURSES.sort();
-    }
-  }).catch(function(){});
-}
-
-function saveCustomCourse(name,url){
-  var key=name.toLowerCase().replace(/[^a-z0-9]/g,'_').substring(0,60);
-  fbPut('custom_courses/'+key,{name:name,url:url||''}).catch(function(){});
-}
-
+function ddPick(name){S.course=name;S.curl='';$('courseIn').value=name;DO=false;$('ddlist').style.display='none';lookupSite(name);loadCourseCard(name)}
 function useCustomCourse(){
-  var name=$('courseIn').value.trim();
-  if(!name)return;
-  S.course=name;S.curl='';
-  DO=false;$('ddlist').style.display='none';
-  lookupSite(name);
+  var name=$('courseIn').value.trim();if(!name)return;
+  S.course=name;S.curl='';DO=false;$('ddlist').style.display='none';
   if(COURSES.indexOf(name)<0){
     COURSES.push(name);COURSES.sort();
-    var ci=$('courseInfo');
-    ci.style.display='block';ci.style.background='#f0fdf4';ci.style.borderLeftColor='#16a34a';ci.style.color='#166534';
-    ci.textContent='Finding website and saving course to database...';
-    // Look up website first, then save both name + URL together
-    var k=name.toLowerCase();
-    var knownUrl='';
+    var ci=$('courseInfo');ci.style.display='block';ci.style.background='#f0fdf4';ci.style.borderLeftColor='#16a34a';ci.style.color='#166534';
+    ci.textContent='Finding website and saving to database...';
+    var k=name.toLowerCase(),knownUrl='';
     for(var key in KNOWN){if(k.indexOf(key)>=0){knownUrl=KNOWN[key];break}}
-    if(knownUrl){
-      S.curl=knownUrl;
-      setSite(knownUrl);
-      saveCustomCourse(name,knownUrl);
-      ci.textContent='Course and website saved to database for everyone!';
-      loadCourseCard(name);
-    } else {
-      fetch('https://api.anthropic.com/v1/messages',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({model:'claude-sonnet-4-20250514',max_tokens:150,system:'Return ONLY JSON: {"url":"https://...","found":true} or {"url":"","found":false} for the official website of this golf course.',messages:[{role:'user',content:'Official website for: '+name}]})})
+    if(knownUrl){S.curl=knownUrl;setSite(knownUrl);saveCustomCourse(name,knownUrl);ci.textContent='Course and website saved!';loadCourseCard(name);}
+    else{
+      fetch('https://api.anthropic.com/v1/messages',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({model:'claude-sonnet-4-20250514',max_tokens:150,system:'Return ONLY JSON: {"url":"https://...","found":true} or {"url":"","found":false}',messages:[{role:'user',content:'Official website for: '+name}]})})
       .then(function(r){return r.json()}).then(function(d){
         var t=d.content.map(function(b){return b.text||''}).join('');
         var p=JSON.parse(t.replace(/```json|```/g,'').trim());
         var url=p.found?p.url:'';
-        if(url){S.curl=url;setSite(url);if(url)KNOWN[name.toLowerCase()]=url;}
-        else setNoSite();
+        if(url){S.curl=url;setSite(url);KNOWN[name.toLowerCase()]=url;}else setNoSite();
         saveCustomCourse(name,url);
-        ci.textContent=url?'Course saved — website '+url.replace('https://','').replace(/\/$/,'')+' saved too!':'Course saved to database. No website found.';
-        ci.style.borderLeftColor=url?'#16a34a':'#d97706';
-        ci.style.background=url?'#f0fdf4':'#fffbeb';
-        ci.style.color=url?'#166534':'#92400e';
-      }).catch(function(){
-        saveCustomCourse(name,'');
-        ci.textContent='Course saved to database.';
-        setNoSite();
-      });
+        ci.textContent=url?'Saved! Website: '+url.replace('https://','').replace(/\/$/,''):'Course saved. No website found.';
+        ci.style.borderLeftColor=url?'#16a34a':'#d97706';ci.style.background=url?'#f0fdf4':'#fffbeb';ci.style.color=url?'#166534':'#92400e';
+      }).catch(function(){saveCustomCourse(name,'');ci.textContent='Course saved.';setNoSite()});
+      setTimeout(function(){loadCourseCard(name)},1200);
     }
-    setTimeout(function(){loadCourseCard(name)},1200);
-  } else {
-    lookupSite(name);
-    loadCourseCard(name);
-  }
+  } else {lookupSite(name);loadCourseCard(name)}
 }
 function searchGoogle(){
-  var name=$('courseIn').value.trim();
-  if(!name)return;
+  var name=$('courseIn').value.trim();if(!name)return;
   DO=false;$('ddlist').style.display='none';
   window.open('https://www.google.com/search?q='+encodeURIComponent(name+' golf course'),'_blank');
-  // Show prompt to paste the result back
-  var ci=$('courseInfo');
-  ci.style.display='block';
-  ci.style.background='#f0f4ff';ci.style.borderLeftColor='#0d2d6e';ci.style.color='#0d2d6e';
-  ci.innerHTML='Google opened in a new tab. Find the course name, then come back and type it here or tap <b>"+ Use as course name"</b> above.';
-}
-function ddPick(name){
-  S.course=name;S.curl='';$('courseIn').value=name;DO=false;$('ddlist').style.display='none';
-  lookupSite(name);loadCourseCard(name);
+  var ci=$('courseInfo');ci.style.display='block';ci.style.background='#f0f4ff';ci.style.borderLeftColor='#0d2d6e';ci.style.color='#0d2d6e';
+  ci.innerHTML='Google opened. Find the course, then come back and type the name or tap <b>"+ Use as course name"</b>.';
 }
 function lookupSite(name){
   var wr=$('wsrow');wr.style.display='flex';
@@ -633,21 +452,27 @@ function loadCourseCard(name){
 function doCreate(){
   $('setupErr').style.display='none';
   var code=genCode();
-  var r={course:S.course||$('courseIn').value,curl:S.curl,np:S.np,mode:S.mode,names:S.names.slice(0,S.np),hcps:S.hcps.slice(0,S.np),pars:S.pars.slice(),si:S.si.slice(),scores:Array(16).fill(0).map(function(){return Array(18).fill(0)}),ts:Date.now()};
-  fbPut('rounds/'+code,r).then(function(){RC=code;R=r;startPlay()}).catch(function(e){$('setupErr').textContent='Error: '+e.message;$('setupErr').style.display='block'});
+  var r={course:S.course||$('courseIn').value,curl:S.curl,np:S.np,mode:S.mode,names:S.names.slice(0,S.np),hcps:S.hcps.slice(0,S.np),pars:S.pars.slice(),si:S.si.slice(),scores:Array(16).fill(0).map(function(){return Array(18).fill(0)}),ts:Date.now(),status:'live'};
+  fbPut('rounds/'+code,r).then(function(){RC=code;R=r;IS_ARCHIVED=false;startPlay()}).catch(function(e){$('setupErr').textContent='Error: '+e.message;$('setupErr').style.display='block'});
 }
 function doJoin(){
   $('joinErr').style.display='none';
   var code=$('joinInput').value.trim().toUpperCase();if(!code)return;
-  fbGet('rounds/'+code).then(function(d){if(!d)throw new Error();RC=code;R=d;startPlay()}).catch(function(){$('joinErr').textContent='Room not found — check the code.';$('joinErr').style.display='block'});
+  fbGet('rounds/'+code).then(function(d){
+    if(!d)throw new Error();RC=code;R=d;IS_ARCHIVED=false;startPlay();
+  }).catch(function(){$('joinErr').textContent='Room not found — check the code.';$('joinErr').style.display='block'});
 }
+
 function startPlay(){
   AP=0;AH=0;
   $('codeDisp').textContent=RC;$('lbCode').textContent=RC;
   $('playName').textContent=(R.course||'Golf Round').split(',')[0];
   if(R.curl)$('playWebBtn').style.display='inline-block';
-  $('playMeta').textContent=R.np+' players · Par '+R.pars.reduce(function(a,b){return a+b},0)+' · '+(R.mode==='stableford'?'Stableford':'Stroke play');
-  show('p-play');renderAll();startPoll();
+  $('playMeta').textContent=R.np+' players · Par '+R.pars.reduce(function(a,b){return a+b},0)+' · '+(R.mode==='stableford'?'Stableford':'Stroke play')+(IS_ARCHIVED?' · ARCHIVED':'');
+  $('completeBtn').style.display=IS_ARCHIVED?'none':'inline-block';
+  show('p-play');renderAll();
+  if(!IS_ARCHIVED)startPoll();
+  else{$('liveDisp').className='archived-badge';$('liveDisp').textContent='📁 Archived';$('timeDisp').textContent=R.completedAt?new Date(R.completedAt).toLocaleDateString('en-GB'):'';}
 }
 function startPoll(){
   if(PT)clearInterval(PT);
@@ -659,13 +484,66 @@ function startPoll(){
     }).catch(function(){});
   },5000);
 }
-function doEnd(){if(PT)clearInterval(PT);R=null;RC='';show('p-home')}
+function doEnd(){if(PT)clearInterval(PT);R=null;RC='';IS_ARCHIVED=false;show('p-home')}
+
+function confirmComplete(){
+  if(!confirm('Mark this round as complete?\n\nIt will be archived and removed from live rounds.'))return;
+  var archived=Object.assign({},R,{completedAt:Date.now(),status:'archived'});
+  fbPut('archived_rounds/'+RC,archived).then(function(){
+    return fbDelete('rounds/'+RC);
+  }).then(function(){
+    if(PT)clearInterval(PT);
+    alert('Round archived! View it from the home screen under "Past rounds".');
+    R=null;RC='';IS_ARCHIVED=false;show('p-home');
+  }).catch(function(e){alert('Error archiving: '+e.message)});
+}
+
+function loadArchive(){
+  var al=$('archiveList');al.style.display='block';
+  al.innerHTML='<div style="font-size:13px;color:#4a5a7a">Loading past rounds...</div>';
+  fbGet('archived_rounds').then(function(d){
+    if(!d||!Object.keys(d).length){al.innerHTML='<div style="font-size:13px;color:#9ca3af;padding:8px 0">No archived rounds yet.</div>';return}
+    var rounds=Object.entries(d).map(function(e){return{code:e[0],data:e[1]}}).sort(function(a,b){return(b.data.completedAt||0)-(a.data.completedAt||0)});
+    al.innerHTML=rounds.map(function(r){
+      var d=r.data;
+      var date=d.completedAt?new Date(d.completedAt).toLocaleDateString('en-GB',{day:'numeric',month:'short',year:'numeric'}):'Unknown';
+      var stats=[];
+      for(var pi=0;pi<(d.np||0);pi++){
+        var hcp=(d.hcps&&d.hcps[pi])||0,gross=0,stable=0,played=0,toPar=0;
+        if(d.scores&&d.scores[pi])d.scores[pi].forEach(function(v,hi){
+          var s=v||0,hs=hcpS(hcp,(d.si||DSI)[hi]||4),pts=sbPts(s,(d.pars||DPARS)[hi]||4,hs);
+          if(s){gross+=s;stable+=pts;toPar+=s-(d.pars||DPARS)[hi];played++}
+        });
+        if(played)stats.push({name:(d.names||[])[pi]||'P'+(pi+1),gross:gross,stable:stable,toPar:toPar,played:played});
+      }
+      stats.sort(function(a,b){return d.mode==='stableford'?b.stable-a.stable:a.toPar-b.toPar});
+      var w=stats[0];
+      var wStr=w?w.name+' — '+(d.mode==='stableford'?w.stable+' pts':w.gross+' ('+(w.toPar===0?'E':w.toPar>0?'+'+w.toPar:w.toPar)+')'):'No scores';
+      return'<div class="arc-row" onclick="viewArchived(\''+r.code+'\')">'
+        +'<div style="display:flex;justify-content:space-between;flex-wrap:wrap;gap:4px">'
+        +'<div style="font-weight:700;font-size:14px;color:#0d2d6e">'+(d.course||'Golf Round').split(',')[0]+'</div>'
+        +'<div style="font-size:12px;color:#9ca3af">'+date+'</div></div>'
+        +'<div style="font-size:12px;color:#4a5a7a;margin-top:3px">'+(d.np||0)+' players · '+(d.mode==='stableford'?'Stableford':'Stroke play')+'</div>'
+        +'<div style="font-size:13px;color:#c8102e;font-weight:700;margin-top:4px">🏆 '+wStr+'</div>'
+        +'<div style="font-size:11px;color:#9ca3af;margin-top:2px">Tap to view full scorecard</div>'
+        +'</div>';
+    }).join('');
+  }).catch(function(){al.innerHTML='<div style="font-size:13px;color:#c8102e">Could not load archived rounds.</div>'});
+}
+
+function viewArchived(code){
+  fbGet('archived_rounds/'+code).then(function(d){
+    if(!d)return;
+    RC=code;IS_ARCHIVED=true;
+    R={course:d.course||'Golf Round',curl:d.curl||'',np:d.np||0,mode:d.mode||'strokeplay',names:d.names||[],hcps:d.hcps||[],pars:d.pars||DPARS.slice(),si:d.si||DSI.slice(),scores:d.scores||[],ts:d.ts||0,completedAt:d.completedAt||0};
+    startPlay();
+  }).catch(function(){alert('Could not load this round.')});
+}
+
 function switchTab(t,el){
   document.querySelectorAll('.tab').forEach(function(b){b.classList.remove('on')});el.classList.add('on');
   document.querySelectorAll('.panel').forEach(function(p){p.classList.remove('on')});$('tab-'+t).classList.add('on');
-  if(t==='scorecard')edInit();
-  if(t==='summary')renderSummary();
-  if(t==='leaderboard')renderLB();
+  if(t==='scorecard')edInit();if(t==='summary')renderSummary();if(t==='leaderboard')renderLB();
 }
 function renderAll(){renderPBtns();renderHBtns();renderEntry();renderSC();renderLB()}
 
@@ -697,10 +575,11 @@ function renderEntry(){
   document.querySelectorAll('.nbtn').forEach(function(b){b.classList.toggle('on',parseInt(b.textContent)===s)});
   $('prevBtn').style.display=AH>0?'block':'none';$('nextBtn').style.display=AH<17?'block':'none';
 }
-function adj(d){var c=R.scores[AP][AH]||0;setVal(Math.max(1,Math.min(15,c+d)))}
+function adj(d){if(IS_ARCHIVED)return;var c=R.scores[AP][AH]||0;setVal(Math.max(1,Math.min(15,c+d)))}
 function prevH(){if(AH>0){AH--;renderHBtns();renderEntry()}}
 function nextH(){if(AH<17){AH++;renderHBtns();renderEntry()}}
 function setVal(v){
+  if(IS_ARCHIVED)return;
   R.scores[AP][AH]=v;R.ts=Date.now();
   fbPatch('rounds/'+RC,{scores:R.scores,ts:R.ts}).then(function(){LS=new Date();$('liveDisp').className='live';$('liveDisp').textContent='● Live';$('timeDisp').textContent=LS.toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'})}).catch(function(){});
   renderHBtns();renderEntry();renderSC();renderLB();
@@ -725,12 +604,9 @@ function renderSC(){
   }
   h+='</tbody>';$('scTable').innerHTML=h;
 }
-
-// Edit score dropdowns
 function edInit(){
-  if(!R)return;
-  var ep=$('edP'),eh=$('edH');
-  ep.innerHTML='';
+  if(!R||IS_ARCHIVED)return;
+  var ep=$('edP'),eh=$('edH');ep.innerHTML='';
   for(var i=0;i<R.np;i++){var o=document.createElement('option');o.value=i;o.textContent=R.names[i]||'P'+(i+1);ep.appendChild(o)}
   eh.innerHTML='';
   for(var i=0;i<18;i++){var o=document.createElement('option');o.value=i;o.textContent='Hole '+(i+1)+' (Par '+R.pars[i]+')';eh.appendChild(o)}
@@ -745,25 +621,22 @@ function edBuildScore(){
   for(var n=1;n<=12;n++){
     var o=document.createElement('option');o.value=n;
     var d=n-par,lbl=n===1?'Hole in one!':d<=-2?'Eagle':d===-1?'Birdie':d===0?'Par':d===1?'Bogey':d===2?'Dbl Bogey':'+'+d;
-    var pts=sbPts(n,par,hs);
-    o.textContent=n+' — '+lbl+(R.mode==='stableford'?' ('+pts+'pts)':'');
+    o.textContent=n+' — '+lbl+(R.mode==='stableford'?' ('+sbPts(n,par,hs)+'pts)':'');
     if(n===cur)o.selected=true;
     es.appendChild(o);
   }
 }
 function edApply(){
-  if(!R)return;
+  if(!R||IS_ARCHIVED)return;
   var pi=parseInt($('edP').value),hi=parseInt($('edH').value),v=parseInt($('edS').value)||0;
   R.scores[pi][hi]=v;R.ts=Date.now();
   fbPatch('rounds/'+RC,{scores:R.scores,ts:R.ts}).catch(function(){});
   renderSC();renderLB();
-  var m=$('edMsg');
-  var lb=v?sLabel(v,R.pars[hi]):{t:'Cleared',c:'#4a5a7a'};
-  m.textContent=(R.names[pi]||'P'+(pi+1))+' · Hole '+(hi+1)+' updated to '+(v||'cleared')+' — '+lb.t;
+  var m=$('edMsg'),lb=v?sLabel(v,R.pars[hi]):{t:'Cleared',c:'#4a5a7a'};
+  m.textContent=(R.names[pi]||'P'+(pi+1))+' · Hole '+(hi+1)+' → '+(v||'cleared')+' ('+lb.t+')';
   m.className='ok';m.style.borderLeftColor=lb.c;m.style.display='block';
   setTimeout(function(){m.style.display='none'},3000);
 }
-
 function renderSummary(){
   var pi=AP,hcp=R.hcps[pi]||0,gross=0,stable=0,played=0,toPar=0,birds=0,bogs=0,pars_=0;
   var rows=R.scores[pi].map(function(v,hi){
@@ -791,98 +664,16 @@ function renderLB(){
   stats.sort(function(a,b){return R.mode==='stableford'?b.stable-a.stable:a.toPar-b.toPar});
   var lbc=$('lbContent');
   if(!stats.length){lbc.innerHTML='<p style="color:#9ca3af;font-size:14px;padding:1rem 0">No scores yet.</p>';$('lbBanner').style.display='none';$('emailBox').style.display='none';return}
-  var ranks=['1st','2nd','3rd'];
   lbc.innerHTML=stats.map(function(p,i){
     var sc=R.mode==='stableford'?p.stable:p.gross;
     var sub=R.mode==='stableford'?'pts':(p.toPar===0?'Even':p.toPar>0?'+'+p.toPar:p.toPar);
     var sc2=R.mode==='stableford'?(p.stable>=36?'#15803d':'#4a5a7a'):(p.toPar<0?'#15803d':p.toPar>0?'#c8102e':'#4a5a7a');
-    return'<div class="lbrow'+(i===0?' top':'')+'">'+'<div class="rank">'+(ranks[i]||((i+1)+'th'))+'</div>'+'<div style="flex:1"><div style="font-weight:700;font-size:15px;color:#0d2d6e">'+p.name+'</div><div style="font-size:12px;color:#4a5a7a">HCP '+p.hcp+' · '+p.played+' holes</div></div>'+'<div class="lbscore"><div class="big">'+sc+'</div><div style="font-size:13px;font-weight:700;color:'+sc2+'">'+sub+'</div></div></div>';
+    return'<div class="lbrow'+(i===0?' top':'')+'">'+'<div class="rank">'+((['1st','2nd','3rd'][i])||((i+1)+'th'))+'</div>'+'<div style="flex:1"><div style="font-weight:700;font-size:15px;color:#0d2d6e">'+p.name+'</div><div style="font-size:12px;color:#4a5a7a">HCP '+p.hcp+' · '+p.played+' holes</div></div>'+'<div class="lbscore"><div class="big">'+sc+'</div><div style="font-size:13px;font-weight:700;color:'+sc2+'">'+sub+'</div></div></div>';
   }).join('');
-  $('lbBanner').style.display='block';
+  $('lbBanner').style.display=IS_ARCHIVED?'none':'block';
   $('emailBox').style.display='block';
 }
-
-function confirmComplete(){
-  if(!confirm('Mark this round as complete and archive it?\n\nThe scorecard will be saved and removed from live rounds.'))return;
-  completeRound();
-}
-
-function completeRound(){
-  if(!R||!RC)return;
-  var archived={...R,completedAt:Date.now(),status:'archived'};
-  // Save to archive
-  fbPut('archived_rounds/'+RC,archived).then(function(){
-    // Remove from live rounds
-    return fetch(FB+'/rounds/'+RC+'.json',{method:'DELETE'});
-  }).then(function(){
-    if(PT)clearInterval(PT);
-    alert('Round archived successfully!\n\nYou can view it from the home screen under "Past rounds".');
-    R=null;RC='';
-    show('p-home');
-  }).catch(function(e){
-    alert('Could not archive round: '+e.message);
-  });
-}
-
-function loadArchive(){
-  var al=$('archiveList');
-  al.style.display='block';
-  al.innerHTML='<div style="font-size:13px;color:#4a5a7a">Loading past rounds...</div>';
-  fbGet('archived_rounds').then(function(d){
-    if(!d||!Object.keys(d).length){
-      al.innerHTML='<div style="font-size:13px;color:#9ca3af">No archived rounds yet.</div>';
-      return;
-    }
-    var rounds=Object.entries(d).map(function(e){return{code:e[0],data:e[1]}})
-      .sort(function(a,b){return(b.data.completedAt||0)-(a.data.completedAt||0)});
-    al.innerHTML=rounds.map(function(r){
-      var d=r.data;
-      var date=d.completedAt?new Date(d.completedAt).toLocaleDateString('en-GB',{day:'numeric',month:'short',year:'numeric'}):'Unknown date';
-      var stats=[];
-      for(var pi=0;pi<(d.np||0);pi++){
-        var hcp=(d.hcps&&d.hcps[pi])||0,gross=0,stable=0,played=0,toPar=0;
-        if(d.scores&&d.scores[pi]){
-          d.scores[pi].forEach(function(v,hi){
-            var s=v||0,hs=hcpS(hcp,(d.siValues||d.si||DSI)[hi]||DSI[hi]),pts=sbPts(s,(d.pars||DPARS)[hi]||DPARS[hi],hs);
-            if(s){gross+=s;stable+=pts;toPar+=s-(d.pars||DPARS)[hi];played++}
-          });
-        }
-        if(played)stats.push({name:(d.names||d.playerNames||[])[pi]||'P'+(pi+1),gross:gross,stable:stable,toPar:toPar,hcp:hcp,played:played});
-      }
-      stats.sort(function(a,b){return d.mode==='stableford'?b.stable-a.stable:a.toPar-b.toPar});
-      var winner=stats[0];
-      var winStr=winner?(winner.name+' — '+(d.mode==='stableford'?winner.stable+' pts':winner.gross+' ('+(winner.toPar===0?'E':winner.toPar>0?'+'+winner.toPar:winner.toPar)+')')):'-';
-      return '<div style="padding:12px 14px;margin-bottom:8px;border:2px solid #0d2d6e;border-left:5px solid #c8102e;background:#fff;cursor:pointer" onclick="viewArchived(\''+r.code+'\')">'
-        +'<div style="display:flex;justify-content:space-between;align-items:flex-start;flex-wrap:wrap;gap:4px">'
-        +'<div style="font-weight:700;font-size:14px;color:#0d2d6e">'+(d.course||d.courseName||'Golf Round').split(',')[0]+'</div>'
-        +'<div style="font-size:12px;color:#9ca3af">'+date+'</div></div>'
-        +'<div style="font-size:12px;color:#4a5a7a;margin-top:4px">'+(d.np||0)+' players · '+(d.mode==='stableford'?'Stableford':'Stroke play')+'</div>'
-        +'<div style="font-size:13px;color:#c8102e;font-weight:700;margin-top:4px">🏆 '+winStr+'</div>'
-        +'<div style="font-size:11px;color:#9ca3af;margin-top:2px">Room: '+r.code+' · Tap to view full scorecard</div>'
-        +'</div>';
-    }).join('');
-  }).catch(function(){
-    al.innerHTML='<div style="font-size:13px;color:#c8102e">Could not load archived rounds.</div>';
-  });
-}
-
-function viewArchived(code){
-  fbGet('archived_rounds/'+code).then(function(d){
-    if(!d)return;
-    RC=code;R={...d,scores:d.scores||[],pars:d.pars||DPARS,si:d.siValues||d.si||DSI,np:d.np||0,names:d.names||d.playerNames||[],hcps:d.hcps||[],mode:d.mode||'strokeplay',course:d.course||d.courseName||'',curl:d.curl||d.courseUrl||''};
-    AP=0;AH=0;
-    $('codeDisp').textContent=code;$('lbCode').textContent=code;
-    $('playName').textContent=(R.course||'Golf Round').split(',')[0];
-    $('playMeta').textContent=R.np+' players · Par '+R.pars.reduce(function(a,b){return a+b},0)+' · '+(R.mode==='stableford'?'Stableford':'Stroke play')+' · ARCHIVED';
-    if(R.curl)$('playWebBtn').style.display='inline-block';
-    // Hide live controls for archived rounds
-    $('liveDisp').className='offline';$('liveDisp').textContent='📁 Archived';
-    $('timeDisp').textContent=d.completedAt?new Date(d.completedAt).toLocaleDateString('en-GB'):'';
-    show('p-play');
-    renderAll();
-    // Don't start polling for archived rounds
-  }).catch(function(){alert('Could not load this round.')});
-}
+function buildText(){
   var L=[],date=new Date().toLocaleDateString('en-GB',{weekday:'long',year:'numeric',month:'long',day:'numeric'});
   L.push('GOLF SCORECARD');L.push('==============');
   L.push('Course: '+(R.course||'Golf Round'));L.push('Date: '+date);
@@ -895,10 +686,7 @@ function viewArchived(code){
     if(played)stats.push({pi:pi,name:R.names[pi]||'P'+(pi+1),gross:gross,stable:stable,played:played,toPar:toPar,hcp:hcp});
   }
   stats.sort(function(a,b){return R.mode==='stableford'?b.stable-a.stable:a.toPar-b.toPar});
-  stats.forEach(function(p,i){
-    var sc=R.mode==='stableford'?p.stable+' pts':p.gross+' ('+(p.toPar===0?'E':p.toPar>0?'+'+p.toPar:p.toPar)+')';
-    L.push(((['1st','2nd','3rd'][i])||(i+1)+'th')+' '+p.name+' — '+sc+' (HCP '+p.hcp+')');
-  });
+  stats.forEach(function(p,i){var sc=R.mode==='stableford'?p.stable+' pts':p.gross+' ('+(p.toPar===0?'E':p.toPar>0?'+'+p.toPar:p.toPar)+')';L.push(((['1st','2nd','3rd'][i])||(i+1)+'th')+' '+p.name+' — '+sc+' (HCP '+p.hcp+')')});
   L.push('');L.push('SCORECARD');L.push('---------');
   var hdr='       ';for(var i=1;i<=18;i++)hdr+=String(i).padStart(3);hdr+='  TOT';L.push(hdr);
   var pr='Par    ';R.pars.forEach(function(p){pr+=String(p).padStart(3)});pr+='  '+String(R.pars.reduce(function(a,b){return a+b},0)).padStart(3);L.push(pr);L.push('');
@@ -906,8 +694,7 @@ function viewArchived(code){
     var hcp=R.hcps[pi]||0,gross=0,toPar=0,stable=0;
     var row=(R.names[pi]||'P'+(pi+1)).substring(0,7).padEnd(7);
     R.scores[pi].forEach(function(v,hi){var s=v||0,hs=hcpS(hcp,R.si[hi]),pts=sbPts(s,R.pars[hi],hs);if(s){gross+=s;toPar+=s-R.pars[hi];stable+=pts}row+=String(s||'-').padStart(3)});
-    var tpStr=gross?(R.mode==='stableford'?stable:(toPar===0?'E':toPar>0?'+'+toPar:toPar)):'-';
-    L.push(row+'  '+String(gross||'-').padStart(3)+'  '+tpStr);
+    L.push(row+'  '+String(gross||'-').padStart(3)+'  '+(gross?(R.mode==='stableford'?stable:(toPar===0?'E':toPar>0?'+'+toPar:toPar)):'-'));
   }
   L.push('');L.push('Golf Scorecard App — https://golf-two-psi.vercel.app');
   return L.join('\n');
