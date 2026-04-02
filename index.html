@@ -236,6 +236,8 @@ thead tr:nth-child(2) td:first-child{background:#f0f4ff}
   <input id="compName" placeholder="e.g. Club Medal, Away Day"/>
   <label>Date</label>
   <input id="compDate" type="date"/>
+  <label>First tee time</label>
+  <input id="compTee" type="time" placeholder="e.g. 10:30"/>
   <label>Golf course</label>
   <input id="compCourse" placeholder="Course name"/>
   <label>Format</label>
@@ -1213,6 +1215,7 @@ function openNewComp(){
   $('compPageTitle').textContent='Add competition';
   $('compName').value='';
   $('compDate').value='';
+  $('compTee').value='';
   $('compCourse').value='';
   $('compNotes').value='';
   $('compErr').style.display='none';
@@ -1227,6 +1230,7 @@ function openEditComp(id,comp){
   $('compPageTitle').textContent='Edit competition';
   $('compName').value=comp.name||'';
   $('compDate').value=comp.date||'';
+  $('compTee').value=comp.tee||'';
   $('compCourse').value=comp.course||'';
   $('compNotes').value=comp.notes||'';
   $('compErr').style.display='none';
@@ -1247,7 +1251,7 @@ function saveComp(){
   var names=[],hcps=[];
   document.querySelectorAll('.cpname').forEach(function(el){names.push(el.value||('Player '+(parseInt(el.dataset.ci)+1)))});
   document.querySelectorAll('.cphcp').forEach(function(el){hcps.push(parseInt(el.value)||0)});
-  var comp={name:name,date:date,course:course,mode:COMP_MODE,np:COMP_NP,names:names.slice(0,COMP_NP),hcps:hcps.slice(0,COMP_NP),notes:$('compNotes').value.trim(),created:Date.now()};
+  var comp={name:name,date:date,tee:$('compTee').value.trim(),course:course,mode:COMP_MODE,np:COMP_NP,names:names.slice(0,COMP_NP),hcps:hcps.slice(0,COMP_NP),notes:$('compNotes').value.trim(),created:Date.now()};
   var id=EDIT_COMP_ID||(Date.now().toString(36));
   fbPut('comps/'+id,comp).then(function(){
     show('p-diary');loadDiary();
@@ -1301,7 +1305,7 @@ function compCard(id,c,isPast){_COMP_CACHE[id]=c;
     +'<div style="display:flex;justify-content:space-between;align-items:flex-start;flex-wrap:wrap;gap:4px">'
     +'<div style="font-weight:700;font-size:15px;color:#0d2d6e">'+escHtml(c.name||'Competition')+'</div>'
     +'<div style="font-size:12px;color:#9ca3af">'+dateStr+'</div></div>'
-    +'<div style="font-size:13px;color:#4a5a7a;margin-top:3px">'+escHtml(c.course||'')+'  ·  '+(c.mode==='stableford'?'Stableford':'Stroke play')+'</div>'
+    +'<div style="font-size:13px;color:#4a5a7a;margin-top:3px">'+escHtml(c.course||'')+'  ·  '+(c.mode==='stableford'?'Stableford':'Stroke play')+(c.tee?'  ·  First tee: '+escHtml(c.tee):'')+'</div>'
     +(players?'<div style="font-size:12px;color:#4a5a7a;margin-top:3px">'+escHtml(players)+'</div>':'')
     +(c.notes?'<div style="font-size:12px;color:#6b7280;margin-top:3px;font-style:italic">'+escHtml(c.notes)+'</div>':'')
     +'<div style="display:flex;gap:8px;margin-top:10px">'
@@ -1317,12 +1321,26 @@ function addToCalendar(id){
   var c=_COMP_CACHE[id];
   if(!c||!c.date){alert('No date set for this competition.');return;}
 
-  // Build date strings — all-day event
+  // Build date strings — timed if tee time set, all-day otherwise
   var dt=c.date.replace(/-/g,''); // YYYYMMDD
-  var dtEnd=dt; // same day, all-day
+  var dtStart,dtEnd,allDay;
+  if(c.tee){
+    // Timed event: start at tee time, end 5 hours later
+    var parts=c.tee.split(':');
+    var h=parseInt(parts[0]),m=parseInt(parts[1])||0;
+    var startD=new Date(c.date+'T'+c.tee+':00');
+    var endD=new Date(startD.getTime()+5*60*60*1000);
+    function pad(n){return String(n).padStart(2,'0');}
+    dtStart=dt+'T'+pad(h)+pad(m)+'00';
+    dtEnd=dt+'T'+pad(endD.getHours())+pad(endD.getMinutes())+'00';
+    allDay=false;
+  } else {
+    dtStart=dt;dtEnd=dt;allDay=true;
+  }
 
   // Build description
   var desc=[];
+  if(c.tee)desc.push('First tee: '+c.tee);
   desc.push('Format: '+(c.mode==='stableford'?'Stableford':'Stroke play'));
   if(c.names&&c.names.length){
     desc.push('Players: '+(c.names||[]).slice(0,c.np||0).map(function(n,i){return n+' (HCP '+((c.hcps||[])[i]||0)+')'}).join(', '));
@@ -1339,8 +1357,8 @@ function addToCalendar(id){
     'BEGIN:VEVENT',
     'UID:rogs-'+id+'@golf-two-psi.vercel.app',
     'DTSTAMP:'+new Date().toISOString().replace(/[-:.]/g,'').slice(0,15)+'Z',
-    'DTSTART;VALUE=DATE:'+dt,
-    'DTEND;VALUE=DATE:'+dt,
+    (allDay?'DTSTART;VALUE=DATE:'+dtStart:'DTSTART:'+dtStart),
+    (allDay?'DTEND;VALUE=DATE:'+dtEnd:'DTEND:'+dtEnd),
     'SUMMARY:'+icsEsc((c.name||'Golf Competition')+' — '+(c.course||'')),
     'DESCRIPTION:'+icsEsc(desc.join('\n')),
     'LOCATION:'+icsEsc(c.course||''),
