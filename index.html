@@ -393,7 +393,7 @@ function doEnd(){if(PT)clearInterval(PT);R=null;RC='';show('p-home')}
 function switchTab(t,el){
   document.querySelectorAll('.tab').forEach(function(b){b.classList.remove('on')});el.classList.add('on');
   document.querySelectorAll('.panel').forEach(function(p){p.classList.remove('on')});$('tab-'+t).classList.add('on');
-  if(t==='summary')renderSummary();if(t==='leaderboard')renderLB();
+  if(t==='summary')renderSummary();if(t==='leaderboard')renderLB();if(t==='scorecard')initEditDropdowns();
 }
 function renderAll(){renderPBtns();renderHBtns();renderEntry();renderSC();renderLB()}
 
@@ -492,7 +492,62 @@ function renderLB(){
   $('emailBox').style.display='block';
 }
 
-function buildText(){
+function initEditDropdowns(){
+  var ep=$('editPlayer'),eh=$('editHole'),es=$('editScore');
+  if(!ep||!R)return;
+  ep.innerHTML='';
+  for(var i=0;i<R.np;i++){
+    var o=document.createElement('option');o.value=i;o.textContent=R.names[i]||'P'+(i+1);ep.appendChild(o);
+  }
+  eh.innerHTML='';
+  for(var i=0;i<18;i++){
+    var o=document.createElement('option');o.value=i;o.textContent='Hole '+(i+1)+' (Par '+R.pars[i]+')';eh.appendChild(o);
+  }
+  buildScoreOptions();
+}
+function buildScoreOptions(){
+  var ep=$('editPlayer'),eh=$('editHole'),es=$('editScore');
+  if(!ep||!eh||!es||!R)return;
+  var pi=parseInt(ep.value)||0,hi=parseInt(eh.value)||0;
+  var cur=R.scores[pi][hi]||0,par=R.pars[hi],hcp=R.hcps[pi]||0,hs=hcpS(hcp,R.si[hi]);
+  es.innerHTML='';
+  var opt=document.createElement('option');opt.value=0;opt.textContent='— Clear score —';es.appendChild(opt);
+  for(var n=1;n<=12;n++){
+    var o=document.createElement('option');
+    o.value=n;
+    var d=n-par,label='';
+    if(n===1)label='Hole in one!';
+    else if(d<=-2)label='Eagle';
+    else if(d===-1)label='Birdie';
+    else if(d===0)label='Par';
+    else if(d===1)label='Bogey';
+    else if(d===2)label='Dbl Bogey';
+    else label='+'+d;
+    var netD=n-hs-par,pts=sbPts(n,par,hs);
+    o.textContent=n+' — '+label+(R.mode==='stableford'?' ('+pts+' pts)':'');
+    if(n===cur)o.selected=true;
+    es.appendChild(o);
+  }
+}
+function updateEditDropdowns(){buildScoreOptions()}
+function updateEditScore(){buildScoreOptions()}
+function applyEditScore(){
+  var ep=$('editPlayer'),eh=$('editHole'),es=$('editScore');
+  if(!ep||!eh||!es||!R)return;
+  var pi=parseInt(ep.value),hi=parseInt(eh.value),v=parseInt(es.value)||0;
+  R.scores[pi][hi]=v;R.ts=Date.now();
+  fbPatch('rounds/'+RC,{scores:R.scores,ts:R.ts}).then(function(){
+    var m=$('editMsg');
+    var name=R.names[pi]||'P'+(pi+1);
+    var par=R.pars[hi],hcp=R.hcps[pi]||0,hs=hcpS(hcp,R.si[hi]);
+    var lb=v?sLabel(v,par):{t:'Cleared',c:'#4a5a7a'};
+    m.textContent=name+' · Hole '+(hi+1)+': '+(v||'cleared')+' — '+lb.t;
+    m.style.display='block';
+    m.style.borderLeftColor=v?lb.c:'#4a5a7a';
+    setTimeout(function(){m.style.display='none'},3000);
+  }).catch(function(){});
+  renderSC();renderLB();
+}
   var L=[],date=new Date().toLocaleDateString('en-GB',{weekday:'long',year:'numeric',month:'long',day:'numeric'});
   L.push('GOLF SCORECARD');L.push('==============');
   L.push('Course: '+(R.course||'Golf Round'));L.push('Date: '+date);
