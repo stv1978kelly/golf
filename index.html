@@ -2242,12 +2242,6 @@ function launchComp(id){
 
 
 );
-self.addEventListener('fetch',function(e){
-  e.respondWith(caches.match(e.request).then(function(r){
-    return r||fetch(e.request).then(function(resp){
-      return caches.open('rogs-v1').then(function(c){
-        c.put(e.request,resp.clone());return resp;
-      });
     });
   }).catch(function(){return caches.match('/golf/index.html');}));
 });`],{type:"text/javascript"});var swUrl=URL.createObjectURL(swBlob);navigator.serviceWorker.register(swUrl).then(function(){console.log("SW registered");}).catch(function(e){console.log("SW error",e);});}
