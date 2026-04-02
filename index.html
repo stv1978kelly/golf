@@ -620,6 +620,19 @@ function loadCourseCard(name){
         ci.style.borderLeftColor='#16a34a';ci.style.background='#f0fdf4';ci.style.color='#166534';return;}
     }
   }
+  // Check community-saved scorecards in Firebase
+  var cardKey=name.toLowerCase().replace(/[^a-z0-9]/g,'_').substring(0,80)+'__'+S.tee;
+  fbGet('scorecards/'+cardKey).then(function(d){
+    if(d&&d.par&&d.si&&d.par.length===18&&d.si.length===18){
+      S.pars=d.par.slice();S.si=d.si.slice();buildSetup();
+      ci.textContent='Scorecard loaded for '+name.split(',')[0]+' ('+S.tee+' tees) ✓ community verified';
+      ci.style.borderLeftColor='#16a34a';ci.style.background='#f0fdf4';ci.style.color='#166534';
+    } else {
+      loadCourseCardFromAPI(name,ci);
+    }
+  }).catch(function(){loadCourseCardFromAPI(name,ci);});
+}
+function loadCourseCardFromAPI(name,ci){
   // Try real golf API if we have a club ID
   var clubId=CLUB_MAP[name.toLowerCase()]||CLUB_MAP[k];
   if(clubId){
@@ -687,7 +700,13 @@ function loadCourseCard(name){
 function doCreate(){
   $('setupErr').style.display='none';
   var code=genCode();
-  var r={course:S.course||$('courseIn').value,curl:S.curl,np:S.np,mode:S.mode,names:S.names.slice(0,S.np),hcps:S.hcps.slice(0,S.np),pars:S.pars.slice(),si:S.si.slice(),scores:Array(16).fill(0).map(function(){return Array(18).fill(0)}),ts:Date.now(),status:'live'};
+  var courseName=S.course||$('courseIn').value;
+  var r={course:courseName,curl:S.curl,np:S.np,mode:S.mode,names:S.names.slice(0,S.np),hcps:S.hcps.slice(0,S.np),pars:S.pars.slice(),si:S.si.slice(),scores:Array(16).fill(0).map(function(){return Array(18).fill(0)}),ts:Date.now(),status:'live'};
+  // Save corrected scorecard to community database
+  if(courseName&&S.pars.length===18&&S.si.length===18){
+    var cardKey=courseName.toLowerCase().replace(/[^a-z0-9]/g,'_').substring(0,80)+'__'+S.tee;
+    fbPut('scorecards/'+cardKey,{course:courseName,tee:S.tee,par:S.pars.slice(),si:S.si.slice(),updated:Date.now()}).catch(function(){});
+  }
   fbPut('rounds/'+code,r).then(function(){RC=code;R=r;IS_ARCHIVED=false;startPlay()}).catch(function(e){$('setupErr').textContent='Error: '+e.message;$('setupErr').style.display='block'});
 }
 function doJoin(){
