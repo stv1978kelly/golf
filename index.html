@@ -719,10 +719,35 @@ function buildSetup(){
     (function(pi,selectEl){
       selectEl.onchange=function(){
         if(this.value==='__custom__'){
-          var custom=prompt('Enter player name:');
-          if(custom){S.names[pi]=custom;S.hcps[pi]=0;}
-          else{this.value=S.names[pi]||'';}
-          buildSetup();return;
+          // Show inline text input instead of browser prompt
+var row=selectEl.closest?selectEl.closest('.player-row'):null;
+var container=row||selectEl.parentNode;
+var existing=container.querySelector('.new-player-input');
+if(!existing){
+  var inp=document.createElement('input');
+  inp.className='new-player-input';
+  inp.placeholder='Type new player name...';
+  inp.style.cssText='width:100%;padding:10px 12px;border:2px solid #c8102e;border-radius:0;font-size:14px;margin-top:4px;box-sizing:border-box;background:#fff;color:#111';
+  container.appendChild(inp);
+  inp.focus();
+  function confirmNew(){
+    var name=inp.value.trim();
+    if(name){
+      S.names[pi]=name;S.hcps[pi]=0;
+      if(ROGS_PLAYERS.indexOf(name)===-1)ROGS_PLAYERS.push(name);
+      var fbKey=name.toLowerCase().replace(/[^a-z0-9]/g,'_');
+      fbGet('rogs_profiles').then(function(profiles){
+        if(!profiles||!profiles[fbKey]){
+          fbPut('rogs_profiles/'+fbKey,{name:name,hcp:0});
+        }
+      });
+    }else{selectEl.value=S.names[pi]||'';}
+    inp.remove();buildSetup();
+  }
+  inp.onblur=confirmNew;
+  inp.onkeydown=function(e){if(e.key==='Enter'){e.preventDefault();this.onblur=null;confirmNew();}};
+}
+return;
         }
         S.names[pi]=this.value;
         S.hcps[pi]=getROGSHcp(this.value);
@@ -1754,6 +1779,14 @@ var ROGS_PLAYERS = [
   'Jim Chadwick','John Douglas','Karl Atkinson','Neil Sanderson','Owen Evans',
   'John "Paddy" Swan','Paul Simpson','Rick Kennedy','Robbie Strange','Steve Kelly','Titch Walton'
 ];
+// Load saved custom players from Firebase into ROGS_PLAYERS
+fbGet('rogs_profiles').then(function(profiles){
+  if(!profiles)return;
+  Object.values(profiles).forEach(function(p){
+    var n=typeof p==='string'?p:(p&&p.name?p.name:null);
+    if(n&&ROGS_PLAYERS.indexOf(n)===-1)ROGS_PLAYERS.push(n);
+  });
+});
 // Stored HCPs — players update their own via the picker
 var ROGS_HCPS = {};
 function loadROGSHcps(){
