@@ -2790,6 +2790,7 @@ function loadLiveRounds(){
       html+='<div style="display:flex;gap:8px;margin-top:10px">';
       html+='<button class="btn-sm" style="flex:1" onclick="adminJoin(\'' +r.code+ '\')">Open scorecard</button>';
       html+='<button class="btn-sm" style="background:#c8102e;color:#fff;border-color:#c8102e" onclick="adminDelete(\'' +r.code+ '\',\'' +courseName.replace(/'/g,'')+ '\',event)">Delete</button>';
+      html+='<button class="btn-sm" style="color:#7c3aed;border-color:#7c3aed" onclick="adminAssignGroups(\'' +r.code+ '\',\'' +escHtml((r.names||[]).join(','))+ '\',' +(r.np||0)+ ')">Groups</button>';
       html+='</div></div>';
       return html;
     }).join('');
@@ -2799,6 +2800,98 @@ function loadLiveRounds(){
   });
 }
 
+function adminAssignGroups(code, namesStr, np){
+  var names=namesStr.split(',');
+  // Build default groups
+  var groups={};var gi=0;
+  for(var i=0;i<np;i++){
+    if(!groups[gi])groups[gi]=[];
+    groups[gi].push(i);
+    if(groups[gi].length===4)gi++;
+  }
+  window._agCode=code;
+  window._agNames=names;
+  window._agNp=np;
+  window._agGroups=groups;
+
+  // Build overlay
+  var ov=document.createElement('div');
+  ov.id='ag-overlay';
+  ov.style.cssText='position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,.75);z-index:9999;overflow-y:auto;-webkit-overflow-scrolling:touch';
+  ov.innerHTML='<div style="background:#fff;border-radius:12px;padding:20px 16px;max-width:480px;margin:20px auto">'
+    +'<div style="background:#0d2d6e;color:#fff;font-size:15px;font-weight:700;padding:10px 14px;border-radius:8px;margin-bottom:12px">Assign Groups  '+code+'</div>'
+    +'<p style="font-size:13px;color:#4a5a7a;margin-bottom:12px">'+np+' players  Drag names to move between groups  Max 4 per group</p>'
+    +'<div id="ag-editor"></div>'
+    +'<button onclick="agSave()" style="width:100%;padding:13px;background:#16a34a;color:#fff;border:none;font-size:15px;font-weight:700;border-radius:8px;cursor:pointer;margin-top:10px">Save Groups </button>'
+    +'<button onclick="document.getElementById(\'ag-overlay\').remove()" style="width:100%;padding:10px;background:#fff;color:#c8102e;border:2px solid #c8102e;font-size:13px;font-weight:700;border-radius:8px;cursor:pointer;margin-top:8px">Cancel</button>'
+    +'</div>';
+  document.body.appendChild(ov);
+  agRender();
+}
+
+function agRender(){
+  var el=document.getElementById('ag-editor');
+  if(!el)return;
+  var groups=window._agGroups;
+  var names=window._agNames;
+  var gcols=['#c8102e','#16a34a','#7c3aed','#d97706','#0891b2'];
+  var gKeys=Object.keys(groups).sort(function(a,b){return parseInt(a)-parseInt(b);});
+  var html='';
+  gKeys.forEach(function(gi,gIdx){
+    var members=groups[gi]||[];
+    var col=gcols[gIdx%gcols.length];
+    html+='<div data-gi="'+gi+'" '
+      +'style="background:#fafafa;border:2px solid '+col+';border-left:5px solid '+col+';border-radius:8px;padding:10px 12px;margin-bottom:8px;min-height:52px" '
+      +'ondragover="event.preventDefault()" ondrop="agDrop(event,'+gi+')">'
+      +'<div style="font-size:11px;font-weight:700;color:'+col+';margin-bottom:6px;text-transform:uppercase;letter-spacing:.5px">Group '+(gIdx+1)+'</div>';
+    members.forEach(function(pi){
+      var nm=(names[pi]||'Player '+(pi+1)).split(',')[0];
+      html+='<div draggable="true" ondragstart="window._agDrag='+pi+';event.dataTransfer.effectAllowed=\'move\'" '
+        +'style="display:inline-flex;align-items:center;gap:5px;background:#fff;border:2px solid '+col+';border-radius:6px;padding:5px 12px;margin:2px 3px;font-size:13px;font-weight:700;color:'+col+';cursor:grab">'
+        +'<span style="opacity:.4;font-size:10px">&#9776;</span>'+escHtml(nm)+'</div>';
+    });
+    html+='</div>';
+  });
+  el.innerHTML=html;
+}
+
+window._agDrag=null;
+function agDrop(e,targetGi){
+  e.preventDefault();
+  var pi=window._agDrag;
+  if(pi===null||pi===undefined)return;
+  window._agDrag=null;
+  var g=window._agGroups;
+  // Check max 4
+  if((g[targetGi]||[]).length>=4){
+    alert('Group '+(parseInt(targetGi)+1)+' already has 4 players (max)');return;
+  }
+  Object.keys(g).forEach(function(k){g[k]=(g[k]||[]).filter(function(p){return p!==pi;});});
+  if(!g[targetGi])g[targetGi]=[];
+  g[targetGi].push(pi);
+  // Reindex
+  var ng={};var i=0;
+  Object.keys(g).sort(function(a,b){return parseInt(a)-parseInt(b);}).forEach(function(k){if(g[k].length){ng[i]=g[k];i++;}});
+  window._agGroups=ng;
+  agRender();
+}
+
+function agSave(){
+  var code=window._agCode;
+  var groups=window._agGroups;
+  fbPut('rounds/'+code+'/groups',groups).then(function(){
+    document.getElementById('ag-overlay').remove();
+    // If this is the currently open round, update R
+    if(window.R&&window.RC===code){
+      window.R.groups=groups;
+      window._roundGroups=groups;
+      renderAll();
+    }
+    // Refresh admin list
+    loadLiveRounds();
+    alert('Groups saved for '+code+'. Players can now tap their name to activate group scoring.');
+  }).catch(function(e){alert('Failed: '+e.message);});
+}
 function adminJoin(code){
   fbGet('rounds/'+code).then(function(d){
     if(!d)return;
