@@ -1041,6 +1041,42 @@ button[onclick*="startFromComp"],
     <button class="btn-sm" onclick="loadLiveRounds()">↻ Refresh</button>
   </div>
   <div id="adminList"></div>
+
+  <!-- COURSE EDITOR -->
+  <div style="margin-top:24px;border-top:3px solid #c8102e;padding-top:18px">
+    <h2 style="margin-bottom:12px">Course Data Editor</h2>
+    <p style="font-size:13px;color:#4a5a7a;margin-bottom:12px">Search a course, pick tee colour, update yards / par / SI / slope / CR and save to Firebase for all future rounds.</p>
+
+    <label>Golf Course</label>
+    <div class="ddwrap" id="adminDdwrap" style="position:relative;margin-bottom:10px">
+      <input id="adminCourseIn" placeholder="Search courses..." autocomplete="off"
+        oninput="adminDdFilter(this.value)"
+        onfocus="adminDdFilter(this.value)"
+        style="width:100%;padding:11px 12px;border:2px solid #0d2d6e;font-size:14px;margin-bottom:0"/>
+      <div id="adminDdList" style="display:none;position:absolute;top:100%;left:0;right:0;background:#fff;border:2px solid #0d2d6e;border-top:none;z-index:100;max-height:200px;overflow-y:auto"></div>
+    </div>
+
+    <label>Tee Colour</label>
+    <div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:14px" id="adminTeeBtns"></div>
+
+    <div id="adminCardInfo" style="display:none;font-size:12px;padding:8px 12px;background:#f0fdf4;border:1px solid #16a34a;border-radius:6px;color:#16a34a;margin-bottom:10px"></div>
+
+    <div id="adminCourseForm" style="display:none">
+      <div style="display:flex;gap:8px;margin-bottom:10px">
+        <div style="flex:1"><label style="margin-top:0">Slope</label><input id="adminSlope" type="number" min="55" max="155" placeholder="113"/></div>
+        <div style="flex:1"><label style="margin-top:0">Course Rating</label><input id="adminCR" type="number" min="50" max="85" step="0.1" placeholder="69.1"/></div>
+        <div style="flex:1"><label style="margin-top:0">Par</label><input id="adminCoursePar" type="number" min="60" max="80" placeholder="72" readonly style="background:#f3f4f6"/></div>
+      </div>
+      <label>Yards per hole</label>
+      <div class="g9" id="adminYdsGrid" style="margin-bottom:10px"></div>
+      <label>Par per hole</label>
+      <div class="g9" id="adminParGrid" style="margin-bottom:10px"></div>
+      <label>Stroke Index per hole</label>
+      <div class="g9" id="adminSiGrid" style="margin-bottom:14px"></div>
+      <button onclick="adminSaveCourse()" style="width:100%;padding:13px;background:#16a34a;color:#fff;border:none;font-size:15px;font-weight:700;cursor:pointer;border-radius:0;margin-bottom:6px">Save Course Data to Firebase</button>
+      <button onclick="adminClearCourseForm()" style="width:100%;padding:10px;background:#fff;color:#c8102e;border:2px solid #c8102e;font-size:13px;font-weight:700;cursor:pointer;border-radius:0">Clear / Reset</button>
+    </div>
+  </div>
 </div>
 
 <!-- HOME -->
@@ -1625,6 +1661,122 @@ function canEditPlayerScore(playerIdx){
   if(window._isAdmin)return true;
   if(!window._myGroupPlayers||!window._myGroupPlayers.length)return true;
   return window._myGroupPlayers.indexOf(playerIdx)!==-1;
+}
+// ============================================================
+// ADMIN COURSE EDITOR
+// ============================================================
+var AC = {course:'', tee:'yellow', pars:Array(18).fill(4), si:Array(18).fill(0).map(function(_,i){return i+1;}), yds:Array(18).fill(0), slope:113, cr:0};
+
+function adminDdFilter(q){
+  var list=document.getElementById('adminDdList');
+  if(!list)return;
+  var lq=(q||'').trim().toLowerCase();
+  if(!lq){list.style.display='none';return;}
+  var matches=COURSES.filter(function(c){return c.toLowerCase().indexOf(lq)>=0;}).slice(0,20);
+  if(!matches.length){list.style.display='none';return;}
+  list.innerHTML=matches.map(function(c){
+    return '<div onclick="adminDdPick(\''+escHtml(c)+'\')" style="padding:10px 12px;cursor:pointer;font-size:14px;border-bottom:1px solid #e5e7eb" onmouseover="this.style.background=\'#eff6ff\'" onmouseout="this.style.background=\'#fff\'">'+escHtml(c)+'</div>';
+  }).join('');
+  list.style.display='block';
+}
+
+function adminDdPick(name){
+  AC.course=name;
+  var inp=document.getElementById('adminCourseIn');
+  if(inp)inp.value=name;
+  var list=document.getElementById('adminDdList');
+  if(list)list.style.display='none';
+  adminBuildTeeBtns();
+  adminLoadCourseCard();
+}
+
+function adminBuildTeeBtns(){
+  var el=document.getElementById('adminTeeBtns');
+  if(!el)return;
+  var tees=['yellow','white','red','blue','black'];
+  var colors={yellow:'#d97706',white:'#6b7280',red:'#c8102e',blue:'#1d4ed8',black:'#111827'};
+  el.innerHTML='';
+  tees.forEach(function(t){
+    var btn=document.createElement('button');
+    var active=t===AC.tee;
+    btn.textContent=t.charAt(0).toUpperCase()+t.slice(1);
+    btn.style.cssText='padding:8px 16px;font-size:13px;font-weight:700;border:2.5px solid '+colors[t]+';border-radius:6px;cursor:pointer;background:'+(active?colors[t]:'#fff')+';color:'+(active?'#fff':colors[t]);
+    btn.onclick=function(){AC.tee=t;adminBuildTeeBtns();adminLoadCourseCard();};
+    el.appendChild(btn);
+  });
+}
+
+function adminLoadCourseCard(){
+  if(!AC.course)return;
+  var cardKey=AC.course.toLowerCase().replace(/[^a-z0-9]/g,'_').substring(0,80)+'__'+AC.tee;
+  var info=document.getElementById('adminCardInfo');
+  if(info){info.style.display='block';info.textContent='Loading saved data for '+AC.course+' ('+AC.tee+' tees)...';}
+  fbGet('scorecards/'+cardKey).then(function(d){
+    if(d&&d.par&&d.par.length===18){
+      AC.pars=d.par.slice();
+      AC.si=d.si?d.si.slice():AC.si;
+      AC.yds=d.yds&&d.yds.some(function(y){return y>0;})?d.yds.slice():Array(18).fill(0);
+      AC.slope=d.slope||113;
+      AC.cr=d.cr||0;
+      if(info)info.textContent='Loaded saved data for '+AC.course+' ('+AC.tee+' tees) ';
+    } else {
+      // No saved data - use defaults
+      AC.pars=DPARS.slice();AC.si=DSI.slice();AC.yds=Array(18).fill(0);AC.slope=113;AC.cr=0;
+      if(info)info.textContent='No saved data found - using defaults. Edit and save below.';
+    }
+    adminBuildCourseForm();
+  }).catch(function(){
+    AC.pars=DPARS.slice();AC.si=DSI.slice();AC.yds=Array(18).fill(0);AC.slope=113;AC.cr=0;
+    adminBuildCourseForm();
+  });
+}
+
+function adminBuildCourseForm(){
+  var form=document.getElementById('adminCourseForm');
+  if(!form)return;
+  form.style.display='block';
+  // Slope / CR
+  var sl=document.getElementById('adminSlope');if(sl)sl.value=AC.slope||'';
+  var cr=document.getElementById('adminCR');if(cr)cr.value=AC.cr||'';
+  var pt=AC.pars.reduce(function(a,b){return a+b},0);
+  var cp=document.getElementById('adminCoursePar');if(cp)cp.value=pt;
+  // Yds grid
+  var yg=document.getElementById('adminYdsGrid');
+  if(yg){yg.innerHTML='';for(var i=0;i<18;i++){yg.innerHTML+='<div class="cell"><span>'+(i+1)+'</span><input type="number" min="0" max="999" value="'+(AC.yds[i]||0)+'" data-i="'+i+'" oninput="AC.yds[this.dataset.i]=parseInt(this.value)||0"/></div>';}}
+  // Par grid
+  var pg=document.getElementById('adminParGrid');
+  if(pg){pg.innerHTML='';for(var i=0;i<18;i++){pg.innerHTML+='<div class="cell"><span>'+(i+1)+'</span><input type="number" min="3" max="6" value="'+AC.pars[i]+'" data-i="'+i+'" oninput="AC.pars[this.dataset.i]=parseInt(this.value)||4;var t=AC.pars.reduce(function(a,b){return a+b},0);var el=document.getElementById(\'adminCoursePar\');if(el)el.value=t"/></div>';}}
+  // SI grid
+  var sg=document.getElementById('adminSiGrid');
+  if(sg){sg.innerHTML='';for(var i=0;i<18;i++){sg.innerHTML+='<div class="cell"><span>'+(i+1)+'</span><input type="number" min="1" max="18" value="'+AC.si[i]+'" data-i="'+i+'" oninput="AC.si[this.dataset.i]=parseInt(this.value)||'+(i+1)+'"/></div>';}}
+}
+
+function adminSaveCourse(){
+  if(!AC.course){alert('Please select a course first.');return;}
+  var sl=document.getElementById('adminSlope');
+  var cr=document.getElementById('adminCR');
+  if(sl)AC.slope=parseFloat(sl.value)||113;
+  if(cr)AC.cr=parseFloat(cr.value)||0;
+  var cardKey=AC.course.toLowerCase().replace(/[^a-z0-9]/g,'_').substring(0,80)+'__'+AC.tee;
+  var data={course:AC.course,tee:AC.tee,par:AC.pars.slice(),si:AC.si.slice(),yds:AC.yds.some(function(y){return y>0;})?AC.yds.slice():null,slope:AC.slope||null,cr:AC.cr||null,updated:Date.now()};
+  var btn=document.querySelector('[onclick="adminSaveCourse()"]');
+  if(btn){btn.textContent='Saving...';btn.style.background='#6b7280';}
+  fbPut('scorecards/'+cardKey,data).then(function(){
+    var info=document.getElementById('adminCardInfo');
+    if(info){info.style.display='block';info.textContent='Saved! '+AC.course+' ('+AC.tee+' tees)  slope '+AC.slope+', CR '+AC.cr+', yds '+(AC.yds.some(function(y){return y>0;})?'yes':'none');}
+    if(btn){btn.textContent='Save Course Data to Firebase';btn.style.background='#16a34a';}
+  }).catch(function(e){
+    alert('Save failed: '+e.message);
+    if(btn){btn.textContent='Save Course Data to Firebase';btn.style.background='#16a34a';}
+  });
+}
+
+function adminClearCourseForm(){
+  AC={course:'',tee:'yellow',pars:DPARS.slice(),si:DSI.slice(),yds:Array(18).fill(0),slope:113,cr:0};
+  var inp=document.getElementById('adminCourseIn');if(inp)inp.value='';
+  var form=document.getElementById('adminCourseForm');if(form)form.style.display='none';
+  var info=document.getElementById('adminCardInfo');if(info)info.style.display='none';
+  var teeBtns=document.getElementById('adminTeeBtns');if(teeBtns)teeBtns.innerHTML='';
 }
 function hcpS(h,si){if(h<=0)return 0;if(h>=36)return 2;return si<=h?1:0}
 function sbPts(s,par,hs){if(!s)return 0;var d=s-hs-par;if(d>=2)return 0;if(d===1)return 1;if(d===0)return 2;if(d===-1)return 3;if(d===-2)return 4;return 5}
@@ -2490,7 +2642,7 @@ function updatePinDots(){
   dots.forEach(function(d,i){d.classList.toggle('filled',i<pinVal.length)});
 }
 function pinSubmit(){
-  if(pinVal===ADMIN_PIN){IS_ADMIN=true;show('p-admin');loadLiveRounds();}
+  if(pinVal===ADMIN_PIN){IS_ADMIN=true;show('p-admin');loadLiveRounds();adminBuildTeeBtns();}
   else{$('pinErr').textContent='Incorrect PIN — try again';pinVal='';updatePinDots()}
 }
 
