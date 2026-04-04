@@ -2291,7 +2291,7 @@ function startPoll(){
   PT=setInterval(function(){
     fbGet('rounds/'+RC).then(function(d){
       if(d&&d.ts>R.ts){R=d;if(!R.yds)R.yds=[];if(!R.slope)R.slope=113;if(!R.cr)R.cr=0;if(!R.pct)R.pct=95;renderAll()}
-      $('liveDisp').className='live';$('liveDisp').textContent='â— Live';
+      $('liveDisp').className='live';$('liveDisp').textContent='● Live';
       LS=new Date();$('timeDisp').textContent=LS.toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'});
     }).catch(function(){});
   },5000);
@@ -2404,9 +2404,28 @@ function prevH(){if(AH>0){AH--;renderHBtns();renderEntry()}}
 function nextH(){if(AH<17){AH++;renderHBtns();renderEntry()}}
 function setVal(v){
   if(IS_ARCHIVED)return;
+  if(!canEditPlayerScore(AP)){
+    showGroupMsg();return;
+  }
   R.scores[AP][AH]=v;R.ts=Date.now();
-  fbPatch('rounds/'+RC,{scores:R.scores,ts:R.ts}).then(function(){LS=new Date();$('liveDisp').className='live';$('liveDisp').textContent='â— Live';$('timeDisp').textContent=LS.toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'})}).catch(function(){});
+  fbPatch('rounds/'+RC,{scores:R.scores,ts:R.ts}).then(function(){LS=new Date();$('liveDisp').className='live';$('liveDisp').textContent='● Live';$('timeDisp').textContent=LS.toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'})}).catch(function(){});
   renderHBtns();renderEntry();renderSC();renderLB();
+}
+
+function showGroupMsg(){
+  var names=window._myGroupPlayers&&window._myGroupPlayers.length
+    ?'Your group: '+window._myGroupPlayers.map(function(i){return R.names[i]?R.names[i].split(' ')[0]:'P'+(i+1);}).join(', ')
+    :'Select your name above to score your group.';
+  var msg=document.getElementById('groupMsg');
+  if(!msg){
+    msg=document.createElement('div');msg.id='groupMsg';
+    msg.style.cssText='background:#c8102e;color:#fff;font-size:12px;font-weight:700;padding:8px 12px;text-align:center;border-radius:6px;margin:6px 0';
+    var ebox=document.querySelector('.ebox');
+    if(ebox)ebox.insertBefore(msg,ebox.firstChild);
+  }
+  msg.textContent='You can only score your own group. '+names;
+  msg.style.display='block';
+  setTimeout(function(){if(msg)msg.style.display='none';},3000);
 }
 function renderSC(){
   var slope=parseFloat(R.slope)||113,cr=parseFloat(R.cr)||0;
