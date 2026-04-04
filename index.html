@@ -2807,6 +2807,8 @@ function buildCompNpRow(){
     b.className='btn-sm'+(n===COMP_NP?' on':'');
     b.textContent=n;
     b.onclick=function(){COMP_NP=n;buildCompNpRow();buildCompPFields();};
+  var cns=document.getElementById('compNpSelect');if(cns)cns.value=COMP_NP;
+  var cps=document.getElementById('compPctSelect');if(cps)cps.value=COMP_PCT_KEY;
     el.appendChild(b);
   });
 }
@@ -2903,6 +2905,7 @@ function buildCompPFields(){
     };
     row.appendChild(sel);row.appendChild(hcpIn);pf.appendChild(row);
   }
+  if(typeof buildCompGroupEditor==='function')buildCompGroupEditor();
 }
 
 function openNewComp(){
@@ -2917,6 +2920,8 @@ function openNewComp(){
   $('deleteCompBtn').style.display='none';
   setCompMode('strokeplay');
   buildCompNpRow();buildCompPFields();
+  buildCompTeeBtns();compUpdatePctLabel();
+  var _cns=document.getElementById('compNpSelect');if(_cns)_cns.value=4;
   show('p-comp');
 }
 
@@ -2932,7 +2937,10 @@ function openEditComp(id,comp){
   $('deleteCompBtn').style.display='block';
   setCompMode(COMP_MODE);
   buildCompNpRow();buildCompPFields();
+  buildCompTeeBtns();compUpdatePctLabel();
   var _rb=document.getElementById('refreshHcpBtn');if(_rb)_rb.style.display='block';
+  // Sync np dropdown
+  var cns=document.getElementById('compNpSelect');if(cns)cns.value=COMP_NP;
   show('p-comp');
 }
 
