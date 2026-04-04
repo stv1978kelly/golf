@@ -2585,18 +2585,27 @@ function updateScTabLeader(){
 }
 function renderLB(){
   var stats=[];
+  var slope=parseFloat(R.slope)||113,cr=parseFloat(R.cr)||0;
+  var par_total=R.pars.reduce(function(a,b){return a+b},0);
+  if(!cr)cr=par_total;
+  var pct=R.pct||95;
   for(var pi=0;pi<R.np;pi++){
-    var hcp=R.hcps[pi]||0,gross=0,stable=0,played=0,toPar=0;
-    R.scores[pi].forEach(function(v,hi){var s=v||0,hs=hcpS(hcp,R.si[hi]),pts=sbPts(s,R.pars[hi],hs);if(s){gross+=s;stable+=pts;toPar+=s-R.pars[hi];played++}});
-    if(played)stats.push({pi:pi,name:R.names[pi]||'P'+(pi+1),gross:gross,stable:stable,played:played,toPar:toPar,hcp:hcp});
+    var hcpIdx=parseFloat(R.hcps[pi])||0;
+    var ch=Math.round(hcpIdx*(slope/113)+(cr-par_total));
+    var playing=Math.round(ch*pct/100);
+    var gross=0,stable=0,played=0,toPar=0,netScore=0;
+    R.scores[pi].forEach(function(v,hi){var s=v||0,hs=hcpS(playing,R.si[hi]),pts=sbPts(s,R.pars[hi],hs);if(s){gross+=s;stable+=pts;toPar+=s-R.pars[hi];played++}});
+    netScore=gross-playing;
+    if(played)stats.push({pi:pi,name:R.names[pi]||'P'+(pi+1),gross:gross,stable:stable,played:played,toPar:toPar,hcp:hcpIdx,playing:playing,netToPar:netScore-par_total});
   }
   stats.sort(function(a,b){return R.mode==='stableford'?b.stable-a.stable:a.toPar-b.toPar});
   var lbc=$('lbContent');
   if(!stats.length){lbc.innerHTML='<p style="color:#9ca3af;font-size:14px;padding:1rem 0">No scores yet.</p>';$('lbBanner').style.display='none';$('emailBox').style.display='none';return}
   lbc.innerHTML=stats.map(function(p,i){
     var sc=R.mode==='stableford'?p.stable:p.gross;
-    var sub=R.mode==='stableford'?'pts':(p.toPar===0?'Even':p.toPar>0?'+'+p.toPar:p.toPar);
-    var sc2=R.mode==='stableford'?(p.stable>=36?'#15803d':'#4a5a7a'):(p.toPar<0?'#15803d':p.toPar>0?'#c8102e':'#4a5a7a');
+    var netDisp=R.mode==='stableford'?p.stable+'pts':(p.netToPar===0?'E':p.netToPar>0?'+'+p.netToPar:String(p.netToPar));
+    var sub=R.mode==='stableford'?'pts':(p.toPar===0?'E':p.toPar>0?'+'+p.toPar:p.toPar);
+    var sc2=R.mode==='stableford'?(p.stable>=36?'#15803d':p.stable>=30?'#0d2d6e':'#c8102e'):(p.toPar<0?'#15803d':p.toPar>0?'#c8102e':'#4a5a7a');
     return'<div class="lbrow'+(i===0?' top':'')+'">'+'<div class="rank">'+((['1st','2nd','3rd'][i])||((i+1)+'th'))+'</div>'+'<div style="flex:1"><div style="font-weight:700;font-size:15px;color:#0d2d6e">'+p.name+'</div><div style="font-size:12px;color:#4a5a7a">HCP '+p.hcp+' · '+p.played+' holes</div></div>'+'<div class="lbscore"><div class="big">'+sc+'</div><div style="font-size:13px;font-weight:700;color:'+sc2+'">'+sub+'</div></div></div>';
   }).join('');
   $('lbBanner').style.display=IS_ARCHIVED?'none':'block';
