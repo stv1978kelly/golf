@@ -954,6 +954,7 @@ button[onclick*="startFromComp"],
 #scTable .eag{background:#fde68a!important;color:#92400e!important}
 #scTable .bog{background:#fca5a5!important;color:#7f1d1d!important}
 #scTable .dbl{background:#f87171!important;color:#7f1d1d!important}
+.grp-player:hover{background:#0d2d6e!important;color:#fff!important;cursor:grab}
 /*END-ROGS-SC*/
 
 </style>
@@ -1093,7 +1094,7 @@ button[onclick*="startFromComp"],
       <span style="color:#9ca3af;font-size:18px">›</span>
     </div>
     <div style="background:#fff;border:2px solid #0d2d6e;border-left:5px solid #16a34a;padding:14px 16px;display:flex;align-items:center;gap:14px;cursor:pointer;margin-bottom:8px" onclick="loadArchive()">
-      <span style="font-size:20px;width:28px;text-align:center;flex-shrink:0">📁</span>
+      <span style="font-size:20px;width:28px;text-align:center;flex-shrink:0">ðŸ“</span>
       <div style="flex:1">
         <div style="font-weight:700;font-size:14px;color:#0d2d6e">Archived rounds</div>
         <div style="font-size:11px;color:#6b7280;margin-top:1px">View completed scorecards</div>
@@ -1309,8 +1310,8 @@ button[onclick*="startFromComp"],
   </div>
   <label>Scoring mode</label>
   <div class="row">
-    <button id="mStroke" onclick="setMode('strokeplay')" style="padding:8px 16px;font-size:13px;font-weight:700;border:2.5px solid #0d2d6e;border-radius:6px;cursor:pointer;background:#0d2d6e;color:#fff">Stroke play</button>
-    <button id="mStable" onclick="setMode('stableford')" style="padding:8px 16px;font-size:13px;font-weight:700;border:2.5px solid #0d2d6e;border-radius:6px;cursor:pointer;background:#fff;color:#0d2d6e">Stableford</button>
+    <button class="btn-sm on" id="mStroke" onclick="setMode('strokeplay')">Stroke play</button>
+    <button class="btn-sm" id="mStable" onclick="setMode('stableford')" style="background:#fff;color:#0d2d6e;border:2.5px solid #0d2d6e">Stableford</button>
   </div>
   <div style="background:#eff6ff;border:2px solid #0d2d6e;border-radius:8px;padding:14px 16px;margin:14px 0 10px">
     <div style="font-size:11px;font-weight:700;color:#0d2d6e;text-transform:uppercase;letter-spacing:.6px;margin-bottom:10px">Course Rating &amp; Slope</div>
@@ -1321,15 +1322,15 @@ button[onclick*="startFromComp"],
     </div>
     <div style="font-size:11px;font-weight:700;color:#0d2d6e;text-transform:uppercase;letter-spacing:.6px;margin-bottom:8px">HCP Allowance %</div>
     <div style="display:flex;gap:6px;flex-wrap:wrap">
-      <button id="pct95" onclick="setPct(95)" style="padding:8px 14px;font-size:13px;font-weight:700;border:2.5px solid #0d2d6e;border-radius:6px;cursor:pointer;background:#0d2d6e;color:#fff">Stableford 95%</button>
-      <button id="pct100" onclick="setPct(100)" style="padding:8px 14px;font-size:13px;font-weight:700;border:2.5px solid #0d2d6e;border-radius:6px;cursor:pointer;background:#fff;color:#0d2d6e">Stroke 100%</button>
-      <button id="pct85" onclick="setPct(85)" style="padding:8px 14px;font-size:13px;font-weight:700;border:2.5px solid #0d2d6e;border-radius:6px;cursor:pointer;background:#fff;color:#0d2d6e">Fourball 85%</button>
-      <button id="pct90" onclick="setPct(90)" style="padding:8px 14px;font-size:13px;font-weight:700;border:2.5px solid #0d2d6e;border-radius:6px;cursor:pointer;background:#fff;color:#0d2d6e">Fourball Stroke 90%</button>
+      <button class="btn-sm on" id="pct95" onclick="setPct(95)">Stableford 95%</button>
+      <button class="btn-sm" id="pct100" onclick="setPct(100)" style="background:#fff;color:#0d2d6e;border:2.5px solid #0d2d6e">Stroke 100%</button>
+      <button class="btn-sm" id="pct85" onclick="setPct(85)" style="background:#fff;color:#0d2d6e;border:2.5px solid #0d2d6e">Fourball 85%</button>
+      <button class="btn-sm" id="pct90" onclick="setPct(90)" style="background:#fff;color:#0d2d6e;border:2.5px solid #0d2d6e">Fourball Stroke 90%</button>
     </div>
     <div id="pctLabel" style="font-size:12px;color:#c8102e;font-weight:700;margin-top:10px;padding:8px 10px;background:#fff0f0;border-radius:6px"></div>
   </div>
   <label>Number of players</label>
-  <select id="npSelect" onchange="setNP(parseInt(this.value))" style="width:100%;padding:11px 12px;border:2px solid #0d2d6e;font-size:15px;font-weight:700;color:#0d2d6e;margin-bottom:10px;background:#fff;-webkit-appearance:none">
+  <select id="npSelect" onchange="setNP(parseInt(this.value))" style="width:100%;padding:11px 12px;border:2px solid #0d2d6e;font-size:15px;font-weight:700;color:#0d2d6e;margin-bottom:10px;background:#fff">
     <option value="1">1 player</option><option value="2">2 players</option><option value="3">3 players</option>
     <option value="4" selected>4 players</option><option value="5">5 players</option><option value="6">6 players</option>
     <option value="7">7 players</option><option value="8">8 players</option><option value="9">9 players</option>
@@ -1512,28 +1513,13 @@ function fbPatch(p,d){return fetch(FB+'/'+p+'.json',{method:'PATCH',body:JSON.st
 function fbDelete(p){return fetch(FB+'/'+p+'.json',{method:'DELETE'}).then(function(r){if(!r.ok)throw new Error(r.status)})}
 function getHcpAllowancePct(mode){if(!mode)return 100;var m=(mode+'').toLowerCase();if(m.indexOf('fourball')!==-1||m.indexOf('4ball')!==-1){return(m.indexOf('stroke')!==-1||m.indexOf('medal')!==-1)?90:85;}if(m.indexOf('bogey')!==-1)return 100;if(m.indexOf('stroke')!==-1||m.indexOf('medal')!==-1)return 100;if(m.indexOf('stableford')!==-1)return 95;return 100;}
 
-function setNP(n){S.np=n;buildSetup();}
+function setPct(p){S.pct=p;['95','100','85','90'].forEach(function(v){var el=document.getElementById('pct'+v);if(!el)return;var active=v===String(p);el.className='btn-sm'+(active?' on':'');el.style.background=active?'':'#fff';el.style.color=active?'':'#0d2d6e';el.style.borderColor=active?'':'#0d2d6e';});updateHcpPctLabel();}
 
-function setPct(p){
-  S.pct=p;
-  ['95','100','85','90'].forEach(function(v){
-    var el=document.getElementById('pct'+v);
-    if(!el)return;
-    var active=v===String(p);
-    el.style.background=active?'#0d2d6e':'#fff';
-    el.style.color=active?'#fff':'#0d2d6e';
-    el.style.borderColor='#0d2d6e';
-  });
-  updateHcpPctLabel();
-}
+function updateHcpPctLabel(){var el=document.getElementById('pctLabel');if(!el)return;var slope=S.slope||113,pct=S.pct||95;el.innerHTML='<strong>Playing HCP</strong> = Index x ('+slope+'/113) + (CR - Par) | <strong>Allowance: '+pct+'%</strong>';}
 
-function updateHcpPctLabel(){
-  var el=document.getElementById('pctLabel');
-  if(!el)return;
-  var slope=S.slope||113,pct=S.pct||95;
-  el.innerHTML='<strong>Playing HCP</strong> = Index x ('+slope+'/113) + (CR - Par) | <strong>Allowance: '+pct+'%</strong>';
-}
-
+// ---- Groups ----
+// S.groups = { "0": [0,1,2,3], "1": [4,5,6,7], ... }
+// Auto-build groups from player list (max 4 each)
 function autoMakeGroups(np){
   var groups={};var gi=0;
   for(var i=0;i<np;i++){
@@ -1544,42 +1530,52 @@ function autoMakeGroups(np){
   return groups;
 }
 
+// Build the draggable group editor
 function buildGroupEditor(){
   var el=document.getElementById('group-editor');
   if(!el)return;
   if(S.np<=4){el.style.display='none';return;}
   el.style.display='block';
+  // Auto-init groups if empty
   if(!S.groups||Object.keys(S.groups).length===0)S.groups=autoMakeGroups(S.np);
   var groups=S.groups;
-  var gKeys=Object.keys(groups).sort(function(a,b){return parseInt(a)-parseInt(b);});
-  var html='<div style="font-size:11px;font-weight:700;color:#0d2d6e;text-transform:uppercase;letter-spacing:.6px;margin-bottom:10px">Groups (drag players to move between groups)</div>';
-  var gcols=['#c8102e','#16a34a','#7c3aed','#d97706','#0891b2'];
-  gKeys.forEach(function(gi,gIdx){
+  var gKeys=Object.keys(groups).sort(function(a,b){return a-b;});
+  var html='<div style="font-size:11px;font-weight:700;color:#0d2d6e;text-transform:uppercase;letter-spacing:.6px;margin-bottom:10px">Groups (drag to move players)</div>';
+  gKeys.forEach(function(gi){
     var members=groups[gi]||[];
-    var col=gcols[gIdx%gcols.length];
-    html+='<div data-gi="'+gi+'" style="background:#fff;border:2px solid '+col+';border-left:5px solid '+col+';border-radius:8px;padding:10px 12px;margin-bottom:8px;min-height:52px" ondragover="event.preventDefault()" ondrop="dropToGroup(event,'+gi+')">';
-    html+='<div style="font-size:12px;font-weight:700;color:'+col+';margin-bottom:6px">Group '+(gIdx+1)+'</div>';
+    html+='<div class="grp-col" data-gi="'+gi+'" style="background:#fff;border:2px solid #0d2d6e;border-left:4px solid #c8102e;border-radius:8px;padding:10px 12px;margin-bottom:8px" ondragover="event.preventDefault()" ondrop="dropToGroup(event,'+gi+')">';
+    html+='<div style="font-size:12px;font-weight:700;color:#0d2d6e;margin-bottom:6px">Group '+(parseInt(gi)+1)+'</div>';
     members.forEach(function(pi){
       var name=S.names[pi]||'Player '+(pi+1);
-      html+='<div draggable="true" ondragstart="window._dragPi='+pi+';event.dataTransfer.effectAllowed=\'move\'" style="display:inline-flex;align-items:center;gap:5px;background:#eff6ff;border:1.5px solid #0d2d6e;border-radius:4px;padding:4px 10px;margin:2px 3px;font-size:12px;font-weight:600;color:#0d2d6e;cursor:grab"><span style="font-size:10px;opacity:.5">&#9776;</span>'+escHtml(name)+'</div>';
+      html+='<div class="grp-player" draggable="true" data-pi="'+pi+'" ondragstart="dragPlayer(event,'+pi+')" style="display:inline-flex;align-items:center;gap:6px;background:#eff6ff;border:1.5px solid #0d2d6e;border-radius:4px;padding:4px 10px;margin:3px;font-size:12px;font-weight:600;color:#0d2d6e;cursor:grab">'
+        +'<span style="font-size:10px;color:#9ca3af">&#9776;</span> '+escHtml(name)
+        +'</div>';
     });
     html+='</div>';
   });
   el.innerHTML=html;
 }
 
-window._dragPi=null;
+var _dragPi=null;
+function dragPlayer(e,pi){_dragPi=pi;e.dataTransfer.effectAllowed='move';}
 function dropToGroup(e,targetGi){
   e.preventDefault();
-  var pi=window._dragPi;if(pi===null||pi===undefined)return;
-  window._dragPi=null;
+  if(_dragPi===null)return;
+  var pi=_dragPi;_dragPi=null;
+  // Remove from current group
   var groups=S.groups;
-  Object.keys(groups).forEach(function(gi){groups[gi]=groups[gi].filter(function(p){return p!==pi;});});
+  Object.keys(groups).forEach(function(gi){
+    groups[gi]=groups[gi].filter(function(p){return p!==pi;});
+  });
+  // Add to target group
   if(!groups[targetGi])groups[targetGi]=[];
   groups[targetGi].push(pi);
-  var newG={};var idx=0;
-  Object.keys(groups).sort(function(a,b){return parseInt(a)-parseInt(b);}).forEach(function(gi){if(groups[gi].length>0){newG[idx]=groups[gi];idx++;}});
-  S.groups=newG;
+  // Remove empty groups and reindex
+  var newGroups={};var idx=0;
+  Object.keys(groups).sort(function(a,b){return a-b;}).forEach(function(gi){
+    if(groups[gi].length>0){newGroups[idx]=groups[gi];idx++;}
+  });
+  S.groups=newGroups;
   buildGroupEditor();
 }
 
@@ -1594,11 +1590,13 @@ function loadMyGroup(code,playerIdx){
     if(!groups){window._myGroupPlayers=[];return;}
     var gKeys=Object.keys(groups);
     for(var gi=0;gi<gKeys.length;gi++){
-      var members=(groups[gKeys[gi]]||[]).map(Number);
-      if(members.indexOf(playerIdx)!==-1){
-        window._myGroup=parseInt(gKeys[gi]);
-        window._myGroupPlayers=members;
-        showGroupBanner();return;
+      var members=groups[gKeys[gi]];
+      for(var m=0;m<members.length;m++){
+        if(parseInt(members[m])===playerIdx){
+          window._myGroup=parseInt(gKeys[gi]);
+          window._myGroupPlayers=members.map(Number);
+          showGroupBanner();return;
+        }
       }
     }
     window._myGroupPlayers=[];
@@ -1615,7 +1613,7 @@ function showGroupBanner(){
     var pp=document.getElementById('p-play');
     if(pp){var tb=pp.querySelector('.banner');if(tb&&tb.nextSibling)pp.insertBefore(banner,tb.nextSibling);else pp.insertBefore(banner,pp.firstChild);}
   }
-  banner.textContent='Group '+(window._myGroup+1)+': '+window._myGroupPlayers.map(function(i){return window.R&&R.names&&R.names[i]?R.names[i].split(' ')[0]:'P'+(i+1);}).join(', ')+' - you can score these players';
+  banner.textContent='Group '+(window._myGroup+1)+': '+window._myGroupPlayers.map(function(i){return window.R&&R.names&&R.names[i]?R.names[i].split(' ')[0]:'P'+(i+1);}).join(', ')+'  you can score these players';
 }
 
 function canEditPlayerScore(playerIdx){
@@ -1731,13 +1729,8 @@ return;
   for(var i=0;i<18;i++)sg.innerHTML+='<div class="cell"><span>'+(i+1)+'</span><input type="number" min="1" max="18" value="'+S.si[i]+'" data-i="'+i+'" oninput="S.si[this.dataset.i]=parseInt(this.value)||'+(i+1)+'"/></div>';
   buildGroupEditor();
 }
-function setMode(m){
-  S.mode=m;
-  var stroke=$('mStroke'),stable=$('mStable');
-  if(stroke){stroke.style.background=m==='strokeplay'?'#0d2d6e':'#fff';stroke.style.color=m==='strokeplay'?'#fff':'#0d2d6e';}
-  if(stable){stable.style.background=m==='stableford'?'#0d2d6e':'#fff';stable.style.color=m==='stableford'?'#fff':'#0d2d6e';}
-  setPct(m==='stableford'?95:100);
-}
+function setNP(n){S.np=n;buildSetup();}
+function setMode(m){S.mode=m;var stroke=$('mStroke'),stable=$('mStable');if(stroke){stroke.className='btn-sm'+(m==='strokeplay'?' on':'');stroke.style.background=m==='strokeplay'?'':'#fff';stroke.style.color=m==='strokeplay'?'':'#0d2d6e';stroke.style.borderColor=m==='strokeplay'?'':'#0d2d6e';}if(stable){stable.className='btn-sm'+(m==='stableford'?' on':'');stable.style.background=m==='stableford'?'':'#fff';stable.style.color=m==='stableford'?'':'#0d2d6e';stable.style.borderColor=m==='stableford'?'':'#0d2d6e';}setPct(m==='stableford'?95:100);}
 
 var DF=[],DI=0,DO=false,ST=null,CLUB_MAP={};
 function ddFilter(q){
@@ -1980,7 +1973,7 @@ function startPlay(){
   $('completeBtn').style.display=IS_ARCHIVED?'none':'inline-block';
   show('p-play');renderAll();
   if(!IS_ARCHIVED)startPoll();
-  else{$('liveDisp').className='archived-badge';$('liveDisp').textContent='📁 Archived';$('timeDisp').textContent=R.completedAt?new Date(R.completedAt).toLocaleDateString('en-GB'):'';}
+  else{$('liveDisp').className='archived-badge';$('liveDisp').textContent='ðŸ“ Archived';$('timeDisp').textContent=R.completedAt?new Date(R.completedAt).toLocaleDateString('en-GB'):'';}
 }
 function startPoll(){
   if(PT)clearInterval(PT);
@@ -2112,12 +2105,17 @@ function renderSC(){
   var hasYds=R.yds&&R.yds.some(function(y){return y>0});
   var outPar=R.pars.slice(0,9).reduce(function(a,b){return a+b},0);
   var inPar=R.pars.slice(9).reduce(function(a,b){return a+b},0);
+  var colSpan=hasYds?22:21; // total columns
+
+  // ── Header ──
   var h='<thead>';
   h+='<tr class="sc-hdr"><th class="sc-name">Player</th>';
   for(var i=0;i<9;i++)h+='<th>'+(i+1)+'</th>';
   h+='<th class="sc-out">OUT</th>';
   for(var i=9;i<18;i++)h+='<th>'+(i+1)+'</th>';
   h+='<th class="sc-in">IN</th><th class="sc-tot">TOT</th><th class="sc-pts">'+(R.mode==='stableford'?'Pts':'+/-')+'</th></tr>';
+
+  // ── Yds row ──
   if(hasYds){
     var outY=R.yds.slice(0,9).reduce(function(a,b){return a+(b||0)},0);
     var inY=R.yds.slice(9).reduce(function(a,b){return a+(b||0)},0);
@@ -2127,29 +2125,60 @@ function renderSC(){
     for(var i=9;i<18;i++)h+='<td>'+(R.yds[i]||'-')+'</td>';
     h+='<td class="sc-in">'+inY+'</td><td class="sc-tot">'+(outY+inY)+'</td><td></td></tr>';
   }
+
+  // ── Par row ──
   h+='<tr class="sc-par"><td class="sc-name">Par</td>';
   for(var i=0;i<9;i++)h+='<td>'+R.pars[i]+'</td>';
   h+='<td class="sc-out">'+outPar+'</td>';
   for(var i=9;i<18;i++)h+='<td>'+R.pars[i]+'</td>';
   h+='<td class="sc-in">'+inPar+'</td><td class="sc-tot">'+par_total+'</td><td></td></tr>';
+
+  // ── SI row ──
   h+='<tr class="sc-si"><td class="sc-name">SI</td>';
   for(var i=0;i<9;i++)h+='<td>'+R.si[i]+'</td>';
   h+='<td class="sc-out"></td>';
   for(var i=9;i<18;i++)h+='<td>'+R.si[i]+'</td>';
   h+='<td class="sc-in"></td><td class="sc-tot"></td><td></td></tr>';
   h+='</thead><tbody>';
+
+  // ── Build player order - grouped if groups exist ──
+  var playerOrder=[];
   var groups=R.groups;
-  var gcols=['#c8102e','#16a34a','#7c3aed','#d97706','#0891b2'];
+  var numCols=20; // H1-H9 + OUT + H10-H18 + IN + TOT + PTS
   if(groups&&Object.keys(groups).length>0){
     var gKeys=Object.keys(groups).sort(function(a,b){return parseInt(a)-parseInt(b);});
     gKeys.forEach(function(gi,gIdx){
+      var members=(groups[gi]||[]).map(Number);
+      // Group header row
+      var groupColors=['#c8102e','#16a34a','#7c3aed','#d97706','#0891b2'];
+      var col=groupColors[gIdx%groupColors.length];
+      h+='<tr><td colspan="21" style="background:'+col+';color:#fff;font-size:11px;font-weight:700;padding:4px 10px;letter-spacing:.5px">GROUP '+(gIdx+1)+'</td></tr>';
+      members.forEach(function(pi){if(pi<R.np)playerOrder.push({pi:pi,group:gIdx});});
+    });
+    // Any players not in a group
+    for(var pi=0;pi<R.np;pi++){
+      var inGroup=false;
+      gKeys.forEach(function(gi){if((groups[gi]||[]).map(Number).indexOf(pi)!==-1)inGroup=true;});
+      if(!inGroup)playerOrder.push({pi:pi,group:-1});
+    }
+  } else {
+    for(var pi=0;pi<R.np;pi++)playerOrder.push({pi:pi,group:-1});
+  }
+
+  // ── But we need to interleave group headers with player rows ──
+  // Re-render with group headers at the right places
+  h='<thead>'+h.split('</thead>')[0].split('<thead>')[1]+'</thead><tbody>';
+  if(groups&&Object.keys(groups).length>0){
+    var gKeys=Object.keys(groups).sort(function(a,b){return parseInt(a)-parseInt(b);});
+    var groupColors=['#c8102e','#16a34a','#7c3aed','#d97706','#0891b2'];
+    gKeys.forEach(function(gi,gIdx){
       var members=(groups[gi]||[]).map(Number).filter(function(p){return p<R.np;});
       if(!members.length)return;
-      var col=gcols[gIdx%gcols.length];
-      h+='<tr><td colspan="21" style="background:'+col+';color:#fff;font-size:11px;font-weight:700;padding:5px 10px;letter-spacing:.5px;text-transform:uppercase">Group '+(gIdx+1)+'</td></tr>';
+      var col=groupColors[gIdx%groupColors.length];
+      h+='<tr><td colspan="21" style="background:'+col+';color:#fff;font-size:11px;font-weight:700;padding:4px 10px;letter-spacing:.5px;text-transform:uppercase">Group '+(gIdx+1)+'</td></tr>';
       members.forEach(function(pi){h+=buildPlayerRow(pi,slope,cr,par_total,pct);});
     });
-  }else{
+  } else {
     for(var pi=0;pi<R.np;pi++)h+=buildPlayerRow(pi,slope,cr,par_total,pct);
   }
   h+='</tbody>';
@@ -2172,11 +2201,12 @@ function buildPlayerRow(pi,slope,cr,par_total,pct){
   });
   var tpStr=gross?(R.mode==='stableford'?stable:(toPar===0?'E':toPar>0?'+'+toPar:toPar)):'';
   var tc=R.mode==='stableford'?'#0d2d6e':(toPar<0?'#15803d':toPar>0?'#c8102e':'#4a5a7a');
-  return '<tr class="sc-prow"><td class="sc-name sc-player">'
+  var nameCell='<td class="sc-name sc-player">'
     +'<div class="sc-pname">'+(R.names[pi]||'P'+(pi+1))+'</div>'
     +'<div class="sc-hcpline">Idx&nbsp;'+hcpIdx.toFixed(1)+'&nbsp;&middot;&nbsp;CH&nbsp;'+ch+'</div>'
     +'<div class="sc-hcpline"><span class="sc-playing">Playing&nbsp;'+playing+(pct!==100?' ('+pct+'%)':'')+'</span></div>'
-    +'</td>'+cells
+    +'</td>';
+  return '<tr class="sc-prow">'+nameCell+cells
     +'<td class="sc-in sc-cell">'+(inG||'')+'</td>'
     +'<td class="sc-tot sc-cell">'+(gross||'')+'</td>'
     +'<td class="sc-pts sc-cell" style="color:'+tc+'">'+tpStr+'</td></tr>';
@@ -2280,7 +2310,7 @@ function buildWhatsApp(){
 
   L.push('⛳ *GOLF SCORECARD*');
   L.push('');
-  L.push('📍 '+(R.course||'Golf Round').split(',')[0]);
+  L.push('ðŸ“ '+(R.course||'Golf Round').split(',')[0]);
   L.push('📅 '+date);
   L.push('🏌ï¸ '+R.np+' players  ·  Par '+tp+'  ·  '+(isStable?'Stableford':'Stroke play'));
   L.push('');
