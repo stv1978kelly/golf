@@ -1343,6 +1343,7 @@ button[onclick*="startFromComp"],
   <div class="row" id="npRow"></div>
   <label>Players & handicaps</label>
   <div id="pFields"></div>
+  <div id="group-summary" style="display:none;background:#f0f4ff;border:2px solid #0d2d6e;border-radius:10px;padding:12px 14px;margin:12px 0"></div>
   <label>Par per hole</label>
   <div class="g9" id="parGrid"></div>
   <label>Yards per hole</label>
@@ -1515,6 +1516,91 @@ function fbDelete(p){return fetch(FB+'/'+p+'.json',{method:'DELETE'}).then(funct
 function getHcpAllowancePct(mode){if(!mode)return 100;var m=(mode+'').toLowerCase();if(m.indexOf('fourball')!==-1||m.indexOf('4ball')!==-1){return(m.indexOf('stroke')!==-1||m.indexOf('medal')!==-1)?90:85;}if(m.indexOf('bogey')!==-1)return 100;if(m.indexOf('stroke')!==-1||m.indexOf('medal')!==-1)return 100;if(m.indexOf('stableford')!==-1)return 95;return 100;}
 function setPct(p){S.pct=p;['95','100','85','90'].forEach(function(v){var el=document.getElementById('pct'+v);if(el)el.className='btn-sm'+(v===String(p)?' on':'');});updateHcpPctLabel();}
 function updateHcpPctLabel(){var el=document.getElementById('pctLabel');if(!el)return;var slope=S.slope||113,cr=S.cr||0,pct=S.pct||95,cp=S.coursePar||72;if(!cr)cr=cp;el.innerHTML='<strong>Playing HCP</strong> = Index &times; (Slope/113) + (CR &minus; Par) &nbsp;&nbsp;|&nbsp;&nbsp; <strong>Allowance: '+pct+'%</strong>';}
+
+// ============================================================
+// ROGS GROUPS - max 4 per group, auto-assigned from player list
+// ============================================================
+function autoMakeGroups(names){
+  var active=[];
+  for(var i=0;i<names.length;i++){if(names[i]&&names[i].trim()&&names[i]!=='Player '+(i+1))active.push(i);}
+  if(active.length===0){for(var i=0;i<names.length;i++)active.push(i);}
+  var groups={};var gi=0;
+  for(var j=0;j<active.length;j++){
+    if(!groups[gi])groups[gi]=[];
+    groups[gi].push(active[j]);
+    if(groups[gi].length===4)gi++;
+  }
+  return groups;
+}
+
+function saveRoundGroups(code,names){
+  var groups=autoMakeGroups(names);
+  return fbPut('rounds/'+code+'/groups',groups);
+}
+
+function loadMyGroup(code,playerIdx){
+  fbGet('rounds/'+code+'/groups').then(function(groups){
+    window._roundGroups=groups;
+    if(!groups){window._myGroupPlayers=[];return;}
+    var gKeys=Object.keys(groups);
+    for(var gi=0;gi<gKeys.length;gi++){
+      var members=groups[gKeys[gi]];
+      for(var m=0;m<members.length;m++){
+        if(members[m]===playerIdx){
+          window._myGroup=parseInt(gKeys[gi]);
+          window._myGroupPlayers=members;
+          showGroupBanner();return;
+        }
+      }
+    }
+    window._myGroupPlayers=[];
+  });
+}
+
+function showGroupBanner(){
+  if(!window._roundGroups||!window._myGroupPlayers||!window._myGroupPlayers.length)return;
+  var banner=document.getElementById('group-banner');
+  if(!banner){
+    banner=document.createElement('div');
+    banner.id='group-banner';
+    banner.style.cssText='background:#0d2d6e;color:#fff;font-size:12px;font-weight:700;text-align:center;padding:6px 12px;letter-spacing:.3px';
+    var pp=document.getElementById('p-play');
+    if(pp){var tb=pp.querySelector('.banner');if(tb&&tb.nextSibling)pp.insertBefore(banner,tb.nextSibling);else if(tb)tb.after(banner);}
+  }
+  banner.textContent='Group '+(window._myGroup+1)+' scoring: '+
+    window._myGroupPlayers.map(function(i){return window.R&&R.names&&R.names[i]?R.names[i].split(' ')[0]:'P'+(i+1);}).join(', ');
+}
+
+function canEditPlayerScore(playerIdx){
+  if(!window._roundGroups)return true;
+  if(window._isAdmin)return true;
+  if(!window._myGroupPlayers||!window._myGroupPlayers.length)return true;
+  return window._myGroupPlayers.indexOf(playerIdx)!==-1;
+}
+
+function showGroupSummary(){
+  var el=document.getElementById('group-summary');
+  if(!el||!window.S||!S.names)return;
+  // Count active players
+  var active=S.names.slice(0,S.np).filter(function(n){return n&&n.trim()&&n.indexOf('Player ')!==0;});
+  if(active.length<=4){el.style.display='none';return;}
+  var groups=autoMakeGroups(S.names.slice(0,S.np));
+  var gKeys=Object.keys(groups);
+  el.style.display='block';
+  var html='<div style="font-size:11px;font-weight:700;color:#0d2d6e;text-transform:uppercase;letter-spacing:.6px;margin-bottom:8px">Auto Groups (max 4)</div>';
+  gKeys.forEach(function(gi){
+    var members=groups[gi];
+    html+='<div style="background:#fff;border:2px solid #0d2d6e;border-left:4px solid #c8102e;border-radius:8px;padding:8px 12px;margin-bottom:6px">';
+    html+='<strong style="font-size:13px;color:#0d2d6e">Group '+(parseInt(gi)+1)+'</strong> ';
+    members.forEach(function(pi){
+      var name=S.names[pi];
+      if(name&&name.indexOf('Player ')!==0)html+='<span style="display:inline-block;background:#eff6ff;border-radius:4px;padding:2px 8px;margin:2px;font-size:12px;font-weight:600;color:#0d2d6e">'+escHtml(name)+'</span>';
+    });
+    html+='</div>';
+  });
+  el.innerHTML=html;
+}
+
 function hcpS(h,si){if(h<=0)return 0;if(h>=36)return 2;return si<=h?1:0}
 function sbPts(s,par,hs){if(!s)return 0;var d=s-hs-par;if(d>=2)return 0;if(d===1)return 1;if(d===0)return 2;if(d===-1)return 3;if(d===-2)return 4;return 5}
 function sLabel(s,par){if(!s)return{t:'-',c:'#9ca3af'};var d=s-par;if(s===1)return{t:'Hole in one!',c:'#7c3aed'};if(d<=-2)return{t:'Eagle',c:'#d97706'};if(d===-1)return{t:'Birdie',c:'#15803d'};if(d===0)return{t:'Par',c:'#4a5a7a'};if(d===1)return{t:'Bogey',c:'#c8102e'};if(d===2)return{t:'Dbl Bogey',c:'#991b1b'};return{t:'+'+d,c:'#7f1d1d'}}
@@ -1623,6 +1709,7 @@ return;
   var yg=$('ydsGrid');if(yg){yg.innerHTML='';for(var i=0;i<18;i++)yg.innerHTML+='<div class="cell"><span>'+(i+1)+'</span><input type="number" min="0" max="999" value="'+(S.yds[i]||0)+'" data-i="'+i+'" oninput="S.yds[this.dataset.i]=parseInt(this.value)||0"/></div>';}
   var sg=$('siGrid');sg.innerHTML='';
   for(var i=0;i<18;i++)sg.innerHTML+='<div class="cell"><span>'+(i+1)+'</span><input type="number" min="1" max="18" value="'+S.si[i]+'" data-i="'+i+'" oninput="S.si[this.dataset.i]=parseInt(this.value)||'+(i+1)+'"/></div>';
+  showGroupSummary();
 }
 function setMode(m){S.mode=m;$('mStroke').className='btn-sm'+(m==='strokeplay'?' on':'');$('mStable').className='btn-sm'+(m==='stableford'?' on':'');setPct(m==='stableford'?95:100);}
 
@@ -1848,7 +1935,7 @@ function doCreate(){
     var cardKey=courseName.toLowerCase().replace(/[^a-z0-9]/g,'_').substring(0,80)+'__'+S.tee;
     fbPut('scorecards/'+cardKey,{course:courseName,tee:S.tee,par:S.pars.slice(),si:S.si.slice(),yds:(S.yds&&S.yds.some(function(y){return y>0})?S.yds.slice():undefined),slope:S.slope||undefined,cr:S.cr||undefined,updated:Date.now()}).catch(function(){});
   }
-  fbPut('rounds/'+code,r).then(function(){RC=code;R=r;IS_ARCHIVED=false;startPlay()}).catch(function(e){$('setupErr').textContent='Error: '+e.message;$('setupErr').style.display='block'});
+  fbPut('rounds/'+code,r).then(function(){RC=code;R=r;IS_ARCHIVED=false;saveRoundGroups(code,r.names);startPlay()}).catch(function(e){$('setupErr').textContent='Error: '+e.message;$('setupErr').style.display='block'});
 }
 function doJoin(){
   $('joinErr').style.display='none';
@@ -1947,7 +2034,7 @@ function renderPBtns(){
     var el=$(id);if(!el)return;el.innerHTML='';
     for(var i=0;i<R.np;i++){
       var b=document.createElement('button');b.className='btn-sm'+(i===AP?' on':'');b.textContent=R.names[i]||'P'+(i+1);
-      (function(pi){b.onclick=function(){AP=pi;renderPBtns();if(id==='pBtns'){renderHBtns();renderEntry()}else renderSummary()}})(i);
+      (function(pi){b.onclick=function(){AP=pi;renderPBtns();if(id==='pBtns'){renderHBtns();renderEntry();loadMyGroup(RC,pi);}else renderSummary();}})(i);
       el.appendChild(b);
     }
   });
