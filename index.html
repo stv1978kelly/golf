@@ -36,8 +36,9 @@ h2{font-size:18px;font-weight:700;color:#0d2d6e;margin-bottom:12px}
 .btn-green{background:#16a34a;color:#fff}
 .btn-red{background:#c8102e;color:#fff}
 .btn-white{background:#fff;color:#0d2d6e;border:2px solid #0d2d6e}
-.btn-sm{width:auto;padding:7px 14px;font-size:13px;font-weight:700;border:2px solid #0d2d6e;background:#fff;cursor:pointer;color:#0d2d6e;border-radius:0}
-.btn-sm.on{background:#0d2d6e;color:#fff}
+.btn-sm{width:auto;padding:8px 16px;font-size:13px;font-weight:700;border:2.5px solid #0d2d6e;background:#ffffff;cursor:pointer;color:#0d2d6e;border-radius:6px;opacity:1}
+.btn-sm:hover{background:#0d2d6e;color:#fff}
+.btn-sm.on{background:#0d2d6e;color:#fff;border-color:#0d2d6e}
 .row{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:12px}
 .err{color:#c8102e;font-size:13px;padding:10px;background:#fff0f0;border-left:4px solid #c8102e;margin-bottom:10px;display:none}
 .topbar{background:#0d2d6e;padding:20px 16px 0;border-bottom:6px solid #c8102e;margin:0 -16px 20px}
@@ -1501,7 +1502,7 @@ function fbPatch(p,d){return fetch(FB+'/'+p+'.json',{method:'PATCH',body:JSON.st
 function fbDelete(p){return fetch(FB+'/'+p+'.json',{method:'DELETE'}).then(function(r){if(!r.ok)throw new Error(r.status)})}
 function getHcpAllowancePct(mode){if(!mode)return 100;var m=(mode+'').toLowerCase();if(m.indexOf('fourball')!==-1||m.indexOf('4ball')!==-1){return(m.indexOf('stroke')!==-1||m.indexOf('medal')!==-1)?90:85;}if(m.indexOf('bogey')!==-1)return 100;if(m.indexOf('stroke')!==-1||m.indexOf('medal')!==-1)return 100;if(m.indexOf('stableford')!==-1)return 95;return 100;}
 function setPct(p){S.pct=p;['95','100','85','90'].forEach(function(v){var el=document.getElementById('pct'+v);if(el)el.className='btn-sm'+(v===String(p)?' on':'');});updateHcpPctLabel();}
-function updateHcpPctLabel(){var el=document.getElementById('pctLabel');if(!el)return;var slope=S.slope||113,cr=S.cr||0,pct=S.pct||95,cp=S.coursePar||72;if(!cr)cr=cp;el.textContent='Playing HCP = Index x ('+slope+'/113) + (CR - Par)  |  Allowance: '+pct+'%';}
+function updateHcpPctLabel(){var el=document.getElementById('pctLabel');if(!el)return;var slope=S.slope||113,cr=S.cr||0,pct=S.pct||95,cp=S.coursePar||72;if(!cr)cr=cp;el.innerHTML='<strong>Playing HCP</strong> = Index &times; (Slope/113) + (CR &minus; Par) &nbsp;&nbsp;|&nbsp;&nbsp; <strong>Allowance: '+pct+'%</strong>';}
 function hcpS(h,si){if(h<=0)return 0;if(h>=36)return 2;return si<=h?1:0}
 function sbPts(s,par,hs){if(!s)return 0;var d=s-hs-par;if(d>=2)return 0;if(d===1)return 1;if(d===0)return 2;if(d===-1)return 3;if(d===-2)return 4;return 5}
 function sLabel(s,par){if(!s)return{t:'-',c:'#9ca3af'};var d=s-par;if(s===1)return{t:'Hole in one!',c:'#7c3aed'};if(d<=-2)return{t:'Eagle',c:'#d97706'};if(d===-1)return{t:'Birdie',c:'#15803d'};if(d===0)return{t:'Par',c:'#4a5a7a'};if(d===1)return{t:'Bogey',c:'#c8102e'};if(d===2)return{t:'Dbl Bogey',c:'#991b1b'};return{t:'+'+d,c:'#7f1d1d'}}
