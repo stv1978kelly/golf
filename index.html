@@ -2508,8 +2508,13 @@ function buildPlayerRow(pi,slope,cr,par_total,pct){
         var sc2=stable>=36?'#15803d':stable>=30?'#0d2d6e':'#c8102e';
         return'<td class="sc-net-col sc-cell" style="color:'+sc2+';font-weight:800">'+stable+'pts</td>';
       } else {
-        var netG=gross-playing;
-        var netTP=netG-par_total;
+        // Net = gross minus strokes received on played holes vs played par
+        var netGross=0,playedPar=0;
+        R.scores[pi].forEach(function(v,hi){
+          var s=v||0;
+          if(s){var hs2=hcpS(playing,R.si[hi]);netGross+=s-hs2;playedPar+=R.pars[hi];}
+        });
+        var netTP=netGross-playedPar;
         var netStr=netTP===0?'E':netTP>0?'+'+netTP:String(netTP);
         var netC=netTP<0?'#15803d':netTP>0?'#c8102e':'#4a5a7a';
         return'<td class="sc-net-col sc-cell" style="color:'+netC+';font-weight:800">'+netStr+'</td>';
