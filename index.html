@@ -1298,21 +1298,61 @@ button[onclick*="startFromComp"],
   <label>First tee time</label>
   <input id="compTee" type="time" placeholder="e.g. 10:30"/>
   <label>Golf course</label>
-  <select id="compCourse" style="width:100%;padding:11px 12px;border:2px solid #0d2d6e;border-radius:0;font-size:14px;margin-bottom:4px;background:#fff;color:#111" onchange="compCourseChanged(this)"><option value="">-- Select course --</option></select><input id="compCourseCustom" placeholder="Type course name..." style="width:100%;padding:11px 12px;border:2px solid #0d2d6e;border-radius:0;font-size:14px;margin-bottom:10px;display:none;background:#fff;color:#111"/>
+  <select id="compCourse" style="width:100%;padding:11px 12px;border:2px solid #0d2d6e;border-radius:0;font-size:14px;margin-bottom:4px;background:#fff;color:#111" onchange="compCourseChanged(this)"><option value="">-- Select course --</option></select>
+  <input id="compCourseCustom" placeholder="Type course name..." style="width:100%;padding:11px 12px;border:2px solid #0d2d6e;border-radius:0;font-size:14px;margin-bottom:10px;display:none;background:#fff;color:#111"/>
   <label>Format</label>
   <div class="row">
     <button class="btn-sm on" id="cModeStroke" onclick="setCompMode('strokeplay')">Stroke play</button>
     <button class="btn-sm" id="cModeStable" onclick="setCompMode('stableford')">Stableford</button>
   </div>
   <label>Number of players</label>
-  <div class="row" id="compNpRow"></div>
-  <label>Players & handicaps</label>
+  <select id="compNpSelect" onchange="setCompNP(parseInt(this.value))" style="width:100%;padding:11px 12px;border:2px solid #0d2d6e;font-size:15px;font-weight:700;color:#0d2d6e;margin-bottom:10px;background:#fff">
+    <option value="1">1 player</option><option value="2">2 players</option><option value="3">3 players</option>
+    <option value="4" selected>4 players</option><option value="5">5 players</option><option value="6">6 players</option>
+    <option value="7">7 players</option><option value="8">8 players</option><option value="9">9 players</option>
+    <option value="10">10 players</option><option value="11">11 players</option><option value="12">12 players</option>
+    <option value="13">13 players</option><option value="14">14 players</option><option value="15">15 players</option>
+    <option value="16">16 players</option>
+  </select>
+  <div class="row" id="compNpRow" style="display:none"></div>
+  <label>Players &amp; handicaps</label>
   <button id="refreshHcpBtn" onclick="refreshCompHcps()" style="display:none;width:100%;padding:10px;background:#fff;border:2px solid #16a34a;color:#16a34a;font-size:13px;font-weight:700;border-radius:6px;cursor:pointer;margin-bottom:8px">&#8635; Refresh HCPs from Player Profiles</button>
   <div id="compPFields"></div>
-  <div class="phcp-panel" style="margin-bottom:10px"><h4>Course Rating &amp; Slope <span class="phcp-badge">Playing HCP</span></h4><div class="phcp-row"><div><label>Slope</label><input id="compSlope" type="number" min="55" max="155" placeholder="113" value="113"/></div><div><label>Course Rating</label><input id="compCR" type="number" min="50" max="85" step="0.1" placeholder="e.g. 69.1"/></div><div><label>Par</label><input id="compPar" type="number" min="60" max="80" placeholder="72" value="72"/></div></div><div class="phcp-note">Used to calculate each player's Playing HCP for scorecards.</div></div>
-<label>Notes</label>
+  <div id="comp-group-editor" style="display:none;background:#f0f4ff;border:2px solid #0d2d6e;border-radius:10px;padding:12px 14px;margin:12px 0"></div>
+  <div style="background:#eff6ff;border:2px solid #0d2d6e;border-radius:8px;padding:14px 16px;margin:10px 0">
+    <div style="font-size:11px;font-weight:700;color:#0d2d6e;text-transform:uppercase;letter-spacing:.6px;margin-bottom:10px">Tee Colour</div>
+    <div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:12px" id="compTeeBtns"></div>
+    <div style="font-size:11px;font-weight:700;color:#0d2d6e;text-transform:uppercase;letter-spacing:.6px;margin-bottom:10px">Course Rating &amp; Slope</div>
+    <div style="display:flex;gap:8px;margin-bottom:12px">
+      <div style="flex:1"><label style="margin-top:0">Slope</label><input id="compSlope" type="number" min="55" max="155" placeholder="113" value="113" oninput="compUpdatePctLabel()"/></div>
+      <div style="flex:1"><label style="margin-top:0">Course Rating</label><input id="compCR" type="number" min="50" max="85" step="0.1" placeholder="e.g. 69.1" oninput="compUpdatePctLabel()"/></div>
+      <div style="flex:1"><label style="margin-top:0">Par</label><input id="compPar" type="number" min="60" max="80" placeholder="72" value="72"/></div>
+    </div>
+    <div style="font-size:11px;font-weight:700;color:#0d2d6e;text-transform:uppercase;letter-spacing:.6px;margin-bottom:8px">HCP Allowance %</div>
+    <select id="compPctSelect" onchange="compSetPct(this.value)" style="width:100%;padding:11px 12px;border:2px solid #0d2d6e;font-size:13px;font-weight:600;color:#0d2d6e;background:#fff;margin-bottom:8px">
+      <optgroup label="Individual">
+        <option value="95" selected>Individual Stableford / Par / Bogey — 95%</option>
+        <option value="100">Individual Stroke Play — 100%</option>
+        <option value="90">Individual Stroke Play (club variant) — 90%</option>
+        <option value="85">Individual Stroke Play (club variant) — 85%</option>
+      </optgroup>
+      <optgroup label="Pairs">
+        <option value="85p">Fourball Betterball Stableford / Stroke — 85%</option>
+        <option value="90p">Fourball Match Play — 90%</option>
+        <option value="50f">Foursomes Alternate Shot — 50% combined</option>
+        <option value="64g">Greensomes — 60% low + 40% high</option>
+      </optgroup>
+      <optgroup label="Team (4 Players)">
+        <option value="75">Best 1 of 4 — 75%</option>
+        <option value="85t">Best 2 of 4 — 85%</option>
+        <option value="100t">Best 3 or 4 of 4 — 100%</option>
+      </optgroup>
+    </select>
+    <div id="compPctLabel" style="font-size:12px;color:#0d2d6e;padding:8px 10px;background:#fff;border:1.5px solid #0d2d6e;border-radius:6px;line-height:1.6"></div>
+  </div>
+  <label>Notes</label>
   <input id="compNotes" placeholder="e.g. Tee time 10:30, dress code smart"/>
-  <label style="font-size:12px;color:#0d2d6e;display:block;margin-bottom:4px;margin-top:12px;font-weight:700;text-transform:uppercase;letter-spacing:.5px">Course Website URL</label>
+  <label>Course Website URL</label>
   <input id="compUrl" placeholder="https://www.example.com" type="url" style="width:100%;padding:11px 12px;border:2px solid #0d2d6e;border-radius:0;font-size:14px;margin-bottom:10px;background:#fff;color:#111"/>
   <div id="compErr" class="err"></div>
   <button class="btn btn-dark" style="margin-top:16px" onclick="saveComp()">Save competition</button>
