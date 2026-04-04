@@ -36,7 +36,7 @@ h2{font-size:18px;font-weight:700;color:#0d2d6e;margin-bottom:12px}
 .btn-green{background:#16a34a;color:#fff}
 .btn-red{background:#c8102e;color:#fff}
 .btn-white{background:#fff;color:#0d2d6e;border:2px solid #0d2d6e}
-.btn-sm{width:auto;padding:8px 16px;font-size:13px;font-weight:700;border:2.5px solid #0d2d6e;background:#ffffff;cursor:pointer;color:#0d2d6e;border-radius:6px}
+.btn-sm{width:auto;padding:8px 16px;font-size:13px;font-weight:700;border:2.5px solid #0d2d6e;background:#fff;cursor:pointer;color:#0d2d6e;border-radius:6px}
 .btn-sm:hover{background:#0d2d6e;color:#fff}
 .btn-sm.on{background:#0d2d6e;color:#fff}
 .row{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:12px}
@@ -954,6 +954,7 @@ button[onclick*="startFromComp"],
 #scTable .eag{background:#fde68a!important;color:#92400e!important}
 #scTable .bog{background:#fca5a5!important;color:#7f1d1d!important}
 #scTable .dbl{background:#f87171!important;color:#7f1d1d!important}
+.grp-player:hover{background:#0d2d6e!important;color:#fff!important;cursor:grab}
 /*END-ROGS-SC*/
 
 </style>
@@ -1329,10 +1330,18 @@ button[onclick*="startFromComp"],
     <div id="pctLabel" style="font-size:12px;color:#c8102e;font-weight:700;margin-top:10px;padding:8px 10px;background:#fff0f0;border-radius:6px"></div>
   </div>
   <label>Number of players</label>
-  <div class="row" id="npRow"></div>
+  <select id="npSelect" onchange="setNP(parseInt(this.value))" style="width:100%;padding:11px 12px;border:2px solid #0d2d6e;font-size:15px;font-weight:700;color:#0d2d6e;margin-bottom:10px;background:#fff">
+    <option value="1">1 player</option><option value="2">2 players</option><option value="3">3 players</option>
+    <option value="4" selected>4 players</option><option value="5">5 players</option><option value="6">6 players</option>
+    <option value="7">7 players</option><option value="8">8 players</option><option value="9">9 players</option>
+    <option value="10">10 players</option><option value="11">11 players</option><option value="12">12 players</option>
+    <option value="13">13 players</option><option value="14">14 players</option><option value="15">15 players</option>
+    <option value="16">16 players</option>
+  </select>
+  <div class="row" id="npRow" style="display:none"></div>
   <label>Players & handicaps</label>
   <div id="pFields"></div>
-  <div id="group-summary" style="display:none;background:#f0f4ff;border:2px solid #0d2d6e;border-radius:10px;padding:12px 14px;margin:12px 0"></div>
+  <div id="group-editor" style="display:none;background:#f0f4ff;border:2px solid #0d2d6e;border-radius:10px;padding:12px 14px;margin:12px 0"></div>
   <label>Yards per hole</label>
   <div class="g9" id="ydsGrid"></div>
   <label>Par per hole</label>
@@ -1492,7 +1501,7 @@ var KNOWN_CARDS={
 var DSI=[7,11,15,3,1,17,9,13,5,8,12,16,4,2,18,10,14,6];
 var COURSES=["Aberdovey Golf Club, Wales","Aberfeldy Golf Club, Perthshire","Aberfoyle Golf Club, Stirlingshire","Abergele Golf Club, Wales","Aberystwyth Golf Club, Wales","Aboyne Golf Club, Aberdeenshire","Accrington & District Golf Club, Lancashire","Aldeburgh Golf Club, Suffolk","Alford Golf Club, Aberdeenshire","Alfreton Golf Club, Derbyshire","Alloa Golf Club, Stirlingshire","Alness Golf Club, Highland","Alnmouth Golf Club, Northumberland","Alnwick Castle Golf Club, Northumberland","Alresford Golf Club, Hampshire","Alston Moor Golf Club, Cumbria","Altrincham Golf Club, Cheshire","Alva Golf Club, Stirlingshire","Alwoodley Golf Club, West Yorkshire","Alyth Golf Club, Perthshire","Ampfield Golf Club, Hampshire","Anstruther Golf Club, Fife","Archerfield Links – Dirleton Course, East Lothian","Archerfield Links – Fidra Course, East Lothian","Ardeer Golf Club, Ayrshire","Ardglass Golf Club, County Down","Arrochar Golf Club, Argyll","Ashburnham Golf Club, Wales","Ashdown Forest Golf Club, East Sussex","Ashford Golf Club, Kent","Ashridge Golf Club, Hertfordshire","Aspley Guise & Woburn Sands Golf Club, Bedfordshire","Auchterarder Golf Club, Perthshire","Ayr Belleisle Golf Club, Ayrshire","Ayr Dalmilling Golf Club, Ayrshire","Ayr Seafield Golf Club, Ayrshire","Baberton Golf Club, Edinburgh","Bakewell Golf Club, Derbyshire","Bala Golf Club, Wales","Ballater Golf Club, Aberdeenshire","Ballyliffin Golf Club – Glashedy Links, Donegal","Ballyliffin Golf Club – Old Links, Donegal","Balmoral Golf Club, Belfast","Bamburgh Castle Golf Club, Northumberland","Banbridge Golf Club, County Down","Banbury Golf Club, Oxfordshire","Banchory Golf Club, Aberdeenshire","Bangor Golf Club, County Down","Barnard Castle Golf Club, Durham","Barnehurst Golf Club, London","Barnsley Golf Club, South Yorkshire","Barrow Golf Club, Cumbria","Bath Golf Club, Somerset","Beaconsfield Golf Club, Buckinghamshire","Bearwood Lakes Golf Club, Berkshire","Beau Desert Golf Club, Staffordshire","Belfry The – Brabazon Course, Warwickshire","Belfry The – Derby Course, Warwickshire","Belfry The – PGA National, Warwickshire","Bellshill Golf Club, Lanarkshire","Belton Park Golf Club, Lincolnshire","Belvoir Park Golf Club, Belfast","Berkhamsted Golf Club, Hertfordshire","Berkshire Golf Club – Blue Course, Berkshire","Berkshire Golf Club – Red Course, Berkshire","Berwick-upon-Tweed Golf Club, Northumberland","Bingley St Ives Golf Club, West Yorkshire","Birchwood Park Golf Club, Kent","Blackburn Golf Club, Lancashire","Blackpool North Shore Golf Club, Lancashire","Blackpool Park Golf Club, Lancashire","Blairgowrie Golf Club – Lansdowne, Perthshire","Blairgowrie Golf Club – Rosemount, Perthshire","Boat of Garten Golf Club, Highland","Bowood Hotel Golf Club, Cornwall","Bradford Golf Club, West Yorkshire","Braemar Golf Club, Aberdeenshire","Braid Hills Golf Course, Edinburgh","Brampton Golf Club, Cumbria","Brancaster Golf Club, Norfolk","Breadsall Priory Golf Club – Moorland, Derbyshire","Breadsall Priory Golf Club – Priory, Derbyshire","Brechin Golf Club, Angus","Bridlington Golf Club, East Yorkshire","Brighton & Hove Golf Club, East Sussex","Bristol & Clifton Golf Club, Gloucestershire","Brodick Golf Club, Arran","Brocket Hall Golf Club – Melbourne, Hertfordshire","Brocket Hall Golf Club – Palmerston, Hertfordshire","Brora Golf Club, Highland","Bruntsfield Links Golfing Society, Edinburgh","Buckpool Golf Club, Aberdeenshire","Builth Wells Golf Club, Wales","Burnham & Berrow Golf Club, Somerset","Burton-on-Trent Golf Club, Derbyshire","Bury Golf Club, Lancashire","Buxton & High Peak Golf Club, Derbyshire","Caberfeigh Golf Club, Highland","Cabopino Golf Marbella, Marbella, Spain","Caernarfon Golf Club, Wales","Caerphilly Golf Club, Wales","Calanova Golf Club, Mijas, Spain","Caldy Golf Club, Cheshire","Camberley Heath Golf Club, Surrey","Came Down Golf Club, Dorset","Canmore Golf Club, Fife","Carlisle Golf Club, Cumbria","Carnoustie Golf Links – Burnside, Angus","Carnoustie Golf Links – Championship, Angus","Carnoustie Golf Links – Meadows, Angus","Carradale Golf Club, Argyll","Castle Douglas Golf Club, Dumfries & Galloway","Castle Hume Golf Club, County Fermanagh","Castle Stuart Golf Links, Highland","Castlerock Golf Club – Bann, County Londonderry","Castlerock Golf Club – Mussenden, County Londonderry","Celtic Manor Resort – Montgomerie, Wales","Celtic Manor Resort – Roman Road, Wales","Celtic Manor Resort – Twenty Ten Course, Wales","Chaparral Golf Club, Mijas, Spain","Chart Hills Golf Club, Kent","Chelmsford Golf Club, Essex","Chevin Golf Club, Derbyshire","Chichester Golf Club, West Sussex","Chigwell Golf Club, Essex","Chorley Golf Club, Lancashire","Clacton Golf Club, Essex","Clandeboye Golf Club – Ava, County Down","Clandeboye Golf Club – Dufferin, County Down","Clitheroe Golf Club, Lancashire","Close House Golf Club, Northumberland","Colchester Golf Club, Essex","Collingtree Park Golf Club, Northamptonshire","Conwy Golf Club, Wales","County Armagh Golf Club, County Armagh","Crail Golfing Society – Balcomie Links, Fife","Criccieth Golf Club, Wales","Crieff Golf Club, Perthshire","Cruden Bay Golf Club, Aberdeenshire","Dalmahoy Hotel & CC – East Course, Edinburgh","Dalmahoy Hotel & CC – West Course, Edinburgh","Delamere Forest Golf Club, Cheshire","Denbigh Golf Club, Wales","Doncaster Golf Club, South Yorkshire","Douglas Park Golf Club, Glasgow","Dumbarnie Links, Fife","Dunbar Golf Club, East Lothian","Dundonald Links, Ayrshire","Dunfermline Golf Club, Fife","Dungannon Golf Club, County Tyrone","Dunmurry Golf Club, Belfast","Duns Golf Club, Borders","Durham City Golf Club, Durham","East Sussex National – East Course, East Sussex","East Sussex National – West Course, East Sussex","Edgbaston Golf Club, West Midlands","Elie Golf Club, Fife","Enniskillen Golf Club, County Fermanagh","Fairhaven Golf Club, Lancashire","Fairmont St Andrews – Kittocks, Fife","Fairmont St Andrews – Torrance, Fife","Felixstowe Ferry Golf Club, Suffolk","Ferndown Golf Club – Old Course, Dorset","Fleetwood Golf Club, Lancashire","Forest of Arden Golf Club, Warwickshire","Forest of Dean Golf Club, Gloucestershire","Forfar Golf Club, Angus","Formby Golf Club, Merseyside","Fortrose & Rosemarkie Golf Club, Highland","Frilford Heath Golf Club – Blue, Oxfordshire","Frilford Heath Golf Club – Green, Oxfordshire","Frilford Heath Golf Club – Red, Oxfordshire","Fulford Golf Club, North Yorkshire","Galgorm Castle Golf Club, County Antrim","Ganton Golf Club, North Yorkshire","Gatehouse of Fleet Golf Club, Dumfries & Galloway","Girvan Golf Club, Ayrshire","Glasgow Golf Club – Gailes Links, Ayrshire","Glasgow Golf Club – Killermont, Glasgow","Gleneagles – King's Course, Perthshire","Gleneagles – PGA Centenary Course, Perthshire","Gleneagles – Queen's Course, Perthshire","Gog Magog Golf Club – Old Course, Cambridgeshire","Gog Magog Golf Club – Wandlebury, Cambridgeshire","Golspie Golf Club, Highland","Gullane Golf Club – No.1, East Lothian","Gullane Golf Club – No.2, East Lothian","Gullane Golf Club – No.3, East Lothian","Hankley Common Golf Club, Surrey","Harrogate Golf Club, North Yorkshire","Hayling Golf Club, Hampshire","Hazel Grove Golf Club, Cheshire","Heaton Moor Golf Club, Cheshire","Helensburgh Golf Club, Dunbartonshire","Hillside Golf Club, Merseyside","Hollinwell Golf Club, Nottinghamshire","Holyhead Golf Club, Wales","Huddersfield Golf Club, West Yorkshire","Hunstanton Golf Club, Norfolk","Ilkley Golf Club, West Yorkshire","Inverness Golf Club, Highland","Irvine Golf Club, Ayrshire","Isle of Man Golf Club, Isle of Man","Jedburgh Golf Club, Borders","Kenilworth Golf Club, Warwickshire","Kilmacolm Golf Club, Renfrewshire","Kilmarnock Barassie Golf Club, Ayrshire","Kingsbarns Golf Links, Fife","Kingussie Golf Club, Highland","Kirriemuir Golf Club, Angus","La Cala Golf – Campo America, Mijas, Spain","La Cala Golf – Campo Asia, Mijas, Spain","La Cala Golf – Campo Europa, Mijas, Spain","La Moye Golf Club, Jersey","Ladybank Golf Club, Fife","Lamlash Golf Club, Arran","Lancaster Golf Club, Lancashire","Langland Bay Golf Club, Wales","Largs Golf Club, Ayrshire","Lindrick Golf Club, South Yorkshire","Liphook Golf Club, Hampshire","Littlestone Golf Club, Kent","Llandudno Maesdu Golf Club, Wales","Loch Lomond Golf Club, Dunbartonshire","London Golf Club – Heritage Course, Kent","London Golf Club – International Course, Kent","Longniddry Golf Club, East Lothian","Luffness New Golf Club, East Lothian","Lundin Golf Club, Fife","Lyme Regis Golf Club, Dorset","Machrie Hotel & Golf Links, Islay","Machrihanish Golf Club, Argyll","Machynys Peninsula Golf Club, Wales","Malone Golf Club, Belfast","Manchester Golf Club, Greater Manchester","Mannings Heath Golf Club, West Sussex","Mere Golf Resort & Spa, Cheshire","Minchinhampton Golf Club, Gloucestershire","Moffat Golf Club, Dumfries & Galloway","Moor Allerton Golf Club, West Yorkshire","Moor Park Golf Club – High Course, Hertfordshire","Moor Park Golf Club – West Course, Hertfordshire","Moortown Golf Club, West Yorkshire","Moray Golf Club – New Course, Moray","Moray Golf Club – Old Course, Moray","Mortonhall Golf Club, Edinburgh","Moseley Golf Club, West Midlands","Muirfield, East Lothian","Murcar Links Golf Club, Aberdeen","Murrayshall Golf Club, Perthshire","Nairn Dunbar Golf Club, Highland","Nairn Golf Club, Highland","Nefyn & District Golf Club, Wales","New Zealand Golf Club, Surrey","Newburgh on Ythan Golf Club, Aberdeenshire","Newport Golf Club, Wales","North Berwick Golf Club – West Links, East Lothian","Notts Golf Club – Hollinwell, Nottinghamshire","Pannal Golf Club, North Yorkshire","Parkstone Golf Club, Dorset","Pennard Golf Club, Wales","Penrith Golf Club, Cumbria","Peterhead Golf Club, Aberdeenshire","Pitlochry Golf Club, Perthshire","Pollok Golf Club, Glasgow","Portstewart Golf Club – Strand, County Londonderry","Prestwick Golf Club, Ayrshire","Prince's Golf Club, Sandwich, Kent","Queenwood Golf Club, Surrey","Ramsey Golf Club, Isle of Man","Remedy Oak Golf Club, Dorset","Renaissance Club The, East Lothian","Rowany Golf Club, Isle of Man","Royal Aberdeen Golf Club – Balgownie, Aberdeenshire","Royal Ascot Golf Club, Berkshire","Royal Belfast Golf Club, Holywood","Royal Birkdale Golf Club, Merseyside","Royal Burgess Golfing Society, Edinburgh","Royal Cinque Ports Golf Club, Deal, Kent","Royal County Down Golf Club – Annesley, County Down","Royal County Down Golf Club – Championship, County Down","Royal Dornoch Golf Club – Championship, Highland","Royal Dornoch Golf Club – Struie, Highland","Royal Guernsey Golf Club, Guernsey","Royal Jersey Golf Club, Jersey","Royal Liverpool Golf Club, Hoylake, Merseyside","Royal Lytham & St Annes Golf Club, Lancashire","Royal Musselburgh Golf Club, East Lothian","Royal North Devon Golf Club, Devon","Royal Porthcawl Golf Club, Wales","Royal Portrush Golf Club – Dunluce Links, County Antrim","Royal Portrush Golf Club – Valley Links, County Antrim","Royal St David's Golf Club, Harlech, Wales","Royal St George's Golf Club, Sandwich, Kent","Royal Troon – Old Course, Ayrshire","Royal Troon – Portland Course, Ayrshire","Royal West Norfolk Golf Club, Norfolk","Royal Winchester Golf Club, Hampshire","Rye Golf Club, East Sussex","Saunton Golf Club – East Course, Devon","Saunton Golf Club – West Course, Devon","Scotscraig Golf Club, Fife","Seaton Carew Golf Club, Durham","Sheringham Golf Club, Norfolk","Sherwood Forest Golf Club, Nottinghamshire","Shiskine Golf & Tennis Club, Arran","Silloth on Solway Golf Club, Cumbria","Slaley Hall Golf Club – Hunting, Northumberland","Slaley Hall Golf Club – Priestman, Northumberland","Southerndown Golf Club, Wales","Southport & Ainsdale Golf Club, Merseyside","St Andrews Links – Balgove Course, Fife","St Andrews Links – Eden Course, Fife","St Andrews Links – Jubilee Course, Fife","St Andrews Links – New Course, Fife","St Andrews Links – Old Course, Fife","St Andrews Links – Strathtyrum, Fife","St Enodoc Golf Club – Church Course, Cornwall","St Enodoc Golf Club – Holywell Course, Cornwall","St George's Hill Golf Club, Surrey","Stoke Park Club, Buckinghamshire","Sunningdale Golf Club – New Course, Surrey","Sunningdale Golf Club – Old Course, Surrey","Swinley Forest Golf Club, Berkshire","Tain Golf Club, Highland","Tenby Golf Club, Wales","Tewkesbury Park Golf Club – Acorn Course, Gloucestershire","Tewkesbury Park Golf Club – Deerpark Course, Gloucestershire","Torrequebrada Golf Club, Benalmadena, Spain","Trevose Golf Club – Championship, Cornwall","Trump International Golf Links, Aberdeenshire","Trump Turnberry – Ailsa Course, Ayrshire","Trump Turnberry – King Robert the Bruce, Ayrshire","Walton Heath Golf Club – New Course, Surrey","Walton Heath Golf Club – Old Course, Surrey","Wentworth Club – Edinburgh Course, Surrey","Wentworth Club – East Course, Surrey","Wentworth Club – West Course, Surrey","West Cornwall Golf Club, Cornwall","West Kent Golf Club, Kent","West Lancashire Golf Club, Merseyside","West Surrey Golf Club, Surrey","Western Gailes Golf Club, Ayrshire","Whittington Heath Golf Club, Staffordshire","Windermere Golf Club, Cumbria","Woburn Golf Club – Duchess Course, Buckinghamshire","Woburn Golf Club – Duke's Course, Buckinghamshire","Woburn Golf Club – Marquess Course, Buckinghamshire","Woodbridge Golf Club, Suffolk","Woodhall Spa Golf Club – Bracken Course, Lincolnshire","Woodhall Spa Golf Club – Hotchkin Course, Lincolnshire","Woking Golf Club, Surrey","Worksop Golf Club, Nottinghamshire","Worplesdon Golf Club, Surrey","Yeovil Golf Club, Somerset","York Golf Club, North Yorkshire"].sort();
 
-var S={np:4,mode:'strokeplay',tee:'yellow',course:'',curl:'',names:Array(16).fill(0).map(function(_,i){return'Player '+(i+1)}),hcps:Array(16).fill(0),pars:DPARS.slice(),si:DSI.slice(),yds:Array(18).fill(0),slope:113,cr:0,pct:95};
+var S={np:4,mode:'strokeplay',tee:'yellow',course:'',curl:'',names:Array(16).fill(0).map(function(_,i){return'Player '+(i+1)}),hcps:Array(16).fill(0),pars:DPARS.slice(),si:DSI.slice(),yds:Array(18).fill(0),slope:113,cr:0,pct:95,groups:{}};
 var R=null,RC='',AP=0,AH=0,PT=null,LS=null,IS_ARCHIVED=false;
 
 function $(i){return document.getElementById(i)}
@@ -1503,24 +1512,78 @@ function fbPut(p,d){return fetch(FB+'/'+p+'.json',{method:'PUT',body:JSON.string
 function fbPatch(p,d){return fetch(FB+'/'+p+'.json',{method:'PATCH',body:JSON.stringify(d)}).then(function(r){if(!r.ok)throw new Error(r.status);return r.json()})}
 function fbDelete(p){return fetch(FB+'/'+p+'.json',{method:'DELETE'}).then(function(r){if(!r.ok)throw new Error(r.status)})}
 function getHcpAllowancePct(mode){if(!mode)return 100;var m=(mode+'').toLowerCase();if(m.indexOf('fourball')!==-1||m.indexOf('4ball')!==-1){return(m.indexOf('stroke')!==-1||m.indexOf('medal')!==-1)?90:85;}if(m.indexOf('bogey')!==-1)return 100;if(m.indexOf('stroke')!==-1||m.indexOf('medal')!==-1)return 100;if(m.indexOf('stableford')!==-1)return 95;return 100;}
+
 function setPct(p){S.pct=p;['95','100','85','90'].forEach(function(v){var el=document.getElementById('pct'+v);if(el)el.className='btn-sm'+(v===String(p)?' on':'');});updateHcpPctLabel();}
-function updateHcpPctLabel(){var el=document.getElementById('pctLabel');if(!el)return;var slope=S.slope||113,cr=S.cr||0,pct=S.pct||95;if(!cr)cr=72;el.innerHTML='<strong>Playing HCP</strong> = Index x ('+slope+'/113) + (CR - Par) | <strong>Allowance: '+pct+'%</strong>';}
-function autoMakeGroups(names,np){
-  var active=[];
-  for(var i=0;i<np;i++){if(names[i]&&names[i].trim()&&names[i].indexOf('Player ')!==0)active.push(i);}
-  if(active.length===0)return {};
+
+function updateHcpPctLabel(){var el=document.getElementById('pctLabel');if(!el)return;var slope=S.slope||113,pct=S.pct||95;el.innerHTML='<strong>Playing HCP</strong> = Index x ('+slope+'/113) + (CR - Par) | <strong>Allowance: '+pct+'%</strong>';}
+
+// ---- Groups ----
+// S.groups = { "0": [0,1,2,3], "1": [4,5,6,7], ... }
+// Auto-build groups from player list (max 4 each)
+function autoMakeGroups(np){
   var groups={};var gi=0;
-  for(var j=0;j<active.length;j++){
+  for(var i=0;i<np;i++){
     if(!groups[gi])groups[gi]=[];
-    groups[gi].push(active[j]);
+    groups[gi].push(i);
     if(groups[gi].length===4)gi++;
   }
   return groups;
 }
-function saveRoundGroups(code,names,np){
-  var groups=autoMakeGroups(names,np);
-  if(Object.keys(groups).length>1)fbPut('rounds/'+code+'/groups',groups);
+
+// Build the draggable group editor
+function buildGroupEditor(){
+  var el=document.getElementById('group-editor');
+  if(!el)return;
+  if(S.np<=4){el.style.display='none';return;}
+  el.style.display='block';
+  // Auto-init groups if empty
+  if(!S.groups||Object.keys(S.groups).length===0)S.groups=autoMakeGroups(S.np);
+  var groups=S.groups;
+  var gKeys=Object.keys(groups).sort(function(a,b){return a-b;});
+  var html='<div style="font-size:11px;font-weight:700;color:#0d2d6e;text-transform:uppercase;letter-spacing:.6px;margin-bottom:10px">Groups (drag to move players)</div>';
+  gKeys.forEach(function(gi){
+    var members=groups[gi]||[];
+    html+='<div class="grp-col" data-gi="'+gi+'" style="background:#fff;border:2px solid #0d2d6e;border-left:4px solid #c8102e;border-radius:8px;padding:10px 12px;margin-bottom:8px" ondragover="event.preventDefault()" ondrop="dropToGroup(event,'+gi+')">';
+    html+='<div style="font-size:12px;font-weight:700;color:#0d2d6e;margin-bottom:6px">Group '+(parseInt(gi)+1)+'</div>';
+    members.forEach(function(pi){
+      var name=S.names[pi]||'Player '+(pi+1);
+      html+='<div class="grp-player" draggable="true" data-pi="'+pi+'" ondragstart="dragPlayer(event,'+pi+')" style="display:inline-flex;align-items:center;gap:6px;background:#eff6ff;border:1.5px solid #0d2d6e;border-radius:4px;padding:4px 10px;margin:3px;font-size:12px;font-weight:600;color:#0d2d6e;cursor:grab">'
+        +'<span style="font-size:10px;color:#9ca3af">&#9776;</span> '+escHtml(name)
+        +'</div>';
+    });
+    html+='</div>';
+  });
+  el.innerHTML=html;
 }
+
+var _dragPi=null;
+function dragPlayer(e,pi){_dragPi=pi;e.dataTransfer.effectAllowed='move';}
+function dropToGroup(e,targetGi){
+  e.preventDefault();
+  if(_dragPi===null)return;
+  var pi=_dragPi;_dragPi=null;
+  // Remove from current group
+  var groups=S.groups;
+  Object.keys(groups).forEach(function(gi){
+    groups[gi]=groups[gi].filter(function(p){return p!==pi;});
+  });
+  // Add to target group
+  if(!groups[targetGi])groups[targetGi]=[];
+  groups[targetGi].push(pi);
+  // Remove empty groups and reindex
+  var newGroups={};var idx=0;
+  Object.keys(groups).sort(function(a,b){return a-b;}).forEach(function(gi){
+    if(groups[gi].length>0){newGroups[idx]=groups[gi];idx++;}
+  });
+  S.groups=newGroups;
+  buildGroupEditor();
+}
+
+function saveRoundGroups(code,np){
+  if(np<=4||!S.groups||Object.keys(S.groups).length===0)return;
+  fbPut('rounds/'+code+'/groups',S.groups);
+}
+
 function loadMyGroup(code,playerIdx){
   fbGet('rounds/'+code+'/groups').then(function(groups){
     window._roundGroups=groups;
@@ -1529,9 +1592,9 @@ function loadMyGroup(code,playerIdx){
     for(var gi=0;gi<gKeys.length;gi++){
       var members=groups[gKeys[gi]];
       for(var m=0;m<members.length;m++){
-        if(members[m]===playerIdx){
+        if(parseInt(members[m])===playerIdx){
           window._myGroup=parseInt(gKeys[gi]);
-          window._myGroupPlayers=members;
+          window._myGroupPlayers=members.map(Number);
           showGroupBanner();return;
         }
       }
@@ -1539,6 +1602,7 @@ function loadMyGroup(code,playerIdx){
     window._myGroupPlayers=[];
   });
 }
+
 function showGroupBanner(){
   if(!window._roundGroups||!window._myGroupPlayers||!window._myGroupPlayers.length)return;
   var banner=document.getElementById('group-banner');
@@ -1549,33 +1613,14 @@ function showGroupBanner(){
     var pp=document.getElementById('p-play');
     if(pp){var tb=pp.querySelector('.banner');if(tb&&tb.nextSibling)pp.insertBefore(banner,tb.nextSibling);else pp.insertBefore(banner,pp.firstChild);}
   }
-  banner.textContent='Group '+(window._myGroup+1)+': '+window._myGroupPlayers.map(function(i){return window.R&&R.names&&R.names[i]?R.names[i].split(' ')[0]:'P'+(i+1);}).join(', ')+'  you can edit these scores';
+  banner.textContent='Group '+(window._myGroup+1)+': '+window._myGroupPlayers.map(function(i){return window.R&&R.names&&R.names[i]?R.names[i].split(' ')[0]:'P'+(i+1);}).join(', ')+'  you can score these players';
 }
+
 function canEditPlayerScore(playerIdx){
   if(!window._roundGroups)return true;
   if(window._isAdmin)return true;
   if(!window._myGroupPlayers||!window._myGroupPlayers.length)return true;
   return window._myGroupPlayers.indexOf(playerIdx)!==-1;
-}
-function showGroupSummary(){
-  var el=document.getElementById('group-summary');
-  if(!el||!window.S||!S.names)return;
-  var groups=autoMakeGroups(S.names,S.np);
-  var gKeys=Object.keys(groups);
-  if(gKeys.length<=1){el.style.display='none';return;}
-  el.style.display='block';
-  var html='<div style="font-size:11px;font-weight:700;color:#0d2d6e;text-transform:uppercase;letter-spacing:.6px;margin-bottom:8px">Auto Groups (max 4 per group)</div>';
-  gKeys.forEach(function(gi){
-    var members=groups[gi];
-    html+='<div style="background:#fff;border:2px solid #0d2d6e;border-left:4px solid #c8102e;border-radius:8px;padding:8px 12px;margin-bottom:6px;display:flex;flex-wrap:wrap;align-items:center;gap:6px">';
-    html+='<strong style="font-size:13px;color:#0d2d6e;margin-right:4px">Group '+(parseInt(gi)+1)+'</strong>';
-    members.forEach(function(pi){
-      var name=S.names[pi];
-      if(name&&name.indexOf('Player ')!==0)html+='<span style="background:#eff6ff;border-radius:4px;padding:2px 10px;font-size:12px;font-weight:600;color:#0d2d6e">'+escHtml(name)+'</span>';
-    });
-    html+='</div>';
-  });
-  el.innerHTML=html;
 }
 function hcpS(h,si){if(h<=0)return 0;if(h>=36)return 2;return si<=h?1:0}
 function sbPts(s,par,hs){if(!s)return 0;var d=s-hs-par;if(d>=2)return 0;if(d===1)return 1;if(d===0)return 2;if(d===-1)return 3;if(d===-2)return 4;return 5}
@@ -1604,10 +1649,7 @@ function goSetup(){buildSetup();show('p-setup')}
 loadCustomCourses();
 
 function buildSetup(){
-  var nr=$('npRow');nr.innerHTML='';
-  [2,3,4,6,8,10,12,14,16].forEach(function(n){
-    var b=document.createElement('button');b.className='btn-sm'+(n===S.np?' on':'');b.textContent=n;b.onclick=function(){S.np=n;buildSetup()};nr.appendChild(b);
-  });
+  var npSel=$('npSelect');if(npSel)npSel.value=S.np;
   var pf=$('pFields');
   pf.innerHTML='<div class="prow" style="margin-bottom:2px"><span style="font-size:11px;color:#9ca3af;font-weight:700;text-transform:uppercase">Name</span><span style="font-size:11px;color:#9ca3af;font-weight:700;text-align:center;text-transform:uppercase">HCP</span></div>';
   for(var i=0;i<S.np;i++){
@@ -1685,8 +1727,9 @@ return;
   var yg=$('ydsGrid');if(yg){yg.innerHTML='';for(var i=0;i<18;i++)yg.innerHTML+='<div class="cell"><span>'+(i+1)+'</span><input type="number" min="0" max="999" value="'+(S.yds[i]||0)+'" data-i="'+i+'" oninput="S.yds[this.dataset.i]=parseInt(this.value)||0"/></div>';}
   var sg=$('siGrid');sg.innerHTML='';
   for(var i=0;i<18;i++)sg.innerHTML+='<div class="cell"><span>'+(i+1)+'</span><input type="number" min="1" max="18" value="'+S.si[i]+'" data-i="'+i+'" oninput="S.si[this.dataset.i]=parseInt(this.value)||'+(i+1)+'"/></div>';
-  showGroupSummary();
+  buildGroupEditor();
 }
+function setNP(n){S.np=n;buildSetup();}
 function setMode(m){S.mode=m;$('mStroke').className='btn-sm'+(m==='strokeplay'?' on':'');$('mStable').className='btn-sm'+(m==='stableford'?' on':'');setPct(m==='stableford'?95:100);}
 
 var DF=[],DI=0,DO=false,ST=null,CLUB_MAP={};
@@ -1911,7 +1954,7 @@ function doCreate(){
     var cardKey=courseName.toLowerCase().replace(/[^a-z0-9]/g,'_').substring(0,80)+'__'+S.tee;
     fbPut('scorecards/'+cardKey,{course:courseName,tee:S.tee,par:S.pars.slice(),si:S.si.slice(),yds:(S.yds&&S.yds.some(function(y){return y>0})?S.yds.slice():null),slope:S.slope||null,cr:S.cr||null,updated:Date.now()}).catch(function(){});
   }
-  fbPut('rounds/'+code,r).then(function(){RC=code;R=r;IS_ARCHIVED=false;saveRoundGroups(code,r.names,r.np);startPlay()}).catch(function(e){$('setupErr').textContent='Error: '+e.message;$('setupErr').style.display='block'});
+  fbPut('rounds/'+code,r).then(function(){RC=code;R=r;IS_ARCHIVED=false;saveRoundGroups(code,r.np);startPlay()}).catch(function(e){$('setupErr').textContent='Error: '+e.message;$('setupErr').style.display='block'});
 }
 function doJoin(){
   $('joinErr').style.display='none';
@@ -2062,12 +2105,17 @@ function renderSC(){
   var hasYds=R.yds&&R.yds.some(function(y){return y>0});
   var outPar=R.pars.slice(0,9).reduce(function(a,b){return a+b},0);
   var inPar=R.pars.slice(9).reduce(function(a,b){return a+b},0);
+  var colSpan=hasYds?22:21; // total columns
+
+  // ── Header ──
   var h='<thead>';
   h+='<tr class="sc-hdr"><th class="sc-name">Player</th>';
   for(var i=0;i<9;i++)h+='<th>'+(i+1)+'</th>';
   h+='<th class="sc-out">OUT</th>';
   for(var i=9;i<18;i++)h+='<th>'+(i+1)+'</th>';
   h+='<th class="sc-in">IN</th><th class="sc-tot">TOT</th><th class="sc-pts">'+(R.mode==='stableford'?'Pts':'+/-')+'</th></tr>';
+
+  // ── Yds row ──
   if(hasYds){
     var outY=R.yds.slice(0,9).reduce(function(a,b){return a+(b||0)},0);
     var inY=R.yds.slice(9).reduce(function(a,b){return a+(b||0)},0);
@@ -2077,44 +2125,91 @@ function renderSC(){
     for(var i=9;i<18;i++)h+='<td>'+(R.yds[i]||'-')+'</td>';
     h+='<td class="sc-in">'+inY+'</td><td class="sc-tot">'+(outY+inY)+'</td><td></td></tr>';
   }
+
+  // ── Par row ──
   h+='<tr class="sc-par"><td class="sc-name">Par</td>';
   for(var i=0;i<9;i++)h+='<td>'+R.pars[i]+'</td>';
   h+='<td class="sc-out">'+outPar+'</td>';
   for(var i=9;i<18;i++)h+='<td>'+R.pars[i]+'</td>';
   h+='<td class="sc-in">'+inPar+'</td><td class="sc-tot">'+par_total+'</td><td></td></tr>';
+
+  // ── SI row ──
   h+='<tr class="sc-si"><td class="sc-name">SI</td>';
   for(var i=0;i<9;i++)h+='<td>'+R.si[i]+'</td>';
   h+='<td class="sc-out"></td>';
   for(var i=9;i<18;i++)h+='<td>'+R.si[i]+'</td>';
   h+='<td class="sc-in"></td><td class="sc-tot"></td><td></td></tr>';
   h+='</thead><tbody>';
-  for(var pi=0;pi<R.np;pi++){
-    var hcpIdx=parseFloat(R.hcps[pi])||0;
-    var ch=Math.round(hcpIdx*(slope/113)+(cr-par_total));
-    var playing=Math.round(ch*pct/100);
-    var gross=0,stable=0,toPar=0,outG=0,inG=0,cells='';
-    R.scores[pi].forEach(function(v,hi){
-      var s=v||0,hs=hcpS(playing,R.si[hi]),pts=sbPts(s,R.pars[hi],hs);
-      if(s){gross+=s;stable+=pts;toPar+=s-R.pars[hi];if(hi<9)outG+=s;else inG+=s;}
-      var net=s&&hs>0?s-hs:0;
-      var cellTxt=s?(s+(net>0?'<span class="sc-net">/'+net+'</span>':'')):'<span class="sc-dot">&middot;</span>';
-      var cls=s?sCls(s,R.pars[hi]):'';
-      cells+='<td class="sc-cell'+(cls?' '+cls:'')+(hi===AH&&pi===AP?' sc-active':'')+'">'+cellTxt+'</td>';
-      if(hi===8)cells+='<td class="sc-out sc-cell">'+(outG||'')+'</td>';
+
+  // ── Build player order - grouped if groups exist ──
+  var playerOrder=[];
+  var groups=R.groups;
+  var numCols=20; // H1-H9 + OUT + H10-H18 + IN + TOT + PTS
+  if(groups&&Object.keys(groups).length>0){
+    var gKeys=Object.keys(groups).sort(function(a,b){return parseInt(a)-parseInt(b);});
+    gKeys.forEach(function(gi,gIdx){
+      var members=(groups[gi]||[]).map(Number);
+      // Group header row
+      var groupColors=['#c8102e','#16a34a','#7c3aed','#d97706','#0891b2'];
+      var col=groupColors[gIdx%groupColors.length];
+      h+='<tr><td colspan="21" style="background:'+col+';color:#fff;font-size:11px;font-weight:700;padding:4px 10px;letter-spacing:.5px">GROUP '+(gIdx+1)+'</td></tr>';
+      members.forEach(function(pi){if(pi<R.np)playerOrder.push({pi:pi,group:gIdx});});
     });
-    var tpStr=gross?(R.mode==='stableford'?stable:(toPar===0?'E':toPar>0?'+'+toPar:toPar)):'';
-    var tc=R.mode==='stableford'?'#0d2d6e':(toPar<0?'#15803d':toPar>0?'#c8102e':'#4a5a7a');
-    var nameCell='<td class="sc-name sc-player">'
-      +'<div class="sc-pname">'+(R.names[pi]||'P'+(pi+1))+'</div>'
-      +'<div class="sc-hcpline">Idx&nbsp;'+hcpIdx.toFixed(1)+'&nbsp;&middot;&nbsp;CH&nbsp;'+ch+'</div>'
-      +'<div class="sc-hcpline"><span class="sc-playing">Playing&nbsp;'+playing+(pct!==100?' ('+pct+'%)':'')+'</span></div>'
-      +'</td>';
-    h+='<tr class="sc-prow">'+nameCell+cells
-      +'<td class="sc-in sc-cell">'+(inG||'')+'</td>'
-      +'<td class="sc-tot sc-cell">'+(gross||'')+'</td>'
-      +'<td class="sc-pts sc-cell" style="color:'+tc+'">'+tpStr+'</td></tr>';
+    // Any players not in a group
+    for(var pi=0;pi<R.np;pi++){
+      var inGroup=false;
+      gKeys.forEach(function(gi){if((groups[gi]||[]).map(Number).indexOf(pi)!==-1)inGroup=true;});
+      if(!inGroup)playerOrder.push({pi:pi,group:-1});
+    }
+  } else {
+    for(var pi=0;pi<R.np;pi++)playerOrder.push({pi:pi,group:-1});
   }
-  h+='</tbody>';$('scTable').innerHTML=h;
+
+  // ── But we need to interleave group headers with player rows ──
+  // Re-render with group headers at the right places
+  h='<thead>'+h.split('</thead>')[0].split('<thead>')[1]+'</thead><tbody>';
+  if(groups&&Object.keys(groups).length>0){
+    var gKeys=Object.keys(groups).sort(function(a,b){return parseInt(a)-parseInt(b);});
+    var groupColors=['#c8102e','#16a34a','#7c3aed','#d97706','#0891b2'];
+    gKeys.forEach(function(gi,gIdx){
+      var members=(groups[gi]||[]).map(Number).filter(function(p){return p<R.np;});
+      if(!members.length)return;
+      var col=groupColors[gIdx%groupColors.length];
+      h+='<tr><td colspan="21" style="background:'+col+';color:#fff;font-size:11px;font-weight:700;padding:4px 10px;letter-spacing:.5px;text-transform:uppercase">Group '+(gIdx+1)+'</td></tr>';
+      members.forEach(function(pi){h+=buildPlayerRow(pi,slope,cr,par_total,pct);});
+    });
+  } else {
+    for(var pi=0;pi<R.np;pi++)h+=buildPlayerRow(pi,slope,cr,par_total,pct);
+  }
+  h+='</tbody>';
+  $('scTable').innerHTML=h;
+}
+
+function buildPlayerRow(pi,slope,cr,par_total,pct){
+  var hcpIdx=parseFloat(R.hcps[pi])||0;
+  var ch=Math.round(hcpIdx*(slope/113)+(cr-par_total));
+  var playing=Math.round(ch*pct/100);
+  var gross=0,stable=0,toPar=0,outG=0,inG=0,cells='';
+  R.scores[pi].forEach(function(v,hi){
+    var s=v||0,hs=hcpS(playing,R.si[hi]),pts=sbPts(s,R.pars[hi],hs);
+    if(s){gross+=s;stable+=pts;toPar+=s-R.pars[hi];if(hi<9)outG+=s;else inG+=s;}
+    var net=s&&hs>0?s-hs:0;
+    var cellTxt=s?(s+(net>0?'<span class="sc-net">/'+net+'</span>':'')):'<span class="sc-dot">&middot;</span>';
+    var cls=s?sCls(s,R.pars[hi]):'';
+    cells+='<td class="sc-cell'+(cls?' '+cls:'')+(hi===AH&&pi===AP?' sc-active':'')+'">'+cellTxt+'</td>';
+    if(hi===8)cells+='<td class="sc-out sc-cell">'+(outG||'')+'</td>';
+  });
+  var tpStr=gross?(R.mode==='stableford'?stable:(toPar===0?'E':toPar>0?'+'+toPar:toPar)):'';
+  var tc=R.mode==='stableford'?'#0d2d6e':(toPar<0?'#15803d':toPar>0?'#c8102e':'#4a5a7a');
+  var nameCell='<td class="sc-name sc-player">'
+    +'<div class="sc-pname">'+(R.names[pi]||'P'+(pi+1))+'</div>'
+    +'<div class="sc-hcpline">Idx&nbsp;'+hcpIdx.toFixed(1)+'&nbsp;&middot;&nbsp;CH&nbsp;'+ch+'</div>'
+    +'<div class="sc-hcpline"><span class="sc-playing">Playing&nbsp;'+playing+(pct!==100?' ('+pct+'%)':'')+'</span></div>'
+    +'</td>';
+  return '<tr class="sc-prow">'+nameCell+cells
+    +'<td class="sc-in sc-cell">'+(inG||'')+'</td>'
+    +'<td class="sc-tot sc-cell">'+(gross||'')+'</td>'
+    +'<td class="sc-pts sc-cell" style="color:'+tc+'">'+tpStr+'</td></tr>';
 }
 function edInit(){
   if(!R||IS_ARCHIVED)return;
