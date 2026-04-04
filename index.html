@@ -1701,8 +1701,11 @@ function loadMyGroup(code,playerIdx){
       var members=(groups[gKeys[gi]]||[]).map(Number);
       if(members.indexOf(playerIdx)!==-1){
         window._myGroup=parseInt(gKeys[gi]);
-        window._myGroupPlayers=members;
-        showGroupBanner();renderGroupEntry();return;
+        window._myGroupPlayers=(members.map?members.map(Number):members);
+        showGroupBanner();
+        renderPBtns();
+        if(typeof renderGroupEntry==='function')renderGroupEntry();
+        return;
       }
     }
     window._myGroupPlayers=[];renderGroupEntry();
@@ -1734,11 +1737,29 @@ function renderGroupEntry(){
   var playerLabel=document.getElementById('playerLabel');
   if(!el)return;
   var hasGroup=window._roundGroups&&window._myGroupPlayers&&window._myGroupPlayers.length>0;
-  // If round has groups but we haven't selected our player yet - show picker
-  if(!IS_ARCHIVED&&!hasGroup&&R&&R.groups&&Object.keys(R.groups).length>0&&!window._roundGroups){
+  // If round has groups but player not yet identified
+  var hasRoundGroups=window._roundGroups&&Object.keys(window._roundGroups).length>0;
+  if(!IS_ARCHIVED&&!hasGroup&&hasRoundGroups){
     el.style.display='block';
     if(playerLabel)playerLabel.style.display='none';
-    el.innerHTML='<div style="background:#0d2d6e;color:#fff;font-size:13px;font-weight:700;padding:12px 14px;border-radius:8px;margin-bottom:8px;text-align:center">Tap your name above to activate your group scoring</div>';
+    var gKeys2=Object.keys(window._roundGroups).sort();
+    var gcols2=['#c8102e','#16a34a','#7c3aed','#d97706','#0891b2'];
+    var phtml='<div style="background:#c8102e;color:#fff;font-size:13px;font-weight:700;padding:10px 14px;border-radius:8px 8px 0 0;text-align:center">Tap your name to start group scoring</div>';
+    phtml+='<div style="border:2px solid #c8102e;border-top:none;border-radius:0 0 8px 8px;overflow:hidden;margin-bottom:10px">';
+    gKeys2.forEach(function(gi,gIdx){
+      var members2=(window._roundGroups[gi]||[]).map(Number);
+      var col2=gcols2[gIdx%gcols2.length];
+      phtml+='<div style="padding:8px 12px;border-bottom:1px solid #e5e7eb">';
+      phtml+='<div style="font-size:11px;font-weight:700;color:'+col2+';margin-bottom:4px">GROUP '+(gIdx+1)+'</div>';
+      members2.forEach(function(pi2){
+        var nm=R&&R.names&&R.names[pi2]?R.names[pi2]:'P'+(pi2+1);
+        phtml+='<button onclick="AP='+pi2+';renderPBtns();renderHBtns();renderEntry();loadMyGroup(RC,'+pi2+')" '
+          +'style="display:inline-block;padding:5px 12px;margin:2px;background:#fff;border:2px solid '+col2+';border-radius:6px;font-size:12px;font-weight:700;color:'+col2+';cursor:pointer">'+escHtml(nm)+'</button>';
+      });
+      phtml+='</div>';
+    });
+    phtml+='</div>';
+    el.innerHTML=phtml;
     return;
   }
   if(!hasGroup||IS_ARCHIVED){
