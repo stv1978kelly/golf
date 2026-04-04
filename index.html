@@ -953,7 +953,7 @@ button[onclick*="startFromComp"],
 #scTable .sc-hcpline{font-size:10px;color:#6b7280;line-height:1.4}
 #scTable .sc-playing{color:#c8102e;font-weight:700}
 #scTable .sc-cell{font-size:12px;font-weight:600}
-#scTable .sc-net{font-size:9px;color:#16a34a;font-weight:600}
+#scTable .sc-net{font-size:9px;color:#0d2d6e;font-weight:700}
 #scTable .sc-dot{color:#d1d5db;font-size:16px}
 #scTable .sc-active{background:#dcfce7!important;outline:2px solid #16a34a;outline-offset:-2px}
 #scTable .bir{background:#bbf7d0!important;color:#166534!important}
@@ -2437,7 +2437,7 @@ function renderSC(){
   for(var i=0;i<9;i++)h+='<th>'+(i+1)+'</th>';
   h+='<th class="sc-out">OUT</th>';
   for(var i=9;i<18;i++)h+='<th>'+(i+1)+'</th>';
-  h+='<th class="sc-in">IN</th><th class="sc-tot">TOT</th><th class="sc-pts">'+(R.mode==='stableford'?'Pts':'+/-')+'</th><th class="sc-net-col">Net</th></tr>';
+  h+='<th class="sc-in">IN</th><th class="sc-tot">TOT</th><th class="sc-pts">'+(R.mode==='stableford'?'Pts':'+/-')+'</th><th class="sc-net-col">Pts</th></tr>';
   if(hasYds){
     var outY=R.yds.slice(0,9).reduce(function(a,b){return a+(b||0)},0);
     var inY=R.yds.slice(9).reduce(function(a,b){return a+(b||0)},0);
@@ -2483,8 +2483,8 @@ function buildPlayerRow(pi,slope,cr,par_total,pct){
   R.scores[pi].forEach(function(v,hi){
     var s=v||0,hs=hcpS(playing,R.si[hi]),pts=sbPts(s,R.pars[hi],hs);
     if(s){gross+=s;stable+=pts;toPar+=s-R.pars[hi];if(hi<9)outG+=s;else inG+=s;}
-    var net=s&&hs>0?s-hs:0;
-    var cellTxt=s?(s+(net>0?'<span class="sc-net">/'+net+'</span>':'')):'<span class="sc-dot">&middot;</span>';
+    var pts2=s?sbPts(s,R.pars[hi],hs):0;
+    var cellTxt=s?(s+(pts2>0?'<span class="sc-net">/'+pts2+'</span>':'')):'<span class="sc-dot">&middot;</span>';
     var cls=s?sCls(s,R.pars[hi]):'';
     cells+='<td class="sc-cell'+(cls?' '+cls:'')+(hi===AH&&pi===AP?' sc-active':'')+'">'+cellTxt+'</td>';
     if(hi===8)cells+='<td class="sc-out sc-cell">'+(outG||'')+'</td>';
@@ -2499,12 +2499,8 @@ function buildPlayerRow(pi,slope,cr,par_total,pct){
     +'<td class="sc-in sc-cell">'+(inG||'')+'</td>'
     +'<td class="sc-tot sc-cell">'+(gross||'')+'</td>'
     +'<td class="sc-pts sc-cell" style="color:'+tc+'">'+tpStr+'</td>'
-    +(gross?(function(){
-      var ns,nc;
-      if(R.mode==='stableford'){ns=stable+'pts';nc=stable>=36?'#15803d':stable>=30?'#0d2d6e':'#c8102e';}
-      else{var ng=gross-playing,nt=ng-par_total;ns=nt===0?'E':nt>0?'+'+nt:String(nt);nc=nt<0?'#15803d':nt>0?'#c8102e':'#4a5a7a';}
-      return'<td class="sc-net-col sc-cell" style="color:'+nc+';font-weight:800">'+ns+'</td>';
-    })():'<td class="sc-net-col sc-cell"></td>')
+    +(gross?'<td class="sc-net-col sc-cell" style="color:'+(stable>=36?'#15803d':stable>=30?'#0d2d6e':'#c8102e')+';font-weight:800">'+stable+'pts</td>'
+         :'<td class="sc-net-col sc-cell"></td>')
     +'</tr>';
 }
 function edInit(){
