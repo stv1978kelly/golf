@@ -1727,8 +1727,8 @@ function loadMyGroup(code,playerIdx){
       var members=(groups[gKeys[gi]]||[]).map(Number);
       if(members.indexOf(playerIdx)!==-1){
         window._myGroup=parseInt(gKeys[gi]);
-        window._myGroupPlayers=members;
-        showGroupBanner();return;
+        window._myGroupPlayers=members.map?members.map(Number):members;
+        showGroupBanner();renderGroupEntry();return;
       }
     }
     window._myGroupPlayers=[];
@@ -2382,6 +2382,7 @@ function renderHBtns(){
     b.className='hbtn'+(i===AH?' on':v?(' '+sCls(v,R.pars[i])):'');
     b.textContent=i+1;(function(hi){b.onclick=function(){AH=hi;renderHBtns();renderEntry()}})(i);hg.appendChild(b);
   }
+  renderGroupEntry();
 }
 function renderEntry(){
   var s=R.scores[AP][AH]||0,par=R.pars[AH],si=R.si[AH],hcp=R.hcps[AP]||0,hs=hcpS(hcp,si);
