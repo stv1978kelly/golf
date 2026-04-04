@@ -1041,63 +1041,6 @@ button[onclick*="startFromComp"],
     <button class="btn-sm" onclick="loadLiveRounds()">↻ Refresh</button>
   </div>
   <div id="adminList"></div>
-
-  <!-- ARCHIVED ROUNDS -->
-  <div style="margin-top:24px;border-top:3px solid #0d2d6e;padding-top:18px">
-    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;flex-wrap:wrap;gap:8px">
-      <h2 style="margin:0">Archived Rounds</h2>
-      <button class="btn-sm" onclick="adminLoadArchived()">↻ Load Archived</button>
-    </div>
-    <div id="adminArchivedList"><div style="font-size:13px;color:#9ca3af">Click Load Archived to view.</div></div>
-  </div>
-
-  <!-- COURSE EDITOR -->
-  <div style="margin-top:24px;border-top:3px solid #c8102e;padding-top:18px">
-    <h2 style="margin-bottom:12px">Course Data Editor</h2>
-    <p style="font-size:13px;color:#4a5a7a;margin-bottom:12px">Search a course, pick tee colour, update yards / par / SI / slope / CR and save to Firebase for all future rounds.</p>
-
-    <label>Golf Course</label>
-    <div class="ddwrap" id="adminDdwrap" style="position:relative;margin-bottom:10px">
-      <input id="adminCourseIn" placeholder="Search courses..." autocomplete="off"
-        oninput="adminDdFilter(this.value)"
-        onfocus="adminDdFilter(this.value)"
-        style="width:100%;padding:11px 12px;border:2px solid #0d2d6e;font-size:14px;margin-bottom:0"/>
-      <div id="adminDdList" style="display:none;position:absolute;top:100%;left:0;right:0;background:#fff;border:2px solid #0d2d6e;border-top:none;z-index:100;max-height:200px;overflow-y:auto"></div>
-    </div>
-
-    <label>Tee Colour</label>
-    <div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:14px" id="adminTeeBtns"></div>
-
-    <div id="adminCardInfo" style="display:none;font-size:12px;padding:8px 12px;background:#f0fdf4;border:1px solid #16a34a;border-radius:6px;color:#16a34a;margin-bottom:10px"></div>
-
-    <div id="adminCourseForm" style="display:none">
-      <div style="display:flex;gap:8px;margin-bottom:10px">
-        <div style="flex:1"><label style="margin-top:0">Slope</label><input id="adminSlope" type="number" min="55" max="155" placeholder="113"/></div>
-        <div style="flex:1"><label style="margin-top:0">Course Rating</label><input id="adminCR" type="number" min="50" max="85" step="0.1" placeholder="69.1"/></div>
-        <div style="flex:1"><label style="margin-top:0">Par</label><input id="adminCoursePar" type="number" min="60" max="80" placeholder="72" readonly style="background:#f3f4f6"/></div>
-      </div>
-      <label>Yards per hole</label>
-      <div style="display:flex;gap:6px;align-items:center;margin-bottom:6px">
-        <input id="adminYdsPaste" placeholder="Paste 18 yards e.g. 479 423 415 ..." style="flex:1;padding:8px 10px;border:2px solid #16a34a;font-size:13px;color:#166534;background:#f0fdf4" oninput="adminPasteToGrid(this.value,'adminYdsGrid','yds',0,999)"/>
-        <button onclick="adminPasteToGrid(document.getElementById('adminYdsPaste').value,'adminYdsGrid','yds',0,999)" style="padding:8px 14px;background:#16a34a;color:#fff;border:none;font-weight:700;font-size:13px;cursor:pointer;border-radius:4px;white-space:nowrap">Fill ↓</button>
-      </div>
-      <div class="g9" id="adminYdsGrid" style="margin-bottom:10px"></div>
-      <label>Par per hole</label>
-      <div style="display:flex;gap:6px;align-items:center;margin-bottom:6px">
-        <input id="adminParPaste" placeholder="Paste 18 pars e.g. 4 4 3 4 5 3 4 4 5 ..." style="flex:1;padding:8px 10px;border:2px solid #0d2d6e;font-size:13px;color:#0d2d6e;background:#eff6ff" oninput="adminPasteToGrid(this.value,'adminParGrid','pars',3,6)"/>
-        <button onclick="adminPasteToGrid(document.getElementById('adminParPaste').value,'adminParGrid','pars',3,6)" style="padding:8px 14px;background:#0d2d6e;color:#fff;border:none;font-weight:700;font-size:13px;cursor:pointer;border-radius:4px;white-space:nowrap">Fill ↓</button>
-      </div>
-      <div class="g9" id="adminParGrid" style="margin-bottom:10px"></div>
-      <label>Stroke Index per hole</label>
-      <div style="display:flex;gap:6px;align-items:center;margin-bottom:6px">
-        <input id="adminSiPaste" placeholder="Paste 18 SI values e.g. 7 11 15 3 1 17 9 13 5 ..." style="flex:1;padding:8px 10px;border:2px solid #c8102e;font-size:13px;color:#c8102e;background:#fff7ed" oninput="adminPasteToGrid(this.value,'adminSiGrid','si',1,18)"/>
-        <button onclick="adminPasteToGrid(document.getElementById('adminSiPaste').value,'adminSiGrid','si',1,18)" style="padding:8px 14px;background:#c8102e;color:#fff;border:none;font-weight:700;font-size:13px;cursor:pointer;border-radius:4px;white-space:nowrap">Fill ↓</button>
-      </div>
-      <div class="g9" id="adminSiGrid" style="margin-bottom:14px"></div>
-      <button onclick="adminSaveCourse()" style="width:100%;padding:13px;background:#16a34a;color:#fff;border:none;font-size:15px;font-weight:700;cursor:pointer;border-radius:0;margin-bottom:6px">Save Course Data to Firebase</button>
-      <button onclick="adminClearCourseForm()" style="width:100%;padding:10px;background:#fff;color:#c8102e;border:2px solid #c8102e;font-size:13px;font-weight:700;cursor:pointer;border-radius:0">Clear / Reset</button>
-    </div>
-  </div>
 </div>
 
 <!-- HOME -->
@@ -1326,51 +1269,10 @@ button[onclick*="startFromComp"],
     <button class="btn-sm" id="cModeStable" onclick="setCompMode('stableford')">Stableford</button>
   </div>
   <label>Number of players</label>
-  <select id="compNpSelect" onchange="setCompNP(parseInt(this.value))" style="width:100%;padding:11px 12px;border:2px solid #0d2d6e;font-size:15px;font-weight:700;color:#0d2d6e;margin-bottom:10px;background:#fff">
-    <option value="1">1 player</option><option value="2">2 players</option><option value="3">3 players</option>
-    <option value="4" selected>4 players</option><option value="5">5 players</option><option value="6">6 players</option>
-    <option value="7">7 players</option><option value="8">8 players</option><option value="9">9 players</option>
-    <option value="10">10 players</option><option value="11">11 players</option><option value="12">12 players</option>
-    <option value="13">13 players</option><option value="14">14 players</option><option value="15">15 players</option>
-    <option value="16">16 players</option>
-  </select>
-  <div class="row" id="compNpRow" style="display:none"></div>
+  <div class="row" id="compNpRow"></div>
   <label>Players & handicaps</label>
   <div id="compPFields"></div>
-  <div id="comp-group-editor" style="display:none;background:#f0f4ff;border:2px solid #0d2d6e;border-radius:10px;padding:12px 14px;margin:12px 0"></div>
-  <div style="background:#eff6ff;border:2px solid #0d2d6e;border-radius:8px;padding:14px 16px;margin:10px 0">
-    <div style="font-size:11px;font-weight:700;color:#0d2d6e;text-transform:uppercase;letter-spacing:.6px;margin-bottom:10px">Tee Colour</div>
-    <div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:12px" id="compTeeBtns"></div>
-    <div style="font-size:11px;font-weight:700;color:#0d2d6e;text-transform:uppercase;letter-spacing:.6px;margin-bottom:10px">Course Rating &amp; Slope</div>
-    <div style="display:flex;gap:8px;margin-bottom:12px">
-      <div style="flex:1"><label style="margin-top:0">Slope</label><input id="compSlope" type="number" min="55" max="155" placeholder="113" value="113" oninput="compUpdatePctLabel()"/></div>
-      <div style="flex:1"><label style="margin-top:0">Course Rating</label><input id="compCR" type="number" min="50" max="85" step="0.1" placeholder="e.g. 69.1" oninput="compUpdatePctLabel()"/></div>
-      <div style="flex:1"><label style="margin-top:0">Par</label><input id="compPar" type="number" min="60" max="80" placeholder="72" value="72"/></div>
-    </div>
-    <div style="font-size:11px;font-weight:700;color:#0d2d6e;text-transform:uppercase;letter-spacing:.6px;margin-bottom:8px">HCP Allowance %</div>
-    <select id="compPctSelect" onchange="compSetPct(this.value)" style="width:100%;padding:11px 12px;border:2px solid #0d2d6e;font-size:13px;font-weight:600;color:#0d2d6e;background:#fff;margin-bottom:8px">
-      <optgroup label="Individual">
-        <option value="95" selected>Individual Stableford / Par / Bogey — 95%</option>
-        <option value="100">Individual Stroke Play — 100%</option>
-        <option value="90">Individual Stroke Play (club variant) — 90%</option>
-        <option value="85">Individual Stroke Play (club variant) — 85%</option>
-        <option value="100m">Individual Match Play — 100% (handicap difference)</option>
-      </optgroup>
-      <optgroup label="Pairs">
-        <option value="85p">Fourball Betterball Stableford / Stroke — 85%</option>
-        <option value="90p">Fourball Match Play — 90%</option>
-        <option value="50f">Foursomes Alternate Shot — 50% combined</option>
-        <option value="g">Greensomes — 60% low + 40% high</option>
-      </optgroup>
-      <optgroup label="Team (4 Players)">
-        <option value="75">Best 1 of 4 Stroke Play — 75%</option>
-        <option value="85t">Best 2 of 4 Stroke Play — 85%</option>
-        <option value="100t">Best 3 of 4 Stroke Play — 100%</option>
-        <option value="100t2">Best 4 of 4 Stroke Play — 100%</option>
-      </optgroup>
-    </select>
-    <div id="compPctLabel" style="font-size:12px;color:#0d2d6e;padding:8px 10px;background:#fff;border:1.5px solid #0d2d6e;border-radius:6px;line-height:1.6"></div>
-  </div>
+  <div class="phcp-panel" style="margin-bottom:10px"><h4>Course Rating &amp; Slope <span class="phcp-badge">Playing HCP</span></h4><div class="phcp-row"><div><label>Slope</label><input id="compSlope" type="number" min="55" max="155" placeholder="113" value="113"/></div><div><label>Course Rating</label><input id="compCR" type="number" min="50" max="85" step="0.1" placeholder="e.g. 69.1"/></div><div><label>Par</label><input id="compPar" type="number" min="60" max="80" placeholder="72" value="72"/></div></div><div class="phcp-note">Used to calculate each player's Playing HCP for scorecards.</div></div>
 <label>Notes</label>
   <input id="compNotes" placeholder="e.g. Tee time 10:30, dress code smart"/>
   <label style="font-size:12px;color:#0d2d6e;display:block;margin-bottom:4px;margin-top:12px;font-weight:700;text-transform:uppercase;letter-spacing:.5px">Course Website URL</label>
@@ -1421,28 +1323,26 @@ button[onclick*="startFromComp"],
     <select id="pctSelect" onchange="setPctFromSelect(this.value)" style="width:100%;padding:11px 12px;border:2px solid #0d2d6e;font-size:13px;font-weight:600;color:#0d2d6e;background:#fff;margin-bottom:6px">
       <optgroup label="Individual">
         <option value="95" selected>Individual Stableford / Par / Bogey — 95%</option>
-        <option value="100">Individual Stroke Play — 100%</option>
+        <option value="100i">Individual Stroke Play — 100%</option>
         <option value="90">Individual Stroke Play (club variant) — 90%</option>
         <option value="85">Individual Stroke Play (club variant) — 85%</option>
-        <option value="100m">Individual Match Play — 100% (handicap difference)</option>
       </optgroup>
       <optgroup label="Pairs">
-        <option value="85">Fourball Betterball Stableford / Stroke — 85%</option>
-        <option value="90">Fourball Match Play — 90%</option>
+        <option value="85p">Fourball Betterball Stableford / Stroke — 85%</option>
+        <option value="90p">Fourball Match Play — 90%</option>
         <option value="50f">Foursomes Alternate Shot — 50% combined</option>
-        <option value="g">Greensomes — 60% low + 40% high</option>
+        <option value="64g">Greensomes — 60% low + 40% high</option>
       </optgroup>
       <optgroup label="Team (4 Players)">
-        <option value="75">Best 1 of 4 Stroke Play — 75%</option>
-        <option value="85">Best 2 of 4 Stroke Play — 85%</option>
-        <option value="100">Best 3 of 4 Stroke Play — 100%</option>
-        <option value="100">Best 4 of 4 Stroke Play — 100%</option>
+        <option value="75">Best 1 of 4 — 75%</option>
+        <option value="85t">Best 2 of 4 — 85%</option>
+        <option value="100t">Best 3 or 4 of 4 — 100%</option>
       </optgroup>
     </select>
-    <div id="pctLabel" style="font-size:12px;color:#0d2d6e;font-weight:600;padding:8px 12px;background:#eff6ff;border:2px solid #0d2d6e;border-radius:6px;line-height:1.6"></div>
+    <div id="pctLabel" style="font-size:12px;color:#0d2d6e;padding:8px 12px;background:#fff;border:2px solid #0d2d6e;border-radius:6px;line-height:1.6"></div>
   </div>
   <label>Number of players</label>
-  <select id="npSelect" onchange="setNP(parseInt(this.value))" style="width:100%;padding:11px 12px;border:2px solid #0d2d6e;font-size:15px;font-weight:700;color:#0d2d6e;margin-bottom:10px;background:#fff;-webkit-appearance:none">
+  <select id="npSelect" onchange="setNP(parseInt(this.value))" style="width:100%;padding:11px 12px;border:2px solid #0d2d6e;font-size:15px;font-weight:700;color:#0d2d6e;margin-bottom:10px;background:#fff">
     <option value="1">1 player</option><option value="2">2 players</option><option value="3">3 players</option>
     <option value="4" selected>4 players</option><option value="5">5 players</option><option value="6">6 players</option>
     <option value="7">7 players</option><option value="8">8 players</option><option value="9">9 players</option>
@@ -1498,7 +1398,8 @@ button[onclick*="startFromComp"],
 
   <!-- ENTRY -->
   <div id="tab-entry" class="panel on">
-    <label>Player</label>
+    <div id="group-entry-view" style="display:none;margin-bottom:10px"></div>
+    <label id="playerLabel">Player</label>
     <div class="row" id="pBtns"></div>
     <label>Hole</label>
     <div class="hgrid" id="hBtns"></div>
@@ -1611,7 +1512,7 @@ var KNOWN_CARDS={
   }
 };
 var DSI=[7,11,15,3,1,17,9,13,5,8,12,16,4,2,18,10,14,6];
-var COURSES=["Aberdovey Golf Club, Wales","Aberfeldy Golf Club, Perthshire","Aberfoyle Golf Club, Stirlingshire","Abergele Golf Club, Wales","Aberystwyth Golf Club, Wales","Aboyne Golf Club, Aberdeenshire","Accrington & District Golf Club, Lancashire","Aldeburgh Golf Club, Suffolk","Alford Golf Club, Aberdeenshire","Alfreton Golf Club, Derbyshire","Alloa Golf Club, Stirlingshire","Alness Golf Club, Highland","Alnmouth Golf Club, Northumberland","Alnwick Castle Golf Club, Northumberland","Alresford Golf Club, Hampshire","Alston Moor Golf Club, Cumbria","Altrincham Golf Club, Cheshire","Alva Golf Club, Stirlingshire","Alwoodley Golf Club, West Yorkshire","Alyth Golf Club, Perthshire","Ampfield Golf Club, Hampshire","Anstruther Golf Club, Fife","Archerfield Links – Dirleton Course, East Lothian","Archerfield Links – Fidra Course, East Lothian","Ardeer Golf Club, Ayrshire","Ardglass Golf Club, County Down","Arrochar Golf Club, Argyll","Ashburnham Golf Club, Wales","Ashdown Forest Golf Club, East Sussex","Ashford Golf Club, Kent","Ashridge Golf Club, Hertfordshire","Aspley Guise & Woburn Sands Golf Club, Bedfordshire","Auchterarder Golf Club, Perthshire","Ayr Belleisle Golf Club, Ayrshire","Ayr Dalmilling Golf Club, Ayrshire","Ayr Seafield Golf Club, Ayrshire","Baberton Golf Club, Edinburgh","Bakewell Golf Club, Derbyshire","Bala Golf Club, Wales","Ballater Golf Club, Aberdeenshire","Ballyliffin Golf Club – Glashedy Links, Donegal","Ballyliffin Golf Club – Old Links, Donegal","Balmoral Golf Club, Belfast","Bamburgh Castle Golf Club, Northumberland","Banbridge Golf Club, County Down","Banbury Golf Club, Oxfordshire","Banchory Golf Club, Aberdeenshire","Bangor Golf Club, County Down","Barnard Castle Golf Club, Durham","Barnehurst Golf Club, London","Barnsley Golf Club, South Yorkshire","Barrow Golf Club, Cumbria","Bath Golf Club, Somerset","Beaconsfield Golf Club, Buckinghamshire","Bearwood Lakes Golf Club, Berkshire","Beau Desert Golf Club, Staffordshire","Belfry The – Brabazon Course, Warwickshire","Belfry The – Derby Course, Warwickshire","Belfry The – PGA National, Warwickshire","Bellshill Golf Club, Lanarkshire","Belton Park Golf Club, Lincolnshire","Belvoir Park Golf Club, Belfast","Berkhamsted Golf Club, Hertfordshire","Berkshire Golf Club – Blue Course, Berkshire","Berkshire Golf Club – Red Course, Berkshire","Berwick-upon-Tweed Golf Club, Northumberland","Bingley St Ives Golf Club, West Yorkshire","Birchwood Park Golf Club, Kent","Blackburn Golf Club, Lancashire","Blackpool North Shore Golf Club, Lancashire","Blackpool Park Golf Club, Lancashire","Blairgowrie Golf Club – Lansdowne, Perthshire","Blairgowrie Golf Club – Rosemount, Perthshire","Boat of Garten Golf Club, Highland","Bowood Hotel Golf Club, Cornwall","Bradford Golf Club, West Yorkshire","Braemar Golf Club, Aberdeenshire","Braid Hills Golf Course, Edinburgh","Brampton Golf Club, Cumbria","Brancaster Golf Club, Norfolk","Breadsall Priory Golf Club – Moorland, Derbyshire","Breadsall Priory Golf Club – Priory, Derbyshire","Brechin Golf Club, Angus","Bridlington Golf Club, East Yorkshire","Brighton & Hove Golf Club, East Sussex","Bristol & Clifton Golf Club, Gloucestershire","Brodick Golf Club, Arran","Brocket Hall Golf Club – Melbourne, Hertfordshire","Brocket Hall Golf Club – Palmerston, Hertfordshire","Brora Golf Club, Highland","Bruntsfield Links Golfing Society, Edinburgh","Buckpool Golf Club, Aberdeenshire","Builth Wells Golf Club, Wales","Burnham & Berrow Golf Club, Somerset","Burton-on-Trent Golf Club, Derbyshire","Bury Golf Club, Lancashire","Buxton & High Peak Golf Club, Derbyshire","Caberfeigh Golf Club, Highland","Cabopino Golf Marbella, Marbella, Spain","Caernarfon Golf Club, Wales","Caerphilly Golf Club, Wales","Calanova Golf Club, Mijas, Spain","Caldy Golf Club, Cheshire","Camberley Heath Golf Club, Surrey","Came Down Golf Club, Dorset","Canmore Golf Club, Fife","Carlisle Golf Club, Cumbria","Carnoustie Golf Links – Burnside, Angus","Carnoustie Golf Links – Championship, Angus","Carnoustie Golf Links – Meadows, Angus","Carradale Golf Club, Argyll","Castle Douglas Golf Club, Dumfries & Galloway","Castle Hume Golf Club, County Fermanagh","Castle Stuart Golf Links, Highland","Castlerock Golf Club – Bann, County Londonderry","Castlerock Golf Club – Mussenden, County Londonderry","Celtic Manor Resort – Montgomerie, Wales","Celtic Manor Resort – Roman Road, Wales","Celtic Manor Resort – Twenty Ten Course, Wales","Chaparral Golf Club, Mijas, Spain","Chart Hills Golf Club, Kent","Chelmsford Golf Club, Essex","Chevin Golf Club, Derbyshire","Chichester Golf Club, West Sussex","Chigwell Golf Club, Essex","Chorley Golf Club, Lancashire","Clacton Golf Club, Essex","Clandeboye Golf Club – Ava, County Down","Clandeboye Golf Club – Dufferin, County Down","Clitheroe Golf Club, Lancashire","Close House Golf Club, Northumberland","Colchester Golf Club, Essex","Collingtree Park Golf Club, Northamptonshire","Conwy Golf Club, Wales","County Armagh Golf Club, County Armagh","Crail Golfing Society – Balcomie Links, Fife","Criccieth Golf Club, Wales","Crieff Golf Club, Perthshire","Cruden Bay Golf Club, Aberdeenshire","Dalmahoy Hotel & CC – East Course, Edinburgh","Dalmahoy Hotel & CC – West Course, Edinburgh","Delamere Forest Golf Club, Cheshire","Denbigh Golf Club, Wales","Doncaster Golf Club, South Yorkshire","Douglas Park Golf Club, Glasgow","Dumbarnie Links, Fife","Dunbar Golf Club, East Lothian","Dundonald Links, Ayrshire","Dunfermline Golf Club, Fife","Dungannon Golf Club, County Tyrone","Dunmurry Golf Club, Belfast","Duns Golf Club, Borders","Durham City Golf Club, Durham","East Sussex National – East Course, East Sussex","East Sussex National – West Course, East Sussex","Edgbaston Golf Club, West Midlands","Elie Golf Club, Fife","Enniskillen Golf Club, County Fermanagh","Fairhaven Golf Club, Lancashire","Fairmont St Andrews – Kittocks, Fife","Fairmont St Andrews – Torrance, Fife","Felixstowe Ferry Golf Club, Suffolk","Ferndown Golf Club – Old Course, Dorset","Fleetwood Golf Club, Lancashire","Forest of Arden Golf Club, Warwickshire","Forest of Dean Golf Club, Gloucestershire","Forfar Golf Club, Angus","Formby Golf Club, Merseyside","Fortrose & Rosemarkie Golf Club, Highland","Frilford Heath Golf Club – Blue, Oxfordshire","Frilford Heath Golf Club – Green, Oxfordshire","Frilford Heath Golf Club – Red, Oxfordshire","Fulford Golf Club, North Yorkshire","Galgorm Castle Golf Club, County Antrim","Ganton Golf Club, North Yorkshire","Gatehouse of Fleet Golf Club, Dumfries & Galloway","Girvan Golf Club, Ayrshire","Glasgow Golf Club – Gailes Links, Ayrshire","Glasgow Golf Club – Killermont, Glasgow","Gleneagles – King's Course, Perthshire","Gleneagles – PGA Centenary Course, Perthshire","Gleneagles – Queen's Course, Perthshire","Gog Magog Golf Club – Old Course, Cambridgeshire","Gog Magog Golf Club – Wandlebury, Cambridgeshire","Golspie Golf Club, Highland","Gullane Golf Club – No.1, East Lothian","Gullane Golf Club – No.2, East Lothian","Gullane Golf Club – No.3, East Lothian","Hankley Common Golf Club, Surrey","Harrogate Golf Club, North Yorkshire","Hayling Golf Club, Hampshire","Hazel Grove Golf Club, Cheshire","Heaton Moor Golf Club, Cheshire","Helensburgh Golf Club, Dunbartonshire","Hillside Golf Club, Merseyside","Hollinwell Golf Club, Nottinghamshire","Holyhead Golf Club, Wales","Huddersfield Golf Club, West Yorkshire","Hunstanton Golf Club, Norfolk","Ilkley Golf Club, West Yorkshire","Inverness Golf Club, Highland","Irvine Golf Club, Ayrshire","Isle of Man Golf Club, Isle of Man","Jedburgh Golf Club, Borders","Kenilworth Golf Club, Warwickshire","Kilmacolm Golf Club, Renfrewshire","Kilmarnock Barassie Golf Club, Ayrshire","Kingsbarns Golf Links, Fife","Kingussie Golf Club, Highland","Kirriemuir Golf Club, Angus","La Cala Golf – Campo America, Mijas, Spain","La Cala Golf – Campo Asia, Mijas, Spain","La Cala Golf – Campo Europa, Mijas, Spain","La Moye Golf Club, Jersey","Ladybank Golf Club, Fife","Lamlash Golf Club, Arran","Lancaster Golf Club, Lancashire","Langland Bay Golf Club, Wales","Largs Golf Club, Ayrshire","Lindrick Golf Club, South Yorkshire","Liphook Golf Club, Hampshire","Littlestone Golf Club, Kent","Llandudno Maesdu Golf Club, Wales","Loch Lomond Golf Club, Dunbartonshire","London Golf Club – Heritage Course, Kent","London Golf Club – International Course, Kent","Longniddry Golf Club, East Lothian","Luffness New Golf Club, East Lothian","Lundin Golf Club, Fife","Lyme Regis Golf Club, Dorset","Machrie Hotel & Golf Links, Islay","Machrihanish Golf Club, Argyll","Machynys Peninsula Golf Club, Wales","Malone Golf Club, Belfast","Manchester Golf Club, Greater Manchester","Mannings Heath Golf Club, West Sussex","Mere Golf Resort & Spa, Cheshire","Minchinhampton Golf Club, Gloucestershire","Moffat Golf Club, Dumfries & Galloway","Moor Allerton Golf Club, West Yorkshire","Moor Park Golf Club – High Course, Hertfordshire","Moor Park Golf Club – West Course, Hertfordshire","Moortown Golf Club, West Yorkshire","Moray Golf Club – New Course, Moray","Moray Golf Club – Old Course, Moray","Mortonhall Golf Club, Edinburgh","Moseley Golf Club, West Midlands","Muirfield, East Lothian","Murcar Links Golf Club, Aberdeen","Murrayshall Golf Club, Perthshire","Nairn Dunbar Golf Club, Highland","Nairn Golf Club, Highland","Nefyn & District Golf Club, Wales","New Zealand Golf Club, Surrey","Newburgh on Ythan Golf Club, Aberdeenshire","Newport Golf Club, Wales","North Berwick Golf Club – West Links, East Lothian","Notts Golf Club – Hollinwell, Nottinghamshire","Pannal Golf Club, North Yorkshire","Parkstone Golf Club, Dorset","Pennard Golf Club, Wales","Penrith Golf Club, Cumbria","Peterhead Golf Club, Aberdeenshire","Pitlochry Golf Club, Perthshire","Pollok Golf Club, Glasgow","Portstewart Golf Club – Strand, County Londonderry","Prestwick Golf Club, Ayrshire","Prince's Golf Club, Sandwich, Kent","Queenwood Golf Club, Surrey","Ramsey Golf Club, Isle of Man","Remedy Oak Golf Club, Dorset","Renaissance Club The, East Lothian","Rowany Golf Club, Isle of Man","Royal Aberdeen Golf Club – Balgownie, Aberdeenshire","Royal Ascot Golf Club, Berkshire","Royal Belfast Golf Club, Holywood","Royal Birkdale Golf Club, Merseyside","Royal Burgess Golfing Society, Edinburgh","Royal Cinque Ports Golf Club, Deal, Kent","Royal County Down Golf Club – Annesley, County Down","Royal County Down Golf Club – Championship, County Down","Royal Dornoch Golf Club – Championship, Highland","Royal Dornoch Golf Club – Struie, Highland","Royal Guernsey Golf Club, Guernsey","Royal Jersey Golf Club, Jersey","Royal Liverpool Golf Club, Hoylake, Merseyside","Royal Lytham & St Annes Golf Club, Lancashire","Royal Musselburgh Golf Club, East Lothian","Royal North Devon Golf Club, Devon","Royal Porthcawl Golf Club, Wales","Royal Portrush Golf Club – Dunluce Links, County Antrim","Royal Portrush Golf Club – Valley Links, County Antrim","Royal St David's Golf Club, Harlech, Wales","Royal St George's Golf Club, Sandwich, Kent","Royal Troon – Old Course, Ayrshire","Royal Troon – Portland Course, Ayrshire","Royal West Norfolk Golf Club, Norfolk","Royal Winchester Golf Club, Hampshire","Rye Golf Club, East Sussex","Saunton Golf Club – East Course, Devon","Saunton Golf Club – West Course, Devon","Scotscraig Golf Club, Fife","Seaton Carew Golf Club, Durham","Sheringham Golf Club, Norfolk","Sherwood Forest Golf Club, Nottinghamshire","Shiskine Golf & Tennis Club, Arran","Silloth on Solway Golf Club, Cumbria","Slaley Hall Golf Club – Hunting, Northumberland","Slaley Hall Golf Club – Priestman, Northumberland","Southerndown Golf Club, Wales","Southport & Ainsdale Golf Club, Merseyside","St Andrews Links – Balgove Course, Fife","St Andrews Links – Eden Course, Fife","St Andrews Links – Jubilee Course, Fife","St Andrews Links – New Course, Fife","St Andrews Links – Old Course, Fife","St Andrews Links – Strathtyrum, Fife","St Enodoc Golf Club – Church Course, Cornwall","St Enodoc Golf Club – Holywell Course, Cornwall","St George's Hill Golf Club, Surrey","Stoke Park Club, Buckinghamshire","Sunningdale Golf Club – New Course, Surrey","Sunningdale Golf Club – Old Course, Surrey","Swinley Forest Golf Club, Berkshire","Tain Golf Club, Highland","Tenby Golf Club, Wales","Tewkesbury Park Golf Club","Torrequebrada Golf Club, Benalmadena, Spain","Trevose Golf Club – Championship, Cornwall","Trump International Golf Links, Aberdeenshire","Trump Turnberry – Ailsa Course, Ayrshire","Trump Turnberry – King Robert the Bruce, Ayrshire","Walton Heath Golf Club – New Course, Surrey","Walton Heath Golf Club – Old Course, Surrey","Wentworth Club – Edinburgh Course, Surrey","Wentworth Club – East Course, Surrey","Wentworth Club – West Course, Surrey","West Cornwall Golf Club, Cornwall","West Kent Golf Club, Kent","West Lancashire Golf Club, Merseyside","West Surrey Golf Club, Surrey","Western Gailes Golf Club, Ayrshire","Whittington Heath Golf Club, Staffordshire","Windermere Golf Club, Cumbria","Woburn Golf Club – Duchess Course, Buckinghamshire","Woburn Golf Club – Duke's Course, Buckinghamshire","Woburn Golf Club – Marquess Course, Buckinghamshire","Woodbridge Golf Club, Suffolk","Woodhall Spa Golf Club – Bracken Course, Lincolnshire","Woodhall Spa Golf Club – Hotchkin Course, Lincolnshire","Woking Golf Club, Surrey","Worksop Golf Club, Nottinghamshire","Worplesdon Golf Club, Surrey","Yeovil Golf Club, Somerset","York Golf Club, North Yorkshire"].sort();
+var COURSES=["Aberdovey Golf Club, Wales","Aberfeldy Golf Club, Perthshire","Aberfoyle Golf Club, Stirlingshire","Abergele Golf Club, Wales","Aberystwyth Golf Club, Wales","Aboyne Golf Club, Aberdeenshire","Accrington & District Golf Club, Lancashire","Aldeburgh Golf Club, Suffolk","Alford Golf Club, Aberdeenshire","Alfreton Golf Club, Derbyshire","Alloa Golf Club, Stirlingshire","Alness Golf Club, Highland","Alnmouth Golf Club, Northumberland","Alnwick Castle Golf Club, Northumberland","Alresford Golf Club, Hampshire","Alston Moor Golf Club, Cumbria","Altrincham Golf Club, Cheshire","Alva Golf Club, Stirlingshire","Alwoodley Golf Club, West Yorkshire","Alyth Golf Club, Perthshire","Ampfield Golf Club, Hampshire","Anstruther Golf Club, Fife","Archerfield Links – Dirleton Course, East Lothian","Archerfield Links – Fidra Course, East Lothian","Ardeer Golf Club, Ayrshire","Ardglass Golf Club, County Down","Arrochar Golf Club, Argyll","Ashburnham Golf Club, Wales","Ashdown Forest Golf Club, East Sussex","Ashford Golf Club, Kent","Ashridge Golf Club, Hertfordshire","Aspley Guise & Woburn Sands Golf Club, Bedfordshire","Auchterarder Golf Club, Perthshire","Ayr Belleisle Golf Club, Ayrshire","Ayr Dalmilling Golf Club, Ayrshire","Ayr Seafield Golf Club, Ayrshire","Baberton Golf Club, Edinburgh","Bakewell Golf Club, Derbyshire","Bala Golf Club, Wales","Ballater Golf Club, Aberdeenshire","Ballyliffin Golf Club – Glashedy Links, Donegal","Ballyliffin Golf Club – Old Links, Donegal","Balmoral Golf Club, Belfast","Bamburgh Castle Golf Club, Northumberland","Banbridge Golf Club, County Down","Banbury Golf Club, Oxfordshire","Banchory Golf Club, Aberdeenshire","Bangor Golf Club, County Down","Barnard Castle Golf Club, Durham","Barnehurst Golf Club, London","Barnsley Golf Club, South Yorkshire","Barrow Golf Club, Cumbria","Bath Golf Club, Somerset","Beaconsfield Golf Club, Buckinghamshire","Bearwood Lakes Golf Club, Berkshire","Beau Desert Golf Club, Staffordshire","Belfry The – Brabazon Course, Warwickshire","Belfry The – Derby Course, Warwickshire","Belfry The – PGA National, Warwickshire","Bellshill Golf Club, Lanarkshire","Belton Park Golf Club, Lincolnshire","Belvoir Park Golf Club, Belfast","Berkhamsted Golf Club, Hertfordshire","Berkshire Golf Club – Blue Course, Berkshire","Berkshire Golf Club – Red Course, Berkshire","Berwick-upon-Tweed Golf Club, Northumberland","Bingley St Ives Golf Club, West Yorkshire","Birchwood Park Golf Club, Kent","Blackburn Golf Club, Lancashire","Blackpool North Shore Golf Club, Lancashire","Blackpool Park Golf Club, Lancashire","Blairgowrie Golf Club – Lansdowne, Perthshire","Blairgowrie Golf Club – Rosemount, Perthshire","Boat of Garten Golf Club, Highland","Bowood Hotel Golf Club, Cornwall","Bradford Golf Club, West Yorkshire","Braemar Golf Club, Aberdeenshire","Braid Hills Golf Course, Edinburgh","Brampton Golf Club, Cumbria","Brancaster Golf Club, Norfolk","Breadsall Priory Golf Club – Moorland, Derbyshire","Breadsall Priory Golf Club – Priory, Derbyshire","Brechin Golf Club, Angus","Bridlington Golf Club, East Yorkshire","Brighton & Hove Golf Club, East Sussex","Bristol & Clifton Golf Club, Gloucestershire","Brodick Golf Club, Arran","Brocket Hall Golf Club – Melbourne, Hertfordshire","Brocket Hall Golf Club – Palmerston, Hertfordshire","Brora Golf Club, Highland","Bruntsfield Links Golfing Society, Edinburgh","Buckpool Golf Club, Aberdeenshire","Builth Wells Golf Club, Wales","Burnham & Berrow Golf Club, Somerset","Burton-on-Trent Golf Club, Derbyshire","Bury Golf Club, Lancashire","Buxton & High Peak Golf Club, Derbyshire","Caberfeigh Golf Club, Highland","Cabopino Golf Marbella, Marbella, Spain","Caernarfon Golf Club, Wales","Caerphilly Golf Club, Wales","Calanova Golf Club, Mijas, Spain","Caldy Golf Club, Cheshire","Camberley Heath Golf Club, Surrey","Came Down Golf Club, Dorset","Canmore Golf Club, Fife","Carlisle Golf Club, Cumbria","Carnoustie Golf Links – Burnside, Angus","Carnoustie Golf Links – Championship, Angus","Carnoustie Golf Links – Meadows, Angus","Carradale Golf Club, Argyll","Castle Douglas Golf Club, Dumfries & Galloway","Castle Hume Golf Club, County Fermanagh","Castle Stuart Golf Links, Highland","Castlerock Golf Club – Bann, County Londonderry","Castlerock Golf Club – Mussenden, County Londonderry","Celtic Manor Resort – Montgomerie, Wales","Celtic Manor Resort – Roman Road, Wales","Celtic Manor Resort – Twenty Ten Course, Wales","Chaparral Golf Club, Mijas, Spain","Chart Hills Golf Club, Kent","Chelmsford Golf Club, Essex","Chevin Golf Club, Derbyshire","Chichester Golf Club, West Sussex","Chigwell Golf Club, Essex","Chorley Golf Club, Lancashire","Clacton Golf Club, Essex","Clandeboye Golf Club – Ava, County Down","Clandeboye Golf Club – Dufferin, County Down","Clitheroe Golf Club, Lancashire","Close House Golf Club, Northumberland","Colchester Golf Club, Essex","Collingtree Park Golf Club, Northamptonshire","Conwy Golf Club, Wales","County Armagh Golf Club, County Armagh","Crail Golfing Society – Balcomie Links, Fife","Criccieth Golf Club, Wales","Crieff Golf Club, Perthshire","Cruden Bay Golf Club, Aberdeenshire","Dalmahoy Hotel & CC – East Course, Edinburgh","Dalmahoy Hotel & CC – West Course, Edinburgh","Delamere Forest Golf Club, Cheshire","Denbigh Golf Club, Wales","Doncaster Golf Club, South Yorkshire","Douglas Park Golf Club, Glasgow","Dumbarnie Links, Fife","Dunbar Golf Club, East Lothian","Dundonald Links, Ayrshire","Dunfermline Golf Club, Fife","Dungannon Golf Club, County Tyrone","Dunmurry Golf Club, Belfast","Duns Golf Club, Borders","Durham City Golf Club, Durham","East Sussex National – East Course, East Sussex","East Sussex National – West Course, East Sussex","Edgbaston Golf Club, West Midlands","Elie Golf Club, Fife","Enniskillen Golf Club, County Fermanagh","Fairhaven Golf Club, Lancashire","Fairmont St Andrews – Kittocks, Fife","Fairmont St Andrews – Torrance, Fife","Felixstowe Ferry Golf Club, Suffolk","Ferndown Golf Club – Old Course, Dorset","Fleetwood Golf Club, Lancashire","Forest of Arden Golf Club, Warwickshire","Forest of Dean Golf Club, Gloucestershire","Forfar Golf Club, Angus","Formby Golf Club, Merseyside","Fortrose & Rosemarkie Golf Club, Highland","Frilford Heath Golf Club – Blue, Oxfordshire","Frilford Heath Golf Club – Green, Oxfordshire","Frilford Heath Golf Club – Red, Oxfordshire","Fulford Golf Club, North Yorkshire","Galgorm Castle Golf Club, County Antrim","Ganton Golf Club, North Yorkshire","Gatehouse of Fleet Golf Club, Dumfries & Galloway","Girvan Golf Club, Ayrshire","Glasgow Golf Club – Gailes Links, Ayrshire","Glasgow Golf Club – Killermont, Glasgow","Gleneagles – King's Course, Perthshire","Gleneagles – PGA Centenary Course, Perthshire","Gleneagles – Queen's Course, Perthshire","Gog Magog Golf Club – Old Course, Cambridgeshire","Gog Magog Golf Club – Wandlebury, Cambridgeshire","Golspie Golf Club, Highland","Gullane Golf Club – No.1, East Lothian","Gullane Golf Club – No.2, East Lothian","Gullane Golf Club – No.3, East Lothian","Hankley Common Golf Club, Surrey","Harrogate Golf Club, North Yorkshire","Hayling Golf Club, Hampshire","Hazel Grove Golf Club, Cheshire","Heaton Moor Golf Club, Cheshire","Helensburgh Golf Club, Dunbartonshire","Hillside Golf Club, Merseyside","Hollinwell Golf Club, Nottinghamshire","Holyhead Golf Club, Wales","Huddersfield Golf Club, West Yorkshire","Hunstanton Golf Club, Norfolk","Ilkley Golf Club, West Yorkshire","Inverness Golf Club, Highland","Irvine Golf Club, Ayrshire","Isle of Man Golf Club, Isle of Man","Jedburgh Golf Club, Borders","Kenilworth Golf Club, Warwickshire","Kilmacolm Golf Club, Renfrewshire","Kilmarnock Barassie Golf Club, Ayrshire","Kingsbarns Golf Links, Fife","Kingussie Golf Club, Highland","Kirriemuir Golf Club, Angus","La Cala Golf – Campo America, Mijas, Spain","La Cala Golf – Campo Asia, Mijas, Spain","La Cala Golf – Campo Europa, Mijas, Spain","La Moye Golf Club, Jersey","Ladybank Golf Club, Fife","Lamlash Golf Club, Arran","Lancaster Golf Club, Lancashire","Langland Bay Golf Club, Wales","Largs Golf Club, Ayrshire","Lindrick Golf Club, South Yorkshire","Liphook Golf Club, Hampshire","Littlestone Golf Club, Kent","Llandudno Maesdu Golf Club, Wales","Loch Lomond Golf Club, Dunbartonshire","London Golf Club – Heritage Course, Kent","London Golf Club – International Course, Kent","Longniddry Golf Club, East Lothian","Luffness New Golf Club, East Lothian","Lundin Golf Club, Fife","Lyme Regis Golf Club, Dorset","Machrie Hotel & Golf Links, Islay","Machrihanish Golf Club, Argyll","Machynys Peninsula Golf Club, Wales","Malone Golf Club, Belfast","Manchester Golf Club, Greater Manchester","Mannings Heath Golf Club, West Sussex","Mere Golf Resort & Spa, Cheshire","Minchinhampton Golf Club, Gloucestershire","Moffat Golf Club, Dumfries & Galloway","Moor Allerton Golf Club, West Yorkshire","Moor Park Golf Club – High Course, Hertfordshire","Moor Park Golf Club – West Course, Hertfordshire","Moortown Golf Club, West Yorkshire","Moray Golf Club – New Course, Moray","Moray Golf Club – Old Course, Moray","Mortonhall Golf Club, Edinburgh","Moseley Golf Club, West Midlands","Muirfield, East Lothian","Murcar Links Golf Club, Aberdeen","Murrayshall Golf Club, Perthshire","Nairn Dunbar Golf Club, Highland","Nairn Golf Club, Highland","Nefyn & District Golf Club, Wales","New Zealand Golf Club, Surrey","Newburgh on Ythan Golf Club, Aberdeenshire","Newport Golf Club, Wales","North Berwick Golf Club – West Links, East Lothian","Notts Golf Club – Hollinwell, Nottinghamshire","Pannal Golf Club, North Yorkshire","Parkstone Golf Club, Dorset","Pennard Golf Club, Wales","Penrith Golf Club, Cumbria","Peterhead Golf Club, Aberdeenshire","Pitlochry Golf Club, Perthshire","Pollok Golf Club, Glasgow","Portstewart Golf Club – Strand, County Londonderry","Prestwick Golf Club, Ayrshire","Prince's Golf Club, Sandwich, Kent","Queenwood Golf Club, Surrey","Ramsey Golf Club, Isle of Man","Remedy Oak Golf Club, Dorset","Renaissance Club The, East Lothian","Rowany Golf Club, Isle of Man","Royal Aberdeen Golf Club – Balgownie, Aberdeenshire","Royal Ascot Golf Club, Berkshire","Royal Belfast Golf Club, Holywood","Royal Birkdale Golf Club, Merseyside","Royal Burgess Golfing Society, Edinburgh","Royal Cinque Ports Golf Club, Deal, Kent","Royal County Down Golf Club – Annesley, County Down","Royal County Down Golf Club – Championship, County Down","Royal Dornoch Golf Club – Championship, Highland","Royal Dornoch Golf Club – Struie, Highland","Royal Guernsey Golf Club, Guernsey","Royal Jersey Golf Club, Jersey","Royal Liverpool Golf Club, Hoylake, Merseyside","Royal Lytham & St Annes Golf Club, Lancashire","Royal Musselburgh Golf Club, East Lothian","Royal North Devon Golf Club, Devon","Royal Porthcawl Golf Club, Wales","Royal Portrush Golf Club – Dunluce Links, County Antrim","Royal Portrush Golf Club – Valley Links, County Antrim","Royal St David's Golf Club, Harlech, Wales","Royal St George's Golf Club, Sandwich, Kent","Royal Troon – Old Course, Ayrshire","Royal Troon – Portland Course, Ayrshire","Royal West Norfolk Golf Club, Norfolk","Royal Winchester Golf Club, Hampshire","Rye Golf Club, East Sussex","Saunton Golf Club – East Course, Devon","Saunton Golf Club – West Course, Devon","Scotscraig Golf Club, Fife","Seaton Carew Golf Club, Durham","Sheringham Golf Club, Norfolk","Sherwood Forest Golf Club, Nottinghamshire","Shiskine Golf & Tennis Club, Arran","Silloth on Solway Golf Club, Cumbria","Slaley Hall Golf Club – Hunting, Northumberland","Slaley Hall Golf Club – Priestman, Northumberland","Southerndown Golf Club, Wales","Southport & Ainsdale Golf Club, Merseyside","St Andrews Links – Balgove Course, Fife","St Andrews Links – Eden Course, Fife","St Andrews Links – Jubilee Course, Fife","St Andrews Links – New Course, Fife","St Andrews Links – Old Course, Fife","St Andrews Links – Strathtyrum, Fife","St Enodoc Golf Club – Church Course, Cornwall","St Enodoc Golf Club – Holywell Course, Cornwall","St George's Hill Golf Club, Surrey","Stoke Park Club, Buckinghamshire","Sunningdale Golf Club – New Course, Surrey","Sunningdale Golf Club – Old Course, Surrey","Swinley Forest Golf Club, Berkshire","Tain Golf Club, Highland","Tenby Golf Club, Wales","Tewkesbury Park Golf Club – Acorn Course, Gloucestershire","Tewkesbury Park Golf Club – Deerpark Course, Gloucestershire","Torrequebrada Golf Club, Benalmadena, Spain","Trevose Golf Club – Championship, Cornwall","Trump International Golf Links, Aberdeenshire","Trump Turnberry – Ailsa Course, Ayrshire","Trump Turnberry – King Robert the Bruce, Ayrshire","Walton Heath Golf Club – New Course, Surrey","Walton Heath Golf Club – Old Course, Surrey","Wentworth Club – Edinburgh Course, Surrey","Wentworth Club – East Course, Surrey","Wentworth Club – West Course, Surrey","West Cornwall Golf Club, Cornwall","West Kent Golf Club, Kent","West Lancashire Golf Club, Merseyside","West Surrey Golf Club, Surrey","Western Gailes Golf Club, Ayrshire","Whittington Heath Golf Club, Staffordshire","Windermere Golf Club, Cumbria","Woburn Golf Club – Duchess Course, Buckinghamshire","Woburn Golf Club – Duke's Course, Buckinghamshire","Woburn Golf Club – Marquess Course, Buckinghamshire","Woodbridge Golf Club, Suffolk","Woodhall Spa Golf Club – Bracken Course, Lincolnshire","Woodhall Spa Golf Club – Hotchkin Course, Lincolnshire","Woking Golf Club, Surrey","Worksop Golf Club, Nottinghamshire","Worplesdon Golf Club, Surrey","Yeovil Golf Club, Somerset","York Golf Club, North Yorkshire"].sort();
 
 var S={np:4,mode:'strokeplay',tee:'yellow',course:'',curl:'',names:Array(16).fill(0).map(function(_,i){return'Player '+(i+1)}),hcps:Array(16).fill(0),pars:DPARS.slice(),si:DSI.slice(),yds:Array(18).fill(0),slope:113,cr:0,pct:95,groups:{}};
 var R=null,RC='',AP=0,AH=0,PT=null,LS=null,IS_ARCHIVED=false;
@@ -1623,47 +1524,40 @@ function fbGet(p){return fetch(FB+'/'+p+'.json').then(function(r){if(!r.ok)throw
 function fbPut(p,d){return fetch(FB+'/'+p+'.json',{method:'PUT',body:JSON.stringify(d)}).then(function(r){if(!r.ok)throw new Error(r.status);return r.json()})}
 function fbPatch(p,d){return fetch(FB+'/'+p+'.json',{method:'PATCH',body:JSON.stringify(d)}).then(function(r){if(!r.ok)throw new Error(r.status);return r.json()})}
 function fbDelete(p){return fetch(FB+'/'+p+'.json',{method:'DELETE'}).then(function(r){if(!r.ok)throw new Error(r.status)})}
+var PCT_NUMS={'95':95,'100i':100,'90':90,'85':85,'85p':85,'90p':90,'50f':50,'64g':64,'75':75,'85t':85,'100t':100};
+var PCT_LABELS={'95':'Individual Stableford/Par/Bogey: 95%','100i':'Individual Stroke Play: 100%','90':'Individual Stroke (club): 90%','85':'Individual Stroke (club): 85%','85p':'Fourball Betterball: 85%','90p':'Fourball Match Play: 90%','50f':'Foursomes Alt Shot: 50% combined','64g':'Greensomes: 60% low + 40% high','75':'Best 1 of 4: 75%','85t':'Best 2 of 4: 85%','100t':'Best 3/4 of 4: 100%'};
+
 function getHcpAllowancePct(mode){if(!mode)return 100;var m=(mode+'').toLowerCase();if(m.indexOf('fourball')!==-1||m.indexOf('4ball')!==-1){return(m.indexOf('stroke')!==-1||m.indexOf('medal')!==-1)?90:85;}if(m.indexOf('bogey')!==-1)return 100;if(m.indexOf('stroke')!==-1||m.indexOf('medal')!==-1)return 100;if(m.indexOf('stableford')!==-1)return 95;return 100;}
 
 function setNP(n){S.np=n;buildSetup();}
 
-function setPct(p){
-  S.pct=p;
-  updateHcpPctLabel();
-}
+function setPct(p){S.pct=p;updateHcpPctLabel();}
+
 function setPctFromSelect(val){
-  // val may be '95','100','90','85','100m','50f','g' etc
-  var numericPct={'95':95,'100':100,'90':90,'85':85,'75':75,'100m':100,'50f':50,'g':64};
-  var pct=numericPct[val]||95;
-  S.pct=pct;
-  S.pctKey=val;
+  var p=PCT_NUMS[val]||95;
+  S.pct=p;S.pctKey=val;
   updateHcpPctLabel();
 }
 
-var PCT_LABELS={
-  '95':'Individual Stableford, Par & Bogey: 95% of Course Handicap',
-  '100':'Individual Stroke Play: 100% of Course Handicap',
-  '90':'Individual Stroke Play (club variant): 90% of Course Handicap',
-  '85':'Individual Stroke Play (club variant): 85% of Course Handicap',
-  '100m':'Individual Match Play: 100% of handicap difference',
-  '85f':'Fourball Betterball: 85% of Course Handicap',
-  '90f':'Fourball Match Play: 90% of lower handicap difference',
-  '50f':'Foursomes Alternate Shot: 50% of combined team handicap',
-  'g':'Greensomes: 60% of low handicap + 40% of high handicap',
-  '75':'Best 1 of 4: 75% of Course Handicap',
-  '85t':'Best 2 of 4: 85% of Course Handicap',
-  '100t':'Best 3 or 4 of 4: 100% of Course Handicap'
-};
 function updateHcpPctLabel(){
   var el=document.getElementById('pctLabel');
   if(!el)return;
-  var slope=S.slope||113,pct=S.pct||95,key=S.pctKey||String(pct);
+  var slope=S.slope||113,pct=S.pct||95,key=S.pctKey||'95';
   var desc=PCT_LABELS[key]||(pct+'% of Course Handicap');
-  el.innerHTML=''
-    +'<div style="font-size:12px;color:#0d2d6e;font-weight:700">'+desc+'</div>'
-    +'<div style="font-size:11px;color:#6b7280;margin-top:4px">Playing HCP = Index &times; ('+slope+'/113) + (CR &minus; Par) &times; '+pct+'%</div>';
+  el.innerHTML='<strong>'+desc+'</strong><div style="font-size:11px;color:#6b7280;margin-top:3px">Playing HCP = Index x ('+slope+'/113) + (CR - Par) x '+pct+'%</div>';
 }
 
+function setMode(m){
+  S.mode=m;
+  var stroke=document.getElementById('mStroke'),stable=document.getElementById('mStable');
+  if(stroke){stroke.style.background=m==='strokeplay'?'#0d2d6e':'#fff';stroke.style.color=m==='strokeplay'?'#fff':'#0d2d6e';}
+  if(stable){stable.style.background=m==='stableford'?'#0d2d6e':'#fff';stable.style.color=m==='stableford'?'#fff':'#0d2d6e';}
+  var sel=document.getElementById('pctSelect');
+  if(sel){sel.value=m==='stableford'?'95':'100i';setPctFromSelect(sel.value);}
+  else setPct(m==='stableford'?95:100);
+}
+
+// ---- Groups ----
 function autoMakeGroups(np){
   var groups={};var gi=0;
   for(var i=0;i<np;i++){
@@ -1680,18 +1574,23 @@ function buildGroupEditor(){
   if(S.np<=4){el.style.display='none';return;}
   el.style.display='block';
   if(!S.groups||Object.keys(S.groups).length===0)S.groups=autoMakeGroups(S.np);
-  var groups=S.groups;
+  renderGroupEditorInto(el,S.groups,S.names,'S.groups','dragPlayer','dropToGroup');
+}
+
+function renderGroupEditorInto(el,groups,names,groupsVar,dragFn,dropFn){
   var gKeys=Object.keys(groups).sort(function(a,b){return parseInt(a)-parseInt(b);});
-  var html='<div style="font-size:11px;font-weight:700;color:#0d2d6e;text-transform:uppercase;letter-spacing:.6px;margin-bottom:10px">Groups (drag players to move between groups)</div>';
   var gcols=['#c8102e','#16a34a','#7c3aed','#d97706','#0891b2'];
+  var html='<div style="font-size:11px;font-weight:700;color:#0d2d6e;text-transform:uppercase;letter-spacing:.6px;margin-bottom:10px">Groups  drag players to move</div>';
   gKeys.forEach(function(gi,gIdx){
     var members=groups[gi]||[];
     var col=gcols[gIdx%gcols.length];
-    html+='<div data-gi="'+gi+'" style="background:#fff;border:2px solid '+col+';border-left:5px solid '+col+';border-radius:8px;padding:10px 12px;margin-bottom:8px;min-height:52px" ondragover="event.preventDefault()" ondrop="dropToGroup(event,'+gi+')">';
+    html+='<div data-gi="'+gi+'" style="background:#fff;border:2px solid '+col+';border-left:5px solid '+col+';border-radius:8px;padding:10px 12px;margin-bottom:8px;min-height:48px" ondragover="event.preventDefault()" ondrop="'+dropFn+'(event,'+gi+')">';
     html+='<div style="font-size:12px;font-weight:700;color:'+col+';margin-bottom:6px">Group '+(gIdx+1)+'</div>';
     members.forEach(function(pi){
-      var name=S.names[pi]||'Player '+(pi+1);
-      html+='<div draggable="true" ondragstart="window._dragPi='+pi+';event.dataTransfer.effectAllowed=\'move\'" style="display:inline-flex;align-items:center;gap:5px;background:#eff6ff;border:1.5px solid #0d2d6e;border-radius:4px;padding:4px 10px;margin:2px 3px;font-size:12px;font-weight:600;color:#0d2d6e;cursor:grab"><span style="font-size:10px;opacity:.5">&#9776;</span>'+escHtml(name)+'</div>';
+      var name=names[pi]||'Player '+(pi+1);
+      html+='<div draggable="true" ondragstart="window._dragPi='+pi+';event.dataTransfer.effectAllowed=\'move\'" '
+        +'style="display:inline-flex;align-items:center;gap:5px;background:#eff6ff;border:1.5px solid #0d2d6e;border-radius:4px;padding:4px 10px;margin:2px 3px;font-size:12px;font-weight:600;color:#0d2d6e;cursor:grab">'
+        +'<span style="font-size:10px;opacity:.5">&#9776;</span>'+escHtml(name)+'</div>';
     });
     html+='</div>';
   });
@@ -1699,212 +1598,126 @@ function buildGroupEditor(){
 }
 
 window._dragPi=null;
+function dragPlayer(e,pi){window._dragPi=pi;e.dataTransfer.effectAllowed='move';}
 function dropToGroup(e,targetGi){
   e.preventDefault();
-  var pi=window._dragPi;if(pi===null||pi===undefined)return;
-  window._dragPi=null;
-  var groups=S.groups;
-  Object.keys(groups).forEach(function(gi){groups[gi]=groups[gi].filter(function(p){return p!==pi;});});
-  if(!groups[targetGi])groups[targetGi]=[];
-  groups[targetGi].push(pi);
+  var pi=window._dragPi;if(pi===null||pi===undefined)return;window._dragPi=null;
+  Object.keys(S.groups).forEach(function(gi){S.groups[gi]=(S.groups[gi]||[]).filter(function(p){return p!==pi;});});
+  if(!S.groups[targetGi])S.groups[targetGi]=[];
+  S.groups[targetGi].push(pi);
   var newG={};var idx=0;
-  Object.keys(groups).sort(function(a,b){return parseInt(a)-parseInt(b);}).forEach(function(gi){if(groups[gi].length>0){newG[idx]=groups[gi];idx++;}});
-  S.groups=newG;
-  buildGroupEditor();
+  Object.keys(S.groups).sort(function(a,b){return parseInt(a)-parseInt(b);}).forEach(function(gi){if(S.groups[gi].length>0){newG[idx]=S.groups[gi];idx++;}});
+  S.groups=newG;buildGroupEditor();
 }
 
-function saveRoundGroups(code,np){
-  if(np<=4||!S.groups||Object.keys(S.groups).length===0)return;
-  fbPut('rounds/'+code+'/groups',S.groups);
+function saveRoundGroups(code,np,groups){
+  if(np<=4||!groups||Object.keys(groups).length===0)return;
+  fbPut('rounds/'+code+'/groups',groups);
 }
 
 function loadMyGroup(code,playerIdx){
   fbGet('rounds/'+code+'/groups').then(function(groups){
     window._roundGroups=groups;
-    if(!groups){window._myGroupPlayers=[];return;}
+    if(!groups){window._myGroupPlayers=[];renderGroupEntry();return;}
     var gKeys=Object.keys(groups);
     for(var gi=0;gi<gKeys.length;gi++){
       var members=(groups[gKeys[gi]]||[]).map(Number);
       if(members.indexOf(playerIdx)!==-1){
         window._myGroup=parseInt(gKeys[gi]);
-        window._myGroupPlayers=members.map?members.map(Number):members;
+        window._myGroupPlayers=members;
         showGroupBanner();renderGroupEntry();return;
       }
     }
-    window._myGroupPlayers=[];
-  });
+    window._myGroupPlayers=[];renderGroupEntry();
+  }).catch(function(){window._myGroupPlayers=[];});
 }
 
 function showGroupBanner(){
   if(!window._roundGroups||!window._myGroupPlayers||!window._myGroupPlayers.length)return;
   var banner=document.getElementById('group-banner');
   if(!banner){
-    banner=document.createElement('div');
-    banner.id='group-banner';
+    banner=document.createElement('div');banner.id='group-banner';
     banner.style.cssText='background:#c8102e;color:#fff;font-size:12px;font-weight:700;text-align:center;padding:7px 12px;letter-spacing:.3px';
     var pp=document.getElementById('p-play');
     if(pp){var tb=pp.querySelector('.banner');if(tb&&tb.nextSibling)pp.insertBefore(banner,tb.nextSibling);else pp.insertBefore(banner,pp.firstChild);}
   }
-  banner.textContent='Group '+(window._myGroup+1)+': '+window._myGroupPlayers.map(function(i){return window.R&&R.names&&R.names[i]?R.names[i].split(' ')[0]:'P'+(i+1);}).join(', ')+' - you can score these players';
+  banner.textContent='Group '+(window._myGroup+1)+': '+window._myGroupPlayers.map(function(i){return window.R&&R.names&&R.names[i]?R.names[i].split(' ')[0]:'P'+(i+1);}).join(', ')+' - tap your group to score';
 }
 
 function canEditPlayerScore(playerIdx){
   if(!window._roundGroups)return true;
   if(window._isAdmin)return true;
   if(!window._myGroupPlayers||!window._myGroupPlayers.length)return true;
-  return window._myGroupPlayers.indexOf(playerIdx)!==-1;
-}
-// ============================================================
-// ADMIN COURSE EDITOR
-// ============================================================
-var AC = {course:'', tee:'yellow', pars:Array(18).fill(4), si:Array(18).fill(0).map(function(_,i){return i+1;}), yds:Array(18).fill(0), slope:113, cr:0};
-
-function adminDdFilter(q){
-  var list=document.getElementById('adminDdList');
-  if(!list)return;
-  var lq=(q||'').trim().toLowerCase();
-  if(!lq){list.style.display='none';return;}
-  var matches=COURSES.filter(function(c){return c.toLowerCase().indexOf(lq)>=0;}).slice(0,20);
-  if(!matches.length){list.style.display='none';return;}
-  list.innerHTML=matches.map(function(c){
-    return '<div onclick="adminDdPick(\''+escHtml(c)+'\')" style="padding:10px 12px;cursor:pointer;font-size:14px;border-bottom:1px solid #e5e7eb" onmouseover="this.style.background=\'#eff6ff\'" onmouseout="this.style.background=\'#fff\'">'+escHtml(c)+'</div>';
-  }).join('');
-  list.style.display='block';
+  return window._myGroupPlayers.map(Number).indexOf(playerIdx)!==-1;
 }
 
-function adminDdPick(name){
-  AC.course=name;
-  var inp=document.getElementById('adminCourseIn');
-  if(inp)inp.value=name;
-  var list=document.getElementById('adminDdList');
-  if(list)list.style.display='none';
-  adminBuildTeeBtns();
-  adminLoadCourseCard();
-}
-
-function adminBuildTeeBtns(){
-  var el=document.getElementById('adminTeeBtns');
+// ---- Group Entry View ----
+function renderGroupEntry(){
+  var el=document.getElementById('group-entry-view');
+  var playerLabel=document.getElementById('playerLabel');
   if(!el)return;
-  var tees=['yellow','white','red','blue','black'];
-  var colors={yellow:'#d97706',white:'#6b7280',red:'#c8102e',blue:'#1d4ed8',black:'#111827'};
-  el.innerHTML='';
-  tees.forEach(function(t){
-    var btn=document.createElement('button');
-    var active=t===AC.tee;
-    btn.textContent=t.charAt(0).toUpperCase()+t.slice(1);
-    btn.style.cssText='padding:8px 16px;font-size:13px;font-weight:700;border:2.5px solid '+colors[t]+';border-radius:6px;cursor:pointer;background:'+(active?colors[t]:'#fff')+';color:'+(active?'#fff':colors[t]);
-    btn.onclick=function(){AC.tee=t;adminBuildTeeBtns();adminLoadCourseCard();};
-    el.appendChild(btn);
-  });
-}
-
-function adminLoadCourseCard(){
-  if(!AC.course)return;
-  var cardKey=AC.course.toLowerCase().replace(/[^a-z0-9]/g,'_').substring(0,80)+'__'+AC.tee;
-  var info=document.getElementById('adminCardInfo');
-  if(info){info.style.display='block';info.textContent='Loading saved data for '+AC.course+' ('+AC.tee+' tees)...';}
-  fbGet('scorecards/'+cardKey).then(function(d){
-    if(d&&d.par&&d.par.length===18){
-      AC.pars=d.par.slice();
-      AC.si=d.si?d.si.slice():AC.si;
-      AC.yds=d.yds&&d.yds.some(function(y){return y>0;})?d.yds.slice():Array(18).fill(0);
-      AC.slope=d.slope||113;
-      AC.cr=d.cr||0;
-      if(info)info.textContent='Loaded saved data for '+AC.course+' ('+AC.tee+' tees) ';
-    } else {
-      // No saved data - use defaults
-      AC.pars=DPARS.slice();AC.si=DSI.slice();AC.yds=Array(18).fill(0);AC.slope=113;AC.cr=0;
-      if(info)info.textContent='No saved data found - using defaults. Edit and save below.';
-    }
-    adminBuildCourseForm();
-  }).catch(function(){
-    AC.pars=DPARS.slice();AC.si=DSI.slice();AC.yds=Array(18).fill(0);AC.slope=113;AC.cr=0;
-    adminBuildCourseForm();
-  });
-}
-
-function adminBuildCourseForm(){
-  var form=document.getElementById('adminCourseForm');
-  if(!form)return;
-  form.style.display='block';
-  // Slope / CR
-  var sl=document.getElementById('adminSlope');if(sl)sl.value=AC.slope||'';
-  var cr=document.getElementById('adminCR');if(cr)cr.value=AC.cr||'';
-  var pt=AC.pars.reduce(function(a,b){return a+b},0);
-  var cp=document.getElementById('adminCoursePar');if(cp)cp.value=pt;
-  // Yds grid
-  var yg=document.getElementById('adminYdsGrid');
-  if(yg){yg.innerHTML='';for(var i=0;i<18;i++){yg.innerHTML+='<div class="cell"><span>'+(i+1)+'</span><input type="number" min="0" max="999" value="'+(AC.yds[i]||0)+'" data-i="'+i+'" oninput="AC.yds[this.dataset.i]=parseInt(this.value)||0"/></div>';}}
-  // Par grid
-  var pg=document.getElementById('adminParGrid');
-  if(pg){pg.innerHTML='';for(var i=0;i<18;i++){pg.innerHTML+='<div class="cell"><span>'+(i+1)+'</span><input type="number" min="3" max="6" value="'+AC.pars[i]+'" data-i="'+i+'" oninput="AC.pars[this.dataset.i]=parseInt(this.value)||4;var t=AC.pars.reduce(function(a,b){return a+b},0);var el=document.getElementById(\'adminCoursePar\');if(el)el.value=t"/></div>';}}
-  // SI grid
-  var sg=document.getElementById('adminSiGrid');
-  if(sg){sg.innerHTML='';for(var i=0;i<18;i++){sg.innerHTML+='<div class="cell"><span>'+(i+1)+'</span><input type="number" min="1" max="18" value="'+AC.si[i]+'" data-i="'+i+'" oninput="AC.si[this.dataset.i]=parseInt(this.value)||'+(i+1)+'"/></div>';}}
-}
-
-function adminPasteToGrid(raw, gridId, field, minVal, maxVal){
-  if(!raw||!raw.trim())return;
-  // Parse: split on any whitespace, tabs, commas, newlines
-  var nums=raw.trim().split(/[\s,\t\n]+/).map(function(v){return parseInt(v);}).filter(function(v){return!isNaN(v);});
-  if(!nums.length)return;
-  // If we got 18 values fill all; if 9 fill front 9; if we got out/in totals at pos 9 or 18 skip them
-  var vals=[];
-  if(nums.length>=18){
-    vals=nums.slice(0,18);
-  } else if(nums.length===19){
-    // probably has an OUT total at pos 9 - skip it
-    vals=nums.slice(0,9).concat(nums.slice(10,19));
-  } else if(nums.length===20){
-    // has OUT at 9 and IN at 19 - skip both
-    vals=nums.slice(0,9).concat(nums.slice(10,19));
-  } else {
-    vals=nums.slice(0,18);
-    while(vals.length<18)vals.push(minVal);
+  var hasGroup=window._roundGroups&&window._myGroupPlayers&&window._myGroupPlayers.length>0;
+  if(!hasGroup||IS_ARCHIVED){
+    el.style.display='none';
+    if(playerLabel)playerLabel.style.display='block';
+    return;
   }
-  // Clamp to min/max
-  vals=vals.map(function(v){return Math.max(minVal,Math.min(maxVal,v));});
-  // Update AC object
-  AC[field]=vals.slice(0,18);
-  // Update the grid inputs
-  var grid=document.getElementById(gridId);
-  if(grid){
-    var inputs=grid.querySelectorAll('input');
-    inputs.forEach(function(inp,i){if(i<vals.length){inp.value=vals[i];}});
-  }
-  // Update par total if pars changed
-  if(field==='pars'){
-    var t=vals.reduce(function(a,b){return a+b},0);
-    var cp=document.getElementById('adminCoursePar');if(cp)cp.value=t;
-  }
-}
-function adminSaveCourse(){
-  if(!AC.course){alert('Please select a course first.');return;}
-  var sl=document.getElementById('adminSlope');
-  var cr=document.getElementById('adminCR');
-  if(sl)AC.slope=parseFloat(sl.value)||113;
-  if(cr)AC.cr=parseFloat(cr.value)||0;
-  var cardKey=AC.course.toLowerCase().replace(/[^a-z0-9]/g,'_').substring(0,80)+'__'+AC.tee;
-  var data={course:AC.course,tee:AC.tee,par:AC.pars.slice(),si:AC.si.slice(),yds:AC.yds.some(function(y){return y>0;})?AC.yds.slice():null,slope:AC.slope||null,cr:AC.cr||null,updated:Date.now()};
-  var btn=document.querySelector('[onclick="adminSaveCourse()"]');
-  if(btn){btn.textContent='Saving...';btn.style.background='#6b7280';}
-  fbPut('scorecards/'+cardKey,data).then(function(){
-    var info=document.getElementById('adminCardInfo');
-    if(info){info.style.display='block';info.textContent='Saved! '+AC.course+' ('+AC.tee+' tees)  slope '+AC.slope+', CR '+AC.cr+', yds '+(AC.yds.some(function(y){return y>0;})?'yes':'none');}
-    if(btn){btn.textContent='Save Course Data to Firebase';btn.style.background='#16a34a';}
-  }).catch(function(e){
-    alert('Save failed: '+e.message);
-    if(btn){btn.textContent='Save Course Data to Firebase';btn.style.background='#16a34a';}
+  el.style.display='block';
+  if(playerLabel)playerLabel.style.display='none';
+  var hi=AH;
+  var par=R.pars[hi],si=R.si[hi];
+  var slope=parseFloat(R.slope)||113,cr=parseFloat(R.cr)||0;
+  var par_total=R.pars.reduce(function(a,b){return a+b},0);
+  if(!cr)cr=par_total;
+  var pct=R.pct||95;
+  var html='<div style="background:#0d2d6e;color:#fff;font-size:12px;font-weight:700;padding:8px 12px;border-radius:8px 8px 0 0">'
+    +'Group '+(window._myGroup!==undefined?window._myGroup+1:'')
+    +' &mdash; Hole '+(hi+1)+' &nbsp; Par '+par+' &middot; SI '+si
+    +'</div>';
+  html+='<div style="border:2px solid #0d2d6e;border-top:none;border-radius:0 0 8px 8px;overflow:hidden;margin-bottom:10px">';
+  window._myGroupPlayers.map(Number).forEach(function(pi,idx){
+    if(pi>=R.np)return;
+    var name=R.names[pi]||'P'+(pi+1);
+    var s=R.scores[pi][hi]||0;
+    var hcpIdx=parseFloat(R.hcps[pi])||0;
+    var ch=Math.round(hcpIdx*(slope/113)+(cr-par_total));
+    var playing=Math.round(ch*pct/100);
+    var hs=hcpS(playing,si);
+    var lb=s?sLabel(s,par):{t:'-',c:'#9ca3af'};
+    var pts=s?sbPts(s,par,hs):0;
+    var isAP=pi===AP;
+    var rowBg=isAP?'#dbeafe':idx%2===0?'#f9fafb':'#fff';
+    html+='<div onclick="AP='+pi+';renderPBtns();renderHBtns();" '
+      +'style="display:flex;align-items:center;gap:8px;padding:9px 10px;background:'+rowBg+';border-bottom:1px solid #e5e7eb;cursor:pointer">'
+      +'<div style="flex:1;min-width:0">'
+      +'<div style="font-size:13px;font-weight:700;color:#0d2d6e;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">'+(isAP?'<span style="color:#c8102e">&#9654;</span> ':'')+escHtml(name)+'</div>'
+      +'<div style="font-size:10px;color:#6b7280">Playing '+playing+(hs>0?' +'+hs:'')+'</div>'
+      +'</div>'
+      +'<div style="display:flex;align-items:center;gap:6px;flex-shrink:0">'
+      +'<button onclick="event.stopPropagation();groupSetScore('+pi+','+(s>1?s-1:1)+')" style="width:34px;height:34px;font-size:20px;font-weight:900;border:2px solid #0d2d6e;background:#fff;color:#0d2d6e;border-radius:6px;cursor:pointer;line-height:1">&#8722;</button>'
+      +'<div style="min-width:38px;text-align:center;font-size:22px;font-weight:700;color:'+(s?lb.c:'#d1d5db')+'">'+(s||'&middot;')+'</div>'
+      +'<button onclick="event.stopPropagation();groupSetScore('+pi+','+(s>0?s+1:1)+')" style="width:34px;height:34px;font-size:20px;font-weight:900;border:2px solid #0d2d6e;background:#fff;color:#0d2d6e;border-radius:6px;cursor:pointer;line-height:1">&#43;</button>'
+      +'</div>'
+      +(R.mode==='stableford'&&s?'<div style="min-width:32px;text-align:right;font-size:12px;font-weight:700;color:#0d2d6e">'+pts+'pts</div>':'')
+      +'</div>';
   });
+  html+='</div>';
+  html+='<div style="display:flex;gap:8px;margin-bottom:8px">'
+    +(AH>0?'<button onclick="prevH()" style="flex:1;padding:10px;background:#fff;border:2px solid #0d2d6e;color:#0d2d6e;font-weight:700;font-size:13px;border-radius:6px;cursor:pointer">&larr; Hole '+(AH)+'</button>':'<div style="flex:1"></div>')
+    +(AH<17?'<button onclick="nextH()" style="flex:1;padding:10px;background:#0d2d6e;border:2px solid #0d2d6e;color:#fff;font-weight:700;font-size:13px;border-radius:6px;cursor:pointer">Hole '+(AH+2)+' &rarr;</button>':'<div style="flex:1"></div>')
+    +'</div>';
+  el.innerHTML=html;
 }
 
-function adminClearCourseForm(){
-  AC={course:'',tee:'yellow',pars:DPARS.slice(),si:DSI.slice(),yds:Array(18).fill(0),slope:113,cr:0};
-  var inp=document.getElementById('adminCourseIn');if(inp)inp.value='';
-  var form=document.getElementById('adminCourseForm');if(form)form.style.display='none';
-  var info=document.getElementById('adminCardInfo');if(info)info.style.display='none';
-  ['adminYdsPaste','adminParPaste','adminSiPaste'].forEach(function(id){var el=document.getElementById(id);if(el)el.value='';});
-  var teeBtns=document.getElementById('adminTeeBtns');if(teeBtns)teeBtns.innerHTML='';
+function groupSetScore(pi,v){
+  if(IS_ARCHIVED)return;
+  v=Math.max(1,Math.min(15,v));
+  R.scores[pi][AH]=v;R.ts=Date.now();
+  fbPatch('rounds/'+RC,{scores:R.scores,ts:R.ts}).then(function(){
+    $('liveDisp').className='live';$('liveDisp').textContent=' Live';
+    $('timeDisp').textContent=new Date().toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'});
+  }).catch(function(){});
+  renderGroupEntry();renderHBtns();renderSC();renderLB();
 }
 function hcpS(h,si){if(h<=0)return 0;if(h>=36)return 2;return si<=h?1:0}
 function sbPts(s,par,hs){if(!s)return 0;var d=s-hs-par;if(d>=2)return 0;if(d===1)return 1;if(d===0)return 2;if(d===-1)return 3;if(d===-2)return 4;return 5}
@@ -2014,20 +1827,7 @@ return;
   buildGroupEditor();
   updateHcpPctLabel();
 }
-function setMode(m){
-  S.mode=m;
-  var stroke=$('mStroke'),stable=$('mStable');
-  if(stroke){stroke.style.background=m==='strokeplay'?'#0d2d6e':'#fff';stroke.style.color=m==='strokeplay'?'#fff':'#0d2d6e';}
-  if(stable){stable.style.background=m==='stableford'?'#0d2d6e':'#fff';stable.style.color=m==='stableford'?'#fff':'#0d2d6e';}
-  // Auto-set dropdown to sensible default for mode
-  var sel=document.getElementById('pctSelect');
-  if(sel){
-    sel.value=m==='stableford'?'95':'100';
-    setPctFromSelect(sel.value);
-  } else {
-    setPct(m==='stableford'?95:100);
-  }
-}
+function setMode(m){S.mode=m;$('mStroke').className='btn-sm'+(m==='strokeplay'?' on':'');$('mStable').className='btn-sm'+(m==='stableford'?' on':'')}
 
 var DF=[],DI=0,DO=false,ST=null,CLUB_MAP={};
 function ddFilter(q){
@@ -2145,7 +1945,7 @@ function buildTeeBtns(){
     b.style.color=t===S.tee?'#fff':(t==='yellow'?'#ca8a04':t==='white'?'#6b7280':t==='red'?'#dc2626':t==='blue'?'#2563eb':'#111');
     if(t===S.tee){b.style.background=t==='yellow'?'#ca8a04':t==='white'?'#6b7280':t==='red'?'#dc2626':t==='blue'?'#2563eb':'#111';}
     b.textContent=t.charAt(0).toUpperCase()+t.slice(1);
-    b.onclick=function(){S.tee=t;buildTeeBtns();if(S.course)loadCourseCard(S.course);};
+    b.onclick=function(){S.tee=t;buildTeeBtns();};
     el.appendChild(b);
   });
 }
@@ -2159,11 +1959,7 @@ function loadCourseCard(name){
   for(var key in KNOWN_CARDS){
     if(k.indexOf(key)>=0||key.indexOf(k)>=0){
       var teeData=KNOWN_CARDS[key][S.tee]||KNOWN_CARDS[key].yellow||KNOWN_CARDS[key].white;
-      if(teeData){S.pars=teeData.par.slice();S.si=teeData.si.slice();
-        if(teeData.yds&&teeData.yds.some(function(y){return y>0}))S.yds=teeData.yds.slice();
-        if(teeData.slope){S.slope=teeData.slope;var slEl=$('setupSlope');if(slEl)slEl.value=teeData.slope;}
-        if(teeData.cr){S.cr=teeData.cr;var crEl=$('setupCR');if(crEl)crEl.value=teeData.cr;}
-        buildSetup();updateHcpPctLabel();
+      if(teeData){S.pars=teeData.par.slice();S.si=teeData.si.slice();buildSetup();
         ci.textContent='Scorecard loaded for '+name.split(',')[0]+' ('+S.tee+' tees)!';
         ci.style.borderLeftColor='#16a34a';ci.style.background='#f0fdf4';ci.style.color='#166534';return;}
     }
@@ -2176,14 +1972,8 @@ function loadCourseCard(name){
       if(d.yds&&d.yds.some(function(y){return y>0}))S.yds=d.yds.slice();
       if(d.slope){S.slope=d.slope;var slEl=$('setupSlope');if(slEl)slEl.value=d.slope;}
       if(d.cr){S.cr=d.cr;var crEl=$('setupCR');if(crEl)crEl.value=d.cr;}
-      var parTotal=S.pars.reduce(function(a,b){return a+b},0);
-      var cpEl=$('setupCoursePar');if(cpEl)cpEl.value=parTotal;
-      buildSetup();updateHcpPctLabel();
-      var loadedParts=[];
-      if(d.yds&&d.yds.some(function(y){return y>0}))loadedParts.push('yards');
-      if(d.slope)loadedParts.push('slope '+d.slope);
-      if(d.cr)loadedParts.push('CR '+d.cr);
-      ci.textContent='Scorecard loaded for '+name.split(',')[0]+' ('+S.tee+' tees) ✓'+(loadedParts.length?' — '+loadedParts.join(', '):'');
+      buildSetup();
+      ci.textContent='Scorecard loaded for '+name.split(',')[0]+' ('+S.tee+' tees) ✓ community verified';
       ci.style.borderLeftColor='#16a34a';ci.style.background='#f0fdf4';ci.style.color='#166534';
     } else {
       loadCourseCardFromAPI(name,ci);
@@ -2259,13 +2049,13 @@ function doCreate(){
   $('setupErr').style.display='none';
   var code=genCode();
   var courseName=S.course||$('courseIn').value;
-  var r={course:courseName,curl:S.curl,np:S.np,mode:S.mode,names:S.names.slice(0,S.np),hcps:S.hcps.slice(0,S.np),pars:S.pars.slice(),si:S.si.slice(),yds:(S.yds||[]).slice(),slope:S.slope||113,cr:S.cr||0,pct:S.pct||95,pctKey:S.pctKey||'95',scores:Array(16).fill(0).map(function(){return Array(18).fill(0)}),ts:Date.now(),status:'live'};
+  var r={course:courseName,curl:S.curl,np:S.np,mode:S.mode,names:S.names.slice(0,S.np),hcps:S.hcps.slice(0,S.np),pars:S.pars.slice(),si:S.si.slice(),yds:(S.yds||[]).slice(),slope:S.slope||113,cr:S.cr||0,pct:S.pct||95,groups:(S.np>4?S.groups:null),scores:Array(16).fill(0).map(function(){return Array(18).fill(0)}),ts:Date.now(),status:'live'};
   // Save corrected scorecard to community database
   if(courseName&&S.pars.length===18&&S.si.length===18){
     var cardKey=courseName.toLowerCase().replace(/[^a-z0-9]/g,'_').substring(0,80)+'__'+S.tee;
     fbPut('scorecards/'+cardKey,{course:courseName,tee:S.tee,par:S.pars.slice(),si:S.si.slice(),yds:(S.yds&&S.yds.some(function(y){return y>0})?S.yds.slice():null),slope:S.slope||null,cr:S.cr||null,updated:Date.now()}).catch(function(){});
   }
-  fbPut('rounds/'+code,r).then(function(){RC=code;R=r;IS_ARCHIVED=false;saveRoundGroups(code,r.np);startPlay()}).catch(function(e){$('setupErr').textContent='Error: '+e.message;$('setupErr').style.display='block'});
+  fbPut('rounds/'+code,r).then(function(){RC=code;R=r;IS_ARCHIVED=false;saveRoundGroups(code,r.np,r.groups);startPlay()}).catch(function(e){$('setupErr').textContent='Error: '+e.message;$('setupErr').style.display='block'});
 }
 function doJoin(){
   $('joinErr').style.display='none';
@@ -2290,8 +2080,8 @@ function startPoll(){
   if(PT)clearInterval(PT);
   PT=setInterval(function(){
     fbGet('rounds/'+RC).then(function(d){
-      if(d&&d.ts>R.ts){R=d;if(!R.yds)R.yds=[];if(!R.slope)R.slope=113;if(!R.cr)R.cr=0;if(!R.pct)R.pct=95;renderAll()}
-      $('liveDisp').className='live';$('liveDisp').textContent='● Live';
+      if(d&&d.ts>R.ts){R=d;renderAll()}
+      $('liveDisp').className='live';$('liveDisp').textContent='â— Live';
       LS=new Date();$('timeDisp').textContent=LS.toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'});
     }).catch(function(){});
   },5000);
@@ -2363,7 +2153,15 @@ function renderPBtns(){
   ['pBtns','sBtns'].forEach(function(id){
     var el=$(id);if(!el)return;el.innerHTML='';
     for(var i=0;i<R.np;i++){
-      var b=document.createElement('button');b.className='btn-sm'+(i===AP?' on':'');b.textContent=R.names[i]||'P'+(i+1);
+      var active=i===AP;
+      var hasGroup=window._roundGroups&&window._myGroupPlayers&&window._myGroupPlayers.length>0;
+      var inMyGroup=!hasGroup||(window._myGroupPlayers.map(Number).indexOf(i)!==-1);
+      var b=document.createElement('button');
+      b.textContent=R.names[i]||'P'+(i+1);
+      var bg=active?'#0d2d6e':inMyGroup?'#ffffff':'#d1d5db';
+      var col=active?'#ffffff':inMyGroup?'#0d2d6e':'#4b5563';
+      var bdr=active?'#0d2d6e':inMyGroup?'#0d2d6e':'#9ca3af';
+      b.style.cssText='padding:7px 13px;font-size:12px;font-weight:700;border:2.5px solid '+bdr+';border-radius:6px;cursor:pointer;margin:2px 2px 4px;white-space:nowrap;background:'+bg+';color:'+col;
       (function(pi){b.onclick=function(){AP=pi;renderPBtns();if(id==='pBtns'){renderHBtns();renderEntry();loadMyGroup(RC,pi);}else renderSummary();}})(i);
       el.appendChild(b);
     }
@@ -2382,7 +2180,7 @@ function renderHBtns(){
     b.className='hbtn'+(i===AH?' on':v?(' '+sCls(v,R.pars[i])):'');
     b.textContent=i+1;(function(hi){b.onclick=function(){AH=hi;renderHBtns();renderEntry()}})(i);hg.appendChild(b);
   }
-  renderGroupEntry();
+  if(typeof renderGroupEntry==='function')renderGroupEntry();
 }
 function renderEntry(){
   var s=R.scores[AP][AH]||0,par=R.pars[AH],si=R.si[AH],hcp=R.hcps[AP]||0,hs=hcpS(hcp,si);
@@ -2406,27 +2204,15 @@ function nextH(){if(AH<17){AH++;renderHBtns();renderEntry()}}
 function setVal(v){
   if(IS_ARCHIVED)return;
   if(!canEditPlayerScore(AP)){
-    showGroupMsg();return;
+    var msg=document.getElementById('groupMsg');
+    if(!msg){msg=document.createElement('div');msg.id='groupMsg';msg.style.cssText='background:#c8102e;color:#fff;font-size:12px;font-weight:700;padding:8px 12px;text-align:center;border-radius:6px;margin:6px 0';var ebox=document.querySelector('.ebox');if(ebox)ebox.insertBefore(msg,ebox.firstChild);}
+    msg.textContent='You can only score your own group. Tap your name above.';
+    msg.style.display='block';setTimeout(function(){if(msg)msg.style.display='none';},3000);
+    return;
   }
   R.scores[AP][AH]=v;R.ts=Date.now();
   fbPatch('rounds/'+RC,{scores:R.scores,ts:R.ts}).then(function(){LS=new Date();$('liveDisp').className='live';$('liveDisp').textContent='● Live';$('timeDisp').textContent=LS.toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'})}).catch(function(){});
   renderHBtns();renderEntry();renderSC();renderLB();
-}
-
-function showGroupMsg(){
-  var names=window._myGroupPlayers&&window._myGroupPlayers.length
-    ?'Your group: '+window._myGroupPlayers.map(function(i){return R.names[i]?R.names[i].split(' ')[0]:'P'+(i+1);}).join(', ')
-    :'Select your name above to score your group.';
-  var msg=document.getElementById('groupMsg');
-  if(!msg){
-    msg=document.createElement('div');msg.id='groupMsg';
-    msg.style.cssText='background:#c8102e;color:#fff;font-size:12px;font-weight:700;padding:8px 12px;text-align:center;border-radius:6px;margin:6px 0';
-    var ebox=document.querySelector('.ebox');
-    if(ebox)ebox.insertBefore(msg,ebox.firstChild);
-  }
-  msg.textContent='You can only score your own group. '+names;
-  msg.style.display='block';
-  setTimeout(function(){if(msg)msg.style.display='none';},3000);
 }
 function renderSC(){
   var slope=parseFloat(R.slope)||113,cr=parseFloat(R.cr)||0;
@@ -2470,14 +2256,13 @@ function renderSC(){
       var members=(groups[gi]||[]).map(Number).filter(function(p){return p<R.np;});
       if(!members.length)return;
       var col=gcols[gIdx%gcols.length];
-      h+='<tr><td colspan="21" style="background:'+col+';color:#fff;font-size:11px;font-weight:700;padding:5px 10px;letter-spacing:.5px;text-transform:uppercase">Group '+(gIdx+1)+'</td></tr>';
+      h+='<tr><td colspan="21" style="background:'+col+';color:#fff;font-size:11px;font-weight:700;padding:5px 10px;text-transform:uppercase;letter-spacing:.5px">Group '+(gIdx+1)+'</td></tr>';
       members.forEach(function(pi){h+=buildPlayerRow(pi,slope,cr,par_total,pct);});
     });
   }else{
     for(var pi=0;pi<R.np;pi++)h+=buildPlayerRow(pi,slope,cr,par_total,pct);
   }
-  h+='</tbody>';
-  $('scTable').innerHTML=h;
+  h+='</tbody>';$('scTable').innerHTML=h;
 }
 
 function buildPlayerRow(pi,slope,cr,par_total,pct){
@@ -2797,7 +2582,7 @@ function updatePinDots(){
   dots.forEach(function(d,i){d.classList.toggle('filled',i<pinVal.length)});
 }
 function pinSubmit(){
-  if(pinVal===ADMIN_PIN){IS_ADMIN=true;show('p-admin');loadLiveRounds();adminBuildTeeBtns();}
+  if(pinVal===ADMIN_PIN){IS_ADMIN=true;show('p-admin');loadLiveRounds();}
   else{$('pinErr').textContent='Incorrect PIN — try again';pinVal='';updatePinDots()}
 }
 
@@ -2852,64 +2637,6 @@ function loadLiveRounds(){
   });
 }
 
-function adminLoadArchived(){
-  var list=document.getElementById('adminArchivedList');
-  if(!list)return;
-  list.innerHTML='<div style="font-size:13px;color:#4a5a7a">Loading archived rounds...</div>';
-  fbGet('archived_rounds').then(function(d){
-    if(!d||!Object.keys(d).length){
-      list.innerHTML='<div style="font-size:13px;color:#9ca3af;padding:12px 0">No archived rounds found.</div>';
-      return;
-    }
-    var rounds=Object.entries(d)
-      .map(function(e){return{code:e[0],data:e[1]};})
-      .sort(function(a,b){return(b.data.completedAt||b.data.ts||0)-(a.data.completedAt||a.data.ts||0);});
-    list.innerHTML=rounds.map(function(r){
-      var d=r.data;
-      var date=d.completedAt?new Date(d.completedAt).toLocaleDateString('en-GB',{day:'numeric',month:'short',year:'numeric'})
-               :d.ts?new Date(d.ts).toLocaleDateString('en-GB',{day:'numeric',month:'short',year:'numeric'}):'Unknown date';
-      var course=(d.course||'Golf Round').split(',')[0];
-      var players=(d.names||[]).slice(0,d.np||0).filter(function(n){return n;}).join(', ')||((d.np||0)+' players');
-      var mode=d.mode==='stableford'?'Stableford':'Stroke play';
-      return '<div style="background:#fff;border:2px solid #e5e7eb;border-left:4px solid #0d2d6e;border-radius:8px;padding:12px 14px;margin-bottom:8px">'
-        +'<div style="display:flex;justify-content:space-between;align-items:flex-start;flex-wrap:wrap;gap:4px">'
-        +'<div>'
-        +'<div style="font-weight:700;font-size:14px;color:#0d2d6e">'+escHtml(course)+'</div>'
-        +'<div style="font-size:12px;color:#6b7280;margin-top:2px">'+date+' &middot; '+mode+'</div>'
-        +'<div style="font-size:12px;color:#4a5a7a;margin-top:2px">'+escHtml(players)+'</div>'
-        +'</div>'
-        +'<div style="font-family:monospace;font-size:13px;font-weight:700;color:#c8102e;letter-spacing:2px">'+r.code+'</div>'
-        +'</div>'
-        +'<div style="display:flex;gap:8px;margin-top:10px">'
-        +'<button class="btn-sm" style="flex:1" onclick="viewArchived(\''+r.code+'\')">View scorecard</button>'
-        +'<button class="btn-sm" style="background:#c8102e;color:#fff;border-color:#c8102e;flex:1" onclick="adminDeleteArchived(\''+r.code+'\',\''+escHtml(course)+'\',event)">Delete</button>'
-        +'</div>'
-        +'</div>';
-    }).join('');
-  }).catch(function(){
-    list.innerHTML='<div style="font-size:13px;color:#c8102e">Could not load archived rounds.</div>';
-  });
-}
-
-function adminDeleteArchived(code,courseName,evt){
-  if(evt)evt.stopPropagation();
-  if(!confirm('Permanently delete archived round '+code+' ('+courseName+')?\n\nThis cannot be undone.'))return;
-  var btn=evt&&evt.target;
-  if(btn){btn.textContent='Deleting...';btn.style.opacity='0.6';}
-  fbDelete('archived_rounds/'+code).then(function(){
-    // Remove the row from the list
-    var row=btn&&btn.closest('div[style*="border-left"]');
-    if(row)row.remove();
-    // Refresh count
-    var list=document.getElementById('adminArchivedList');
-    if(list&&list.children.length===0){
-      list.innerHTML='<div style="font-size:13px;color:#9ca3af;padding:12px 0">No archived rounds found.</div>';
-    }
-  }).catch(function(e){
-    alert('Delete failed: '+e.message);
-    if(btn){btn.textContent='Delete';btn.style.opacity='1';}
-  });
-}
 function adminJoin(code){
   fbGet('rounds/'+code).then(function(d){
     if(!d)return;
@@ -2944,102 +2671,10 @@ var EDIT_COMP_ID=null;
 var COMP_NP=4;
 var COMP_MODE='strokeplay';
 
-var COMP_TEE='yellow';
-var COMP_PCT_KEY='95';
-var COMP_PCT=95;
-
-function setCompNP(n){
-  COMP_NP=n;
-  var sel=document.getElementById('compNpSelect');
-  if(sel)sel.value=n;
-  buildCompPlayers();
-}
-
-function buildCompTeeBtns(){
-  var el=document.getElementById('compTeeBtns');
-  if(!el)return;
-  var tees=['yellow','white','red','blue','black'];
-  var cols={yellow:'#d97706',white:'#6b7280',red:'#c8102e',blue:'#1d4ed8',black:'#111827'};
-  el.innerHTML='';
-  tees.forEach(function(t){
-    var btn=document.createElement('button');
-    var active=t===COMP_TEE;
-    btn.textContent=t.charAt(0).toUpperCase()+t.slice(1);
-    btn.style.cssText='padding:7px 14px;font-size:13px;font-weight:700;border:2.5px solid '+cols[t]+';border-radius:6px;cursor:pointer;background:'+(active?cols[t]:'#fff')+';color:'+(active?'#fff':cols[t]);
-    btn.onclick=function(){
-      COMP_TEE=t;
-      buildCompTeeBtns();
-      // Auto-load saved slope/CR for this course+tee
-      var course=getCompCourseName();
-      if(course)compAutoLoadCourseData(course);
-    };
-    el.appendChild(btn);
-  });
-}
-
-function getCompCourseName(){
-  var sel=document.getElementById('compCourse');
-  var custom=document.getElementById('compCourseCustom');
-  if(sel&&sel.value&&sel.value!=='other')return sel.value;
-  if(custom&&custom.value)return custom.value;
-  return '';
-}
-
-function compAutoLoadCourseData(course){
-  if(!course)return;
-  var cardKey=course.toLowerCase().replace(/[^a-z0-9]/g,'_').substring(0,80)+'__'+COMP_TEE;
-  fbGet('scorecards/'+cardKey).then(function(d){
-    if(!d)return;
-    if(d.slope){var sl=document.getElementById('compSlope');if(sl)sl.value=d.slope;}
-    if(d.cr){var cr=document.getElementById('compCR');if(cr)cr.value=d.cr;}
-    if(d.par){var pt=d.par.reduce(function(a,b){return a+b},0);var pp=document.getElementById('compPar');if(pp)pp.value=pt;}
-    compUpdatePctLabel();
-  }).catch(function(){});
-}
-
-var COMP_PCT_LABELS={
-  '95':'Individual Stableford, Par & Bogey: 95% of Course Handicap',
-  '100':'Individual Stroke Play: 100% of Course Handicap',
-  '90':'Individual Stroke Play (club variant): 90%',
-  '85':'Individual Stroke Play (club variant): 85%',
-  '100m':'Individual Match Play: 100% of handicap difference',
-  '85p':'Fourball Betterball: 85% of Course Handicap',
-  '90p':'Fourball Match Play: 90%',
-  '50f':'Foursomes Alternate Shot: 50% of combined handicap',
-  'g':'Greensomes: 60% of low + 40% of high handicap',
-  '75':'Best 1 of 4: 75% of Course Handicap',
-  '85t':'Best 2 of 4: 85% of Course Handicap',
-  '100t':'Best 3 of 4: 100% of Course Handicap',
-  '100t2':'Best 4 of 4: 100% of Course Handicap'
-};
-var COMP_PCT_NUMS={'95':95,'100':100,'90':90,'85':85,'75':75,'100m':100,'85p':85,'90p':90,'50f':50,'g':64,'85t':85,'100t':100,'100t2':100};
-
-function compSetPct(val){
-  COMP_PCT_KEY=val;
-  COMP_PCT=COMP_PCT_NUMS[val]||95;
-  compUpdatePctLabel();
-}
-
-function compUpdatePctLabel(){
-  var el=document.getElementById('compPctLabel');
-  if(!el)return;
-  var slope=document.getElementById('compSlope');
-  var sl=slope?slope.value:113;
-  var desc=COMP_PCT_LABELS[COMP_PCT_KEY]||(COMP_PCT+'% of Course Handicap');
-  el.innerHTML='<strong>'+desc+'</strong>'
-    +'<div style="font-size:11px;color:#6b7280;margin-top:3px">Playing HCP = Index x ('+sl+'/113) + (CR - Par) x '+COMP_PCT+'%</div>';
-}
 function setCompMode(m){
   COMP_MODE=m;
   $('cModeStroke').className='btn-sm'+(m==='strokeplay'?' on':'');
   $('cModeStable').className='btn-sm'+(m==='stableford'?' on':'');
-
-  // Auto-set HCP% dropdown based on mode
-  var sel=document.getElementById('compPctSelect');
-  if(sel){
-    sel.value=m==='stableford'?'95':'100';
-    compSetPct(sel.value);
-  }
 }
 
 function buildCompNpRow(){
@@ -3053,83 +2688,6 @@ function buildCompNpRow(){
   });
 }
 
-// Comp groups - separate from S.groups used in setup
-var COMP_GROUPS={};
-
-function buildCompGroupEditor(){
-  var el=document.getElementById('comp-group-editor');
-  if(!el)return;
-  if(COMP_NP<=4){el.style.display='none';return;}
-  el.style.display='block';
-  // Auto-init if empty or wrong size
-  var total=0;
-  Object.keys(COMP_GROUPS).forEach(function(k){total+=(COMP_GROUPS[k]||[]).length;});
-  if(total!==COMP_NP)COMP_GROUPS=compAutoMakeGroups(COMP_NP);
-  renderCompGroupEditor();
-}
-
-function compAutoMakeGroups(np){
-  var groups={};var gi=0;
-  for(var i=0;i<np;i++){
-    if(!groups[gi])groups[gi]=[];
-    groups[gi].push(i);
-    if(groups[gi].length===4)gi++;
-  }
-  return groups;
-}
-
-function renderCompGroupEditor(){
-  var el=document.getElementById('comp-group-editor');
-  if(!el)return;
-  var groups=COMP_GROUPS;
-  var gKeys=Object.keys(groups).sort(function(a,b){return parseInt(a)-parseInt(b);});
-  var gcols=['#c8102e','#16a34a','#7c3aed','#d97706','#0891b2'];
-  var html='<div style="font-size:11px;font-weight:700;color:#0d2d6e;text-transform:uppercase;letter-spacing:.6px;margin-bottom:10px">Groups (drag players to move)</div>';
-  gKeys.forEach(function(gi,gIdx){
-    var members=groups[gi]||[];
-    var col=gcols[gIdx%gcols.length];
-    html+='<div data-gi="'+gi+'" style="background:#fff;border:2px solid '+col+';border-left:5px solid '+col+';border-radius:8px;padding:10px 12px;margin-bottom:8px;min-height:48px" '
-      +'ondragover="event.preventDefault()" ondrop="compDropToGroup(event,'+gi+')">'
-      +'<div style="font-size:12px;font-weight:700;color:'+col+';margin-bottom:6px">Group '+(gIdx+1)+'</div>';
-    members.forEach(function(pi){
-      var name=getCompPlayerName(pi);
-      html+='<div draggable="true" ondragstart="window._compDragPi='+pi+';event.dataTransfer.effectAllowed=\'move\'" '
-        +'style="display:inline-flex;align-items:center;gap:5px;background:#eff6ff;border:1.5px solid #0d2d6e;border-radius:4px;padding:4px 10px;margin:2px 3px;font-size:12px;font-weight:600;color:#0d2d6e;cursor:grab">'
-        +'<span style="font-size:10px;opacity:.5">&#9776;</span>'+escHtml(name)+'</div>';
-    });
-    html+='</div>';
-  });
-  el.innerHTML=html;
-}
-
-function getCompPlayerName(pi){
-  var pf=document.getElementById('compPFields');
-  if(!pf)return'Player '+(pi+1);
-  var sels=pf.querySelectorAll('select.cpname');
-  var sel=sels[pi];
-  if(!sel)return'Player '+(pi+1);
-  var val=sel.dataset.customVal?sel.dataset.customVal:sel.value;
-  return val&&val!=='__custom__'?val:'Player '+(pi+1);
-}
-
-window._compDragPi=null;
-function compDropToGroup(e,targetGi){
-  e.preventDefault();
-  var pi=window._compDragPi;
-  if(pi===null||pi===undefined)return;
-  window._compDragPi=null;
-  var groups=COMP_GROUPS;
-  Object.keys(groups).forEach(function(gi){groups[gi]=(groups[gi]||[]).filter(function(p){return p!==pi;});});
-  if(!groups[targetGi])groups[targetGi]=[];
-  groups[targetGi].push(pi);
-  // Reindex
-  var newG={};var idx=0;
-  Object.keys(groups).sort(function(a,b){return parseInt(a)-parseInt(b);}).forEach(function(gi){
-    if(groups[gi].length>0){newG[idx]=groups[gi];idx++;}
-  });
-  COMP_GROUPS=newG;
-  renderCompGroupEditor();
-}
 function buildCompPFields(){
   var pf=$('compPFields');
   pf.innerHTML='<div class="prow" style="margin-bottom:2px"><span style="font-size:11px;color:#9ca3af;font-weight:700;text-transform:uppercase">Name</span><span style="font-size:11px;color:#9ca3af;font-weight:700;text-align:center;text-transform:uppercase">HCP</span></div>';
@@ -3168,11 +2726,10 @@ function buildCompPFields(){
     };
     row.appendChild(sel);row.appendChild(hcpIn);pf.appendChild(row);
   }
-  buildCompGroupEditor();
 }
 
 function openNewComp(){
-  EDIT_COMP_ID=null;COMP_NP=4;COMP_MODE='strokeplay';COMP_TEE='yellow';COMP_PCT_KEY='95';COMP_PCT=95;COMP_GROUPS={};window._editComp=null;
+  EDIT_COMP_ID=null;COMP_NP=4;COMP_MODE='strokeplay';window._editComp=null;
   $('compPageTitle').textContent='Add competition';
   $('compName').value='';
   $('compDate').value='';
@@ -3184,23 +2741,16 @@ function openNewComp(){
   setCompMode('strokeplay');
   buildCompNpRow();buildCompPFields();
   show('p-comp');
-  buildCompTeeBtns();var sel2=document.getElementById('compNpSelect');if(sel2)sel2.value=4;compUpdatePctLabel();
 }
 
 function openEditComp(id,comp){
   EDIT_COMP_ID=id;COMP_NP=comp.np||4;COMP_MODE=comp.mode||'strokeplay';window._editComp=comp;
-  COMP_TEE=comp.compTee||comp.tee||'yellow';
-  COMP_PCT_KEY=comp.pctKey||'95';COMP_PCT=COMP_PCT_NUMS[COMP_PCT_KEY]||comp.pct||95;
-  COMP_GROUPS=comp.groups||{};
   $('compPageTitle').textContent='Edit competition';
   $('compName').value=comp.name||'';
   $('compDate').value=comp.date||'';
   $('compTee').value=comp.tee||'';
   $('compCourse').value=comp.course||'';loadCompCourseDropdown(comp.course||'');
   $('compNotes').value=comp.notes||'';$('compSlope').value=comp.slope||'113';$('compCR').value=comp.cr||'';$('compPar').value=comp.par||'72';$('compUrl').value=comp.url||'';
-  var cns=document.getElementById('compNpSelect');if(cns)cns.value=COMP_NP;
-  var cps=document.getElementById('compPctSelect');if(cps){cps.value=COMP_PCT_KEY;}
-  buildCompTeeBtns();compUpdatePctLabel();
   $('compErr').style.display='none';
   $('deleteCompBtn').style.display='block';
   setCompMode(COMP_MODE);
@@ -3219,7 +2769,7 @@ function saveComp(){
   var names=[],hcps=[];
   document.querySelectorAll('.cpname').forEach(function(el){names.push(el.dataset.customVal||el.value||('Player '+(parseInt(el.dataset.ci)+1)))});
   document.querySelectorAll('.cphcp').forEach(function(el){hcps.push(parseInt(el.value)||0)});
-  var comp={name:name,date:date,tee:$('compTee').value.trim(),compTee:COMP_TEE,course:course,mode:COMP_MODE,np:COMP_NP,pct:COMP_PCT,pctKey:COMP_PCT_KEY,groups:(COMP_NP>4?COMP_GROUPS:null),names:names.slice(0,COMP_NP),hcps:hcps.slice(0,COMP_NP),notes:$('compNotes').value,slope:$('compSlope').value,cr:$('compCR').value,par:$('compPar').value,url:$('compUrl').value.trim(),created:Date.now()};
+  var comp={name:name,date:date,tee:$('compTee').value.trim(),course:course,mode:COMP_MODE,np:COMP_NP,names:names.slice(0,COMP_NP),hcps:hcps.slice(0,COMP_NP),notes:$('compNotes').value,slope:$('compSlope').value,cr:$('compCR').value,par:$('compPar').value,url:$('compUrl').value.trim(),created:Date.now()};
   var id=EDIT_COMP_ID||(Date.now().toString(36));
   fbPut('comps/'+id,comp).then(function(){
     show('p-diary');loadDiary();
@@ -3812,9 +3362,7 @@ function launchComp(id){
     var r={course:c.course,curl:'',np:c.np||4,mode:c.mode||'strokeplay',
       names:(c.names||[]).slice(0,c.np||4),
       hcps:(c.hcps||[]).slice(0,c.np||4),
-      pars:DPARS.slice(),si:DSI.slice(),yds:[],
-      slope:parseFloat(c.slope)||113,cr:parseFloat(c.cr)||0,
-      pct:c.pct||95,pctKey:c.pctKey||'95',groups:c.groups||null,
+      pars:DPARS.slice(),si:DSI.slice(),
       scores:Array(16).fill(0).map(function(){return Array(18).fill(0)}),
       ts:Date.now(),status:'live',compName:c.name};
     fbPut('rounds/'+code,r).then(function(){
