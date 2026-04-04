@@ -223,7 +223,7 @@ body {
   gap: 4px;
   background: rgba(255,255,255,.15);
   color: var(--white);
-  border: none;
+  border: 1.5px solid rgba(255,255,255,.4);
   border-radius: 20px;
   padding: 5px 14px 5px 10px;
   font-size: 13px;
@@ -232,7 +232,7 @@ body {
   margin-bottom: 10px;
   transition: background .15s;
 }
-.btn-back:hover, .btn-sm:hover { background: rgba(255,255,255,.25); }
+.btn-back:hover { background: rgba(255,255,255,.25); }
 
 /*  Content area  */
 .page > *:not(.topbar) {
@@ -411,22 +411,26 @@ a[href*="guide"]:hover, a[href*="Guide"]:hover {
 
 .btn-dark { background: var(--navy); }
 
-/* Small buttons */
+/* Small buttons - context aware */
 .btn-sm {
   display: inline-flex;
   align-items: center;
   gap: 4px;
-  padding: 7px 16px;
+  padding: 8px 16px;
   font-size: 13px;
-  font-weight: 600;
-  border-radius: 20px;
-  border: none;
+  font-weight: 700;
+  border-radius: 6px;
+  border: 2.5px solid #0d2d6e;
   cursor: pointer;
-  background: rgba(255,255,255,.15);
-  color: var(--white);
-  transition: background .15s;
+  background: #ffffff;
+  color: #0d2d6e;
+  transition: background .15s, color .15s;
 }
-.btn-sm:hover { background: rgba(255,255,255,.25); }
+.btn-sm:hover { background: #0d2d6e; color: #ffffff; }
+.btn-sm.on { background: #0d2d6e; color: #ffffff; }
+/* Back buttons in topbar stay white/transparent */
+.topbar .btn-sm { background: rgba(255,255,255,.15); color: #ffffff; border-color: rgba(255,255,255,.4); border-radius: 20px; }
+.topbar .btn-sm:hover { background: rgba(255,255,255,.3); color: #ffffff; }
 
 /*  Inputs & selects  */
 input[type="text"], input[type="number"], input[type="url"],
