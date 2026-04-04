@@ -1077,10 +1077,22 @@ button[onclick*="startFromComp"],
         <div style="flex:1"><label style="margin-top:0">Par</label><input id="adminCoursePar" type="number" min="60" max="80" placeholder="72" readonly style="background:#f3f4f6"/></div>
       </div>
       <label>Yards per hole</label>
+      <div style="display:flex;gap:6px;align-items:center;margin-bottom:6px">
+        <input id="adminYdsPaste" placeholder="Paste 18 yards e.g. 479 423 415 ..." style="flex:1;padding:8px 10px;border:2px solid #16a34a;font-size:13px;color:#166534;background:#f0fdf4" oninput="adminPasteToGrid(this.value,'adminYdsGrid','yds',0,999)"/>
+        <button onclick="adminPasteToGrid(document.getElementById('adminYdsPaste').value,'adminYdsGrid','yds',0,999)" style="padding:8px 14px;background:#16a34a;color:#fff;border:none;font-weight:700;font-size:13px;cursor:pointer;border-radius:4px;white-space:nowrap">Fill ↓</button>
+      </div>
       <div class="g9" id="adminYdsGrid" style="margin-bottom:10px"></div>
       <label>Par per hole</label>
+      <div style="display:flex;gap:6px;align-items:center;margin-bottom:6px">
+        <input id="adminParPaste" placeholder="Paste 18 pars e.g. 4 4 3 4 5 3 4 4 5 ..." style="flex:1;padding:8px 10px;border:2px solid #0d2d6e;font-size:13px;color:#0d2d6e;background:#eff6ff" oninput="adminPasteToGrid(this.value,'adminParGrid','pars',3,6)"/>
+        <button onclick="adminPasteToGrid(document.getElementById('adminParPaste').value,'adminParGrid','pars',3,6)" style="padding:8px 14px;background:#0d2d6e;color:#fff;border:none;font-weight:700;font-size:13px;cursor:pointer;border-radius:4px;white-space:nowrap">Fill ↓</button>
+      </div>
       <div class="g9" id="adminParGrid" style="margin-bottom:10px"></div>
       <label>Stroke Index per hole</label>
+      <div style="display:flex;gap:6px;align-items:center;margin-bottom:6px">
+        <input id="adminSiPaste" placeholder="Paste 18 SI values e.g. 7 11 15 3 1 17 9 13 5 ..." style="flex:1;padding:8px 10px;border:2px solid #c8102e;font-size:13px;color:#c8102e;background:#fff7ed" oninput="adminPasteToGrid(this.value,'adminSiGrid','si',1,18)"/>
+        <button onclick="adminPasteToGrid(document.getElementById('adminSiPaste').value,'adminSiGrid','si',1,18)" style="padding:8px 14px;background:#c8102e;color:#fff;border:none;font-weight:700;font-size:13px;cursor:pointer;border-radius:4px;white-space:nowrap">Fill ↓</button>
+      </div>
       <div class="g9" id="adminSiGrid" style="margin-bottom:14px"></div>
       <button onclick="adminSaveCourse()" style="width:100%;padding:13px;background:#16a34a;color:#fff;border:none;font-size:15px;font-weight:700;cursor:pointer;border-radius:0;margin-bottom:6px">Save Course Data to Firebase</button>
       <button onclick="adminClearCourseForm()" style="width:100%;padding:10px;background:#fff;color:#c8102e;border:2px solid #c8102e;font-size:13px;font-weight:700;cursor:pointer;border-radius:0">Clear / Reset</button>
@@ -1760,6 +1772,41 @@ function adminBuildCourseForm(){
   if(sg){sg.innerHTML='';for(var i=0;i<18;i++){sg.innerHTML+='<div class="cell"><span>'+(i+1)+'</span><input type="number" min="1" max="18" value="'+AC.si[i]+'" data-i="'+i+'" oninput="AC.si[this.dataset.i]=parseInt(this.value)||'+(i+1)+'"/></div>';}}
 }
 
+function adminPasteToGrid(raw, gridId, field, minVal, maxVal){
+  if(!raw||!raw.trim())return;
+  // Parse: split on any whitespace, tabs, commas, newlines
+  var nums=raw.trim().split(/[\s,\t\n]+/).map(function(v){return parseInt(v);}).filter(function(v){return!isNaN(v);});
+  if(!nums.length)return;
+  // If we got 18 values fill all; if 9 fill front 9; if we got out/in totals at pos 9 or 18 skip them
+  var vals=[];
+  if(nums.length>=18){
+    vals=nums.slice(0,18);
+  } else if(nums.length===19){
+    // probably has an OUT total at pos 9 - skip it
+    vals=nums.slice(0,9).concat(nums.slice(10,19));
+  } else if(nums.length===20){
+    // has OUT at 9 and IN at 19 - skip both
+    vals=nums.slice(0,9).concat(nums.slice(10,19));
+  } else {
+    vals=nums.slice(0,18);
+    while(vals.length<18)vals.push(minVal);
+  }
+  // Clamp to min/max
+  vals=vals.map(function(v){return Math.max(minVal,Math.min(maxVal,v));});
+  // Update AC object
+  AC[field]=vals.slice(0,18);
+  // Update the grid inputs
+  var grid=document.getElementById(gridId);
+  if(grid){
+    var inputs=grid.querySelectorAll('input');
+    inputs.forEach(function(inp,i){if(i<vals.length){inp.value=vals[i];}});
+  }
+  // Update par total if pars changed
+  if(field==='pars'){
+    var t=vals.reduce(function(a,b){return a+b},0);
+    var cp=document.getElementById('adminCoursePar');if(cp)cp.value=t;
+  }
+}
 function adminSaveCourse(){
   if(!AC.course){alert('Please select a course first.');return;}
   var sl=document.getElementById('adminSlope');
@@ -1785,6 +1832,7 @@ function adminClearCourseForm(){
   var inp=document.getElementById('adminCourseIn');if(inp)inp.value='';
   var form=document.getElementById('adminCourseForm');if(form)form.style.display='none';
   var info=document.getElementById('adminCardInfo');if(info)info.style.display='none';
+  ['adminYdsPaste','adminParPaste','adminSiPaste'].forEach(function(id){var el=document.getElementById(id);if(el)el.value='';});
   var teeBtns=document.getElementById('adminTeeBtns');if(teeBtns)teeBtns.innerHTML='';
 }
 function hcpS(h,si){if(h<=0)return 0;if(h>=36)return 2;return si<=h?1:0}
