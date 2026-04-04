@@ -2265,15 +2265,40 @@ function startPlay(){
   show('p-play');renderAll();
   if(!IS_ARCHIVED){
     startPoll();
-    // Auto-detect player from profile name
-    var lastPlayer=localStorage.getItem('rogs_profile_name')||'';
-    if(lastPlayer&&R.groups){
-      var pi=R.names.indexOf(lastPlayer);
-      if(pi!==-1){AP=pi;renderPBtns();renderHBtns();renderEntry();loadMyGroup(RC,pi);}
-    } else if(R.groups){
-      // Show group selector prompt
-      renderGroupEntry();
-    }
+    // ALWAYS load groups from Firebase
+    window._roundGroups=null;
+    window._myGroupPlayers=[];
+    window._myGroup=undefined;
+    fbGet('rounds/'+RC+'/groups').then(function(groups){
+      if(groups&&Object.keys(groups).length>0){
+        window._roundGroups=groups;
+        R.groups=groups; // update R so scorecard shows group headers
+        renderSC(); // re-render scorecard with groups
+        // Try to auto-match from profile name
+        var lastPlayer=localStorage.getItem('rogs_profile_name')||'';
+        if(lastPlayer){
+          var pi=R.names.indexOf(lastPlayer);
+          if(pi!==-1){
+            var gKeys=Object.keys(groups);
+            for(var gi=0;gi<gKeys.length;gi++){
+              var members=(groups[gKeys[gi]]||[]).map(Number);
+              if(members.indexOf(pi)!==-1){
+                window._myGroup=parseInt(gKeys[gi]);
+                window._myGroupPlayers=members;
+                AP=pi;
+                showGroupBanner();
+                renderPBtns();
+                break;
+              }
+            }
+          }
+        }
+        renderGroupEntry();
+      } else {
+        window._roundGroups=null;
+        renderGroupEntry();
+      }
+    }).catch(function(){window._roundGroups=null;});
   }
   else{$('liveDisp').className='archived-badge';$('liveDisp').textContent='📁 Archived';$('timeDisp').textContent=R.completedAt?new Date(R.completedAt).toLocaleDateString('en-GB'):'';}
 }
