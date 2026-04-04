@@ -1732,6 +1732,7 @@ return;
   var sg=$('siGrid');sg.innerHTML='';
   for(var i=0;i<18;i++)sg.innerHTML+='<div class="cell"><span>'+(i+1)+'</span><input type="number" min="1" max="18" value="'+S.si[i]+'" data-i="'+i+'" oninput="S.si[this.dataset.i]=parseInt(this.value)||'+(i+1)+'"/></div>';
   buildGroupEditor();
+  updateHcpPctLabel();
 }
 function setMode(m){
   S.mode=m;
