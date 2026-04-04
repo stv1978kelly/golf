@@ -2800,6 +2800,161 @@ function setCompMode(m){
   $('cModeStable').className='btn-sm'+(m==='stableford'?' on':'');
 }
 
+// ================================================================
+// COMP FORM JS - mirrors setup round functionality
+// ================================================================
+var COMP_TEE='yellow';
+var COMP_PCT_KEY='95';
+var COMP_PCT=95;
+var COMP_GROUPS={};
+var COMP_PCT_NUMS={'95':95,'100':100,'90':90,'85':85,'75':75,'100m':100,'85p':85,'90p':90,'50f':50,'64g':64,'85t':85,'100t':100};
+var COMP_PCT_LABELS={
+  '95':'Individual Stableford/Par/Bogey: 95%',
+  '100':'Individual Stroke Play: 100%',
+  '90':'Individual Stroke Play (club): 90%',
+  '85':'Individual Stroke Play (club): 85%',
+  '85p':'Fourball Betterball: 85%',
+  '90p':'Fourball Match Play: 90%',
+  '50f':'Foursomes Alternate Shot: 50% combined',
+  '64g':'Greensomes: 60% low + 40% high',
+  '75':'Best 1 of 4: 75%',
+  '85t':'Best 2 of 4: 85%',
+  '100t':'Best 3/4 of 4: 100%'
+};
+
+function setCompNP(n){
+  COMP_NP=n;
+  var sel=document.getElementById('compNpSelect');
+  if(sel)sel.value=n;
+  buildCompPFields();
+}
+
+function buildCompTeeBtns(){
+  var el=document.getElementById('compTeeBtns');
+  if(!el)return;
+  var tees=['yellow','white','red','blue','black'];
+  var cols={yellow:'#d97706',white:'#6b7280',red:'#c8102e',blue:'#1d4ed8',black:'#111827'};
+  el.innerHTML='';
+  tees.forEach(function(t){
+    var btn=document.createElement('button');
+    var active=t===COMP_TEE;
+    btn.textContent=t.charAt(0).toUpperCase()+t.slice(1);
+    btn.style.cssText='padding:7px 14px;font-size:13px;font-weight:700;border:2.5px solid '+cols[t]+';border-radius:6px;cursor:pointer;margin:2px;background:'+(active?cols[t]:'#fff')+';color:'+(active?'#fff':cols[t]);
+    btn.onclick=function(){COMP_TEE=t;buildCompTeeBtns();compAutoLoadCourseData(getCompCourseName());};
+    el.appendChild(btn);
+  });
+}
+
+function getCompCourseName(){
+  var sel=document.getElementById('compCourse');
+  var custom=document.getElementById('compCourseCustom');
+  if(sel&&sel.value&&sel.value!=='')return sel.value;
+  if(custom&&custom.style.display!=='none'&&custom.value)return custom.value;
+  return '';
+}
+
+function compAutoLoadCourseData(course){
+  if(!course)return;
+  var cardKey=course.toLowerCase().replace(/[^a-z0-9]/g,'_').substring(0,80)+'__'+COMP_TEE;
+  fbGet('scorecards/'+cardKey).then(function(d){
+    if(!d)return;
+    if(d.slope){var sl=document.getElementById('compSlope');if(sl)sl.value=d.slope;}
+    if(d.cr){var cr=document.getElementById('compCR');if(cr)cr.value=d.cr;}
+    if(d.par){var pt=d.par.reduce(function(a,b){return a+b},0);var pp=document.getElementById('compPar');if(pp)pp.value=pt;}
+    compUpdatePctLabel();
+  }).catch(function(){});
+}
+
+function compSetPct(val){
+  COMP_PCT_KEY=val;
+  COMP_PCT=COMP_PCT_NUMS[val]||95;
+  compUpdatePctLabel();
+}
+
+function compUpdatePctLabel(){
+  var el=document.getElementById('compPctLabel');
+  if(!el)return;
+  var slope=document.getElementById('compSlope');
+  var sl=slope?slope.value:'113';
+  var desc=COMP_PCT_LABELS[COMP_PCT_KEY]||(COMP_PCT+'% of Course Handicap');
+  el.innerHTML='<strong>'+desc+'</strong>'
+    +'<div style="font-size:11px;color:#6b7280;margin-top:3px">Playing HCP = Index x ('+sl+'/113) + (CR - Par) x '+COMP_PCT+'%</div>';
+}
+
+function buildCompGroupEditor(){
+  var el=document.getElementById('comp-group-editor');
+  if(!el)return;
+  if(COMP_NP<=4){el.style.display='none';return;}
+  el.style.display='block';
+  // Auto-init if empty or stale
+  var total=0;
+  Object.keys(COMP_GROUPS).forEach(function(k){total+=(COMP_GROUPS[k]||[]).length;});
+  if(total!==COMP_NP){COMP_GROUPS=compAutoMakeGroups(COMP_NP);}
+  renderCompGroupEditor();
+}
+
+function compAutoMakeGroups(np){
+  var groups={};var gi=0;
+  for(var i=0;i<np;i++){
+    if(!groups[gi])groups[gi]=[];
+    groups[gi].push(i);
+    if(groups[gi].length===4)gi++;
+  }
+  return groups;
+}
+
+function renderCompGroupEditor(){
+  var el=document.getElementById('comp-group-editor');
+  if(!el)return;
+  var groups=COMP_GROUPS;
+  var gKeys=Object.keys(groups).sort(function(a,b){return parseInt(a)-parseInt(b);});
+  var gcols=['#c8102e','#16a34a','#7c3aed','#d97706','#0891b2'];
+  var html='<div style="font-size:11px;font-weight:700;color:#0d2d6e;text-transform:uppercase;letter-spacing:.6px;margin-bottom:10px">Groups (drag players to move)</div>';
+  gKeys.forEach(function(gi,gIdx){
+    var members=groups[gi]||[];
+    var col=gcols[gIdx%gcols.length];
+    html+='<div data-gi="'+gi+'" style="background:#fff;border:2px solid '+col+';border-left:5px solid '+col+';border-radius:8px;padding:10px 12px;margin-bottom:8px;min-height:48px" ondragover="event.preventDefault()" ondrop="compDropToGroup(event,'+gi+')">';
+    html+='<div style="font-size:12px;font-weight:700;color:'+col+';margin-bottom:6px">Group '+(gIdx+1)+'</div>';
+    members.forEach(function(pi){
+      var name=getCompPlayerNameAt(pi);
+      html+='<div draggable="true" ondragstart="window._compDragPi='+pi+';event.dataTransfer.effectAllowed=\'move\'" '
+        +'style="display:inline-flex;align-items:center;gap:5px;background:#eff6ff;border:1.5px solid #0d2d6e;border-radius:4px;padding:4px 10px;margin:2px 3px;font-size:12px;font-weight:600;color:#0d2d6e;cursor:grab">'
+        +'<span style="opacity:.5">&#9776;</span>'+escHtml(name)+'</div>';
+    });
+    html+='</div>';
+  });
+  el.innerHTML=html;
+}
+
+function getCompPlayerNameAt(pi){
+  var pf=document.getElementById('compPFields');
+  if(!pf)return'Player '+(pi+1);
+  var sels=pf.querySelectorAll('select.cpname');
+  var sel=sels[pi];
+  if(!sel)return'Player '+(pi+1);
+  var val=sel.dataset.customVal?sel.dataset.customVal:sel.value;
+  return(val&&val!=='__custom__'&&val!=='')?val:'Player '+(pi+1);
+}
+
+window._compDragPi=null;
+function compDropToGroup(e,targetGi){
+  e.preventDefault();
+  var pi=window._compDragPi;
+  if(pi===null||pi===undefined)return;
+  window._compDragPi=null;
+  Object.keys(COMP_GROUPS).forEach(function(gi){
+    COMP_GROUPS[gi]=(COMP_GROUPS[gi]||[]).filter(function(p){return p!==pi;});
+  });
+  if(!COMP_GROUPS[targetGi])COMP_GROUPS[targetGi]=[];
+  COMP_GROUPS[targetGi].push(pi);
+  // Reindex
+  var newG={};var idx=0;
+  Object.keys(COMP_GROUPS).sort(function(a,b){return parseInt(a)-parseInt(b);}).forEach(function(gi){
+    if(COMP_GROUPS[gi].length>0){newG[idx]=COMP_GROUPS[gi];idx++;}
+  });
+  COMP_GROUPS=newG;
+  renderCompGroupEditor();
+}
 function buildCompNpRow(){
   var el=$('compNpRow');el.innerHTML='';
   [2,3,4,6,8,10,12,14,16].forEach(function(n){
