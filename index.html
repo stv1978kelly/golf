@@ -2289,7 +2289,7 @@ function startPoll(){
   if(PT)clearInterval(PT);
   PT=setInterval(function(){
     fbGet('rounds/'+RC).then(function(d){
-      if(d&&d.ts>R.ts){R=d;renderAll()}
+      if(d&&d.ts>R.ts){R=d;if(!R.yds)R.yds=[];if(!R.slope)R.slope=113;if(!R.cr)R.cr=0;if(!R.pct)R.pct=95;renderAll()}
       $('liveDisp').className='live';$('liveDisp').textContent='â— Live';
       LS=new Date();$('timeDisp').textContent=LS.toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'});
     }).catch(function(){});
@@ -2346,7 +2346,7 @@ function viewArchived(code){
   fbGet('archived_rounds/'+code).then(function(d){
     if(!d)return;
     RC=code;IS_ARCHIVED=true;
-    R={course:d.course||'Golf Round',curl:d.curl||'',np:d.np||0,mode:d.mode||'strokeplay',names:d.names||[],hcps:d.hcps||[],pars:d.pars||DPARS.slice(),si:d.si||DSI.slice(),scores:d.scores||[],ts:d.ts||0,completedAt:d.completedAt||0};
+    R={course:d.course||'Golf Round',curl:d.curl||'',np:d.np||0,mode:d.mode||'strokeplay',names:d.names||[],hcps:d.hcps||[],pars:d.pars||DPARS.slice(),si:d.si||DSI.slice(),yds:d.yds||[],slope:d.slope||113,cr:d.cr||0,pct:d.pct||95,groups:d.groups||null,scores:d.scores||[],ts:d.ts||0,completedAt:d.completedAt||0};
     startPlay();
   }).catch(function(){alert('Could not load this round.')});
 }
