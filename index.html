@@ -2612,23 +2612,23 @@ function renderLB(){
     var hcpIdx=parseFloat(R.hcps[pi])||0;
     var ch=Math.round(hcpIdx*(slope/113)+(cr-par_total));
     var playing=Math.round(ch*pct/100);
-    var gross=0,stable=0,played=0,toPar=0,netScore=0;
-    R.scores[pi].forEach(function(v,hi){var s=v||0,hs=hcpS(playing,R.si[hi]),pts=sbPts(s,R.pars[hi],hs);if(s){gross+=s;stable+=pts;toPar+=s-R.pars[hi];played++}});
-    netScore=gross-playing;
-    if(played)stats.push({pi:pi,name:R.names[pi]||'P'+(pi+1),gross:gross,stable:stable,played:played,toPar:toPar,hcp:hcpIdx,playing:playing,netToPar:netScore-par_total});
+    var gross=0,stable=0,played=0,toPar=0,netScore=0,netToPar=0,playedPar=0;
+    R.scores[pi].forEach(function(v,hi){var s=v||0,hs=hcpS(playing,R.si[hi]),pts=sbPts(s,R.pars[hi],hs);if(s){gross+=s;stable+=pts;toPar+=s-R.pars[hi];netScore+=s-hs;playedPar+=R.pars[hi];played++}});
+    netToPar=netScore-playedPar;
+    if(played)stats.push({pi:pi,name:R.names[pi]||'P'+(pi+1),gross:gross,stable:stable,played:played,toPar:toPar,hcp:hcpIdx,playing:playing,netScore:netScore,netToPar:netToPar});
   }
-  stats.sort(function(a,b){return R.mode==='stableford'?b.stable-a.stable:a.toPar-b.toPar});
+  stats.sort(function(a,b){return R.mode==='stableford'?b.stable-a.stable:a.netToPar-b.netToPar});
   var lbc=$('lbContent');
   if(!stats.length){lbc.innerHTML='<p style="color:#9ca3af;font-size:14px;padding:1rem 0">No scores yet.</p>';$('lbBanner').style.display='none';$('emailBox').style.display='none';return}
   lbc.innerHTML=stats.map(function(p,i){
-    var sc=R.mode==='stableford'?p.stable:p.gross;
-    var grossTP=p.toPar;
-    var sub=R.mode==='stableford'
+    var isStable=R.mode==='stableford';
+    var sc=isStable?p.stable:p.netScore;
+    var sub=isStable
       ?(p.stable>0?p.stable+'pts':'–')
-      :(grossTP===0?'E':grossTP>0?'+'+grossTP:String(grossTP));
-    var sc2=R.mode==='stableford'
+      :(p.netToPar===0?'E':p.netToPar>0?'+'+p.netToPar:String(p.netToPar));
+    var sc2=isStable
       ?(p.stable>=36?'#15803d':p.stable>=30?'#0d2d6e':'#c8102e')
-      :(grossTP<0?'#15803d':grossTP>0?'#c8102e':'#4a5a7a');
+      :(p.netToPar<0?'#15803d':p.netToPar>0?'#c8102e':'#4a5a7a');
     return'<div class="lbrow'+(i===0?' top':'')+'">'+'<div class="rank">'+((['1st','2nd','3rd'][i])||((i+1)+'th'))+'</div>'+'<div style="flex:1"><div style="font-weight:700;font-size:15px;color:#0d2d6e">'+p.name+'</div><div style="font-size:12px;color:#4a5a7a">HCP '+p.hcp+' · '+p.played+' holes</div></div>'+'<div class="lbscore"><div class="big">'+sc+'</div><div style="font-size:13px;font-weight:700;color:'+sc2+'">'+sub+'</div></div></div>';
   }).join('');
   $('lbBanner').style.display=IS_ARCHIVED?'none':'block';
@@ -2647,7 +2647,7 @@ function buildStats(){
     });
     if(played)stats.push({pi:pi,name:R.names[pi]||'P'+(pi+1),hcp:hcp,gross:gross,stable:stable,played:played,toPar:toPar,out:out,inB:inB,outStable:outStable,inStable:inStable});
   }
-  stats.sort(function(a,b){return R.mode==='stableford'?b.stable-a.stable:a.toPar-b.toPar});
+  stats.sort(function(a,b){return R.mode==='stableford'?b.stable-a.stable:a.netToPar-b.netToPar});
   return stats;
 }
 
