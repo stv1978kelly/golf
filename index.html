@@ -1046,6 +1046,71 @@ button[onclick*="startFromComp"],
     <button class="btn-sm" onclick="loadLiveRounds()">↻ Refresh</button>
   </div>
   <div id="adminList"></div>
+
+  <!-- ARCHIVED ROUNDS -->
+  <div style="margin-top:24px;border-top:3px solid #0d2d6e;padding-top:18px">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;flex-wrap:wrap;gap:8px">
+      <h2 style="margin:0">Archived Rounds</h2>
+      <button class="btn-sm" onclick="adminLoadArchived()">&#8635; Load Archived</button>
+    </div>
+    <div id="adminArchivedList"><div style="font-size:13px;color:#9ca3af">Click Load Archived to view.</div></div>
+  </div>
+
+  <!-- COURSE DATA EDITOR -->
+  <div style="margin-top:24px;border-top:3px solid #c8102e;padding-top:18px">
+    <h2 style="margin-bottom:8px">Course Data Editor</h2>
+    <p style="font-size:13px;color:#4a5a7a;margin-bottom:12px">Search a course, pick tee, update Par / SI / Yards / Slope / CR and save to Firebase.</p>
+
+    <label>Golf Course</label>
+    <div style="position:relative;margin-bottom:10px">
+      <input id="adminCourseIn" placeholder="Search courses..." autocomplete="off"
+        oninput="adminDdFilter(this.value)" onfocus="adminDdFilter(this.value)"/>
+      <div id="adminDdList" style="display:none;position:absolute;top:100%;left:0;right:0;background:#fff;border:2px solid #0d2d6e;border-top:none;z-index:100;max-height:220px;overflow-y:auto"></div>
+    </div>
+
+    <label>Tee Colour</label>
+    <div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:14px" id="adminTeeBtns"></div>
+
+    <div id="adminCardInfo" style="display:none;font-size:12px;padding:8px 12px;background:#f0fdf4;border:1px solid #16a34a;border-radius:6px;color:#16a34a;margin-bottom:10px"></div>
+
+    <div id="adminCourseForm" style="display:none">
+      <div style="display:flex;gap:8px;margin-bottom:10px">
+        <div style="flex:1"><label style="margin-top:0">Slope</label><input id="adminSlope" type="number" min="55" max="155" placeholder="113"/></div>
+        <div style="flex:1"><label style="margin-top:0">Course Rating</label><input id="adminCR" type="number" min="50" max="85" step="0.1" placeholder="69.1"/></div>
+        <div style="flex:1"><label style="margin-top:0">Par Total</label><input id="adminCoursePar" type="number" min="60" max="80" placeholder="72" readonly style="background:#f3f4f6"/></div>
+      </div>
+
+      <label>Yards per hole
+        <span style="font-size:11px;font-weight:400;color:#9ca3af"> — paste 18 values then click Fill</span>
+      </label>
+      <div style="display:flex;gap:6px;align-items:center;margin-bottom:6px">
+        <input id="adminYdsPaste" placeholder="Paste 18 yards e.g. 479 423 415 139 306..." style="flex:1;padding:8px 10px;border:2px solid #16a34a;font-size:13px;color:#166534;background:#f0fdf4"/>
+        <button onclick="adminPasteToGrid(document.getElementById('adminYdsPaste').value,'adminYdsGrid','yds',0,999)" style="padding:8px 14px;background:#16a34a;color:#fff;border:none;font-weight:700;font-size:13px;cursor:pointer;border-radius:4px;white-space:nowrap">Fill &#8595;</button>
+      </div>
+      <div class="g9" id="adminYdsGrid" style="margin-bottom:14px"></div>
+
+      <label>Par per hole
+        <span style="font-size:11px;font-weight:400;color:#9ca3af"> — paste or edit</span>
+      </label>
+      <div style="display:flex;gap:6px;align-items:center;margin-bottom:6px">
+        <input id="adminParPaste" placeholder="Paste 18 pars e.g. 4 4 3 4 5 3 4 4 5..." style="flex:1;padding:8px 10px;border:2px solid #0d2d6e;font-size:13px;color:#0d2d6e;background:#eff6ff"/>
+        <button onclick="adminPasteToGrid(document.getElementById('adminParPaste').value,'adminParGrid','pars',3,6)" style="padding:8px 14px;background:#0d2d6e;color:#fff;border:none;font-weight:700;font-size:13px;cursor:pointer;border-radius:4px;white-space:nowrap">Fill &#8595;</button>
+      </div>
+      <div class="g9" id="adminParGrid" style="margin-bottom:14px"></div>
+
+      <label>Stroke Index per hole
+        <span style="font-size:11px;font-weight:400;color:#9ca3af"> — paste or edit</span>
+      </label>
+      <div style="display:flex;gap:6px;align-items:center;margin-bottom:6px">
+        <input id="adminSiPaste" placeholder="Paste 18 SI values e.g. 7 11 15 3 1 17 9 13 5..." style="flex:1;padding:8px 10px;border:2px solid #c8102e;font-size:13px;color:#c8102e;background:#fff7ed"/>
+        <button onclick="adminPasteToGrid(document.getElementById('adminSiPaste').value,'adminSiGrid','si',1,18)" style="padding:8px 14px;background:#c8102e;color:#fff;border:none;font-weight:700;font-size:13px;cursor:pointer;border-radius:4px;white-space:nowrap">Fill &#8595;</button>
+      </div>
+      <div class="g9" id="adminSiGrid" style="margin-bottom:14px"></div>
+
+      <button onclick="adminSaveCourse()" style="width:100%;padding:13px;background:#16a34a;color:#fff;border:none;font-size:15px;font-weight:700;cursor:pointer;border-radius:0;margin-bottom:6px">Save Course Data to Firebase</button>
+      <button onclick="adminClearCourseForm()" style="width:100%;padding:10px;background:#fff;color:#c8102e;border:2px solid #c8102e;font-size:13px;font-weight:700;cursor:pointer;border-radius:0">Clear / Reset</button>
+    </div>
+  </div>
 </div>
 
 <!-- HOME -->
@@ -2744,7 +2809,7 @@ function updatePinDots(){
   dots.forEach(function(d,i){d.classList.toggle('filled',i<pinVal.length)});
 }
 function pinSubmit(){
-  if(pinVal===ADMIN_PIN){IS_ADMIN=true;show('p-admin');loadLiveRounds();}
+  if(pinVal===ADMIN_PIN){IS_ADMIN=true;show('p-admin');loadLiveRounds();setTimeout(function(){adminBuildTeeBtns();},100);}
   else{$('pinErr').textContent='Incorrect PIN — try again';pinVal='';updatePinDots()}
 }
 
@@ -2891,6 +2956,174 @@ function agSave(){
     loadLiveRounds();
     alert('Groups saved for '+code+'. Players can now tap their name to activate group scoring.');
   }).catch(function(e){alert('Failed: '+e.message);});
+}
+// ================================================================
+// ADMIN COURSE EDITOR
+// ================================================================
+var AC={course:'',tee:'yellow',pars:DPARS?DPARS.slice():Array(18).fill(4),si:DSI?DSI.slice():Array(18).fill(0).map(function(_,i){return i+1;}),yds:Array(18).fill(0),slope:113,cr:0};
+
+function adminDdFilter(q){
+  var list=document.getElementById('adminDdList');
+  if(!list)return;
+  var lq=(q||'').trim().toLowerCase();
+  if(!lq){list.style.display='none';return;}
+  var matches=(typeof COURSES!=='undefined'?COURSES:[]).filter(function(c){return c.toLowerCase().indexOf(lq)>=0;}).slice(0,20);
+  if(!matches.length){list.style.display='none';return;}
+  list.innerHTML=matches.map(function(c){
+    return'<div onclick="adminDdPick(\''+escHtml(c)+'\')" style="padding:10px 12px;cursor:pointer;font-size:14px;border-bottom:1px solid #e5e7eb" onmouseover="this.style.background=\'#eff6ff\'" onmouseout="this.style.background=\'\'">'+escHtml(c)+'</div>';
+  }).join('');
+  list.style.display='block';
+}
+
+function adminDdPick(name){
+  AC.course=name;
+  var inp=document.getElementById('adminCourseIn');if(inp)inp.value=name;
+  var list=document.getElementById('adminDdList');if(list)list.style.display='none';
+  adminBuildTeeBtns();
+  adminLoadCourseCard();
+}
+
+function adminBuildTeeBtns(){
+  var el=document.getElementById('adminTeeBtns');
+  if(!el)return;
+  var tees=['yellow','white','red','blue','black'];
+  var cols={yellow:'#d97706',white:'#6b7280',red:'#c8102e',blue:'#1d4ed8',black:'#111827'};
+  el.innerHTML='';
+  tees.forEach(function(t){
+    var btn=document.createElement('button');
+    var active=t===AC.tee;
+    btn.textContent=t.charAt(0).toUpperCase()+t.slice(1);
+    btn.style.cssText='padding:8px 16px;font-size:13px;font-weight:700;border:2.5px solid '+cols[t]+';border-radius:6px;cursor:pointer;margin:2px;background:'+(active?cols[t]:'#fff')+';color:'+(active?'#fff':cols[t]);
+    btn.onclick=function(){AC.tee=t;adminBuildTeeBtns();adminLoadCourseCard();};
+    el.appendChild(btn);
+  });
+}
+
+function adminLoadCourseCard(){
+  if(!AC.course)return;
+  var cardKey=AC.course.toLowerCase().replace(/[^a-z0-9]/g,'_').substring(0,80)+'__'+AC.tee;
+  var info=document.getElementById('adminCardInfo');
+  if(info){info.style.display='block';info.textContent='Loading saved data for '+AC.course+' ('+AC.tee+' tees)...';}
+  fbGet('scorecards/'+cardKey).then(function(d){
+    if(d&&d.par&&d.par.length===18){
+      AC.pars=d.par.slice();
+      AC.si=d.si?d.si.slice():AC.si;
+      AC.yds=d.yds&&d.yds.some(function(y){return y>0;})?d.yds.slice():Array(18).fill(0);
+      AC.slope=d.slope||113;AC.cr=d.cr||0;
+      if(info)info.textContent='Loaded: '+AC.course+' ('+AC.tee+') '+(AC.yds.some(function(y){return y>0;})?'  includes yards':'  no yards yet');
+    } else {
+      AC.pars=(typeof DPARS!=='undefined'?DPARS.slice():Array(18).fill(4));
+      AC.si=(typeof DSI!=='undefined'?DSI.slice():Array(18).fill(0).map(function(_,i){return i+1;}));
+      AC.yds=Array(18).fill(0);AC.slope=113;AC.cr=0;
+      if(info)info.textContent='No saved data  using defaults. Edit and save below.';
+    }
+    adminBuildCourseForm();
+  }).catch(function(){adminBuildCourseForm();});
+}
+
+function adminBuildCourseForm(){
+  var form=document.getElementById('adminCourseForm');
+  if(!form)return;
+  form.style.display='block';
+  var sl=document.getElementById('adminSlope');if(sl)sl.value=AC.slope||'';
+  var cr=document.getElementById('adminCR');if(cr)cr.value=AC.cr||'';
+  var pt=AC.pars.reduce(function(a,b){return a+b},0);
+  var cp=document.getElementById('adminCoursePar');if(cp)cp.value=pt;
+  // Yds grid
+  var yg=document.getElementById('adminYdsGrid');
+  if(yg){yg.innerHTML='';for(var i=0;i<18;i++){yg.innerHTML+='<div class="cell"><span>'+(i+1)+'</span><input type="number" min="0" max="999" value="'+(AC.yds[i]||0)+'" data-i="'+i+'" oninput="AC.yds[this.dataset.i]=parseInt(this.value)||0"/></div>';}}
+  // Par grid
+  var pg=document.getElementById('adminParGrid');
+  if(pg){pg.innerHTML='';for(var i=0;i<18;i++){pg.innerHTML+='<div class="cell"><span>'+(i+1)+'</span><input type="number" min="3" max="6" value="'+AC.pars[i]+'" data-i="'+i+'" oninput="AC.pars[this.dataset.i]=parseInt(this.value)||4;var t=AC.pars.reduce(function(a,b){return a+b},0);var el=document.getElementById(\'adminCoursePar\');if(el)el.value=t"/></div>';}}
+  // SI grid
+  var sg=document.getElementById('adminSiGrid');
+  if(sg){sg.innerHTML='';for(var i=0;i<18;i++){sg.innerHTML+='<div class="cell"><span>'+(i+1)+'</span><input type="number" min="1" max="18" value="'+AC.si[i]+'" data-i="'+i+'" oninput="AC.si[this.dataset.i]=parseInt(this.value)||'+(i+1)+'"/></div>';}}
+  // Clear paste fields
+  ['adminYdsPaste','adminParPaste','adminSiPaste'].forEach(function(id){var e=document.getElementById(id);if(e)e.value='';});
+}
+
+function adminPasteToGrid(raw,gridId,field,minVal,maxVal){
+  if(!raw||!raw.trim())return;
+  var nums=raw.trim().split(/[\s,\t\n]+/).map(function(v){return parseInt(v);}).filter(function(v){return!isNaN(v);});
+  if(!nums.length)return;
+  var vals;
+  if(nums.length>=20){vals=nums.slice(0,9).concat(nums.slice(10,19));}
+  else if(nums.length===19){vals=nums.slice(0,9).concat(nums.slice(10,19));}
+  else{vals=nums.slice(0,18);while(vals.length<18)vals.push(minVal||0);}
+  vals=vals.slice(0,18).map(function(v){return Math.max(minVal,Math.min(maxVal,v));});
+  AC[field]=vals;
+  var grid=document.getElementById(gridId);
+  if(grid){var inputs=grid.querySelectorAll('input');inputs.forEach(function(inp,i){if(i<vals.length)inp.value=vals[i];});}
+  if(field==='pars'){var t=vals.reduce(function(a,b){return a+b},0);var el=document.getElementById('adminCoursePar');if(el)el.value=t;}
+}
+
+function adminSaveCourse(){
+  if(!AC.course){alert('Please select a course first.');return;}
+  var sl=document.getElementById('adminSlope');if(sl)AC.slope=parseFloat(sl.value)||113;
+  var cr=document.getElementById('adminCR');if(cr)AC.cr=parseFloat(cr.value)||0;
+  var cardKey=AC.course.toLowerCase().replace(/[^a-z0-9]/g,'_').substring(0,80)+'__'+AC.tee;
+  var data={course:AC.course,tee:AC.tee,par:AC.pars.slice(),si:AC.si.slice(),
+    yds:AC.yds.some(function(y){return y>0;})?AC.yds.slice():null,
+    slope:AC.slope||null,cr:AC.cr||null,updated:Date.now()};
+  var btn=document.querySelector('[onclick="adminSaveCourse()"]');
+  if(btn){btn.textContent='Saving...';btn.style.background='#6b7280';}
+  fbPut('scorecards/'+cardKey,data).then(function(){
+    var info=document.getElementById('adminCardInfo');
+    if(info){info.style.display='block';info.style.color='#16a34a';info.textContent='Saved! '+AC.course+' ('+AC.tee+')  slope '+AC.slope+', CR '+AC.cr;}
+    if(btn){btn.textContent='Save Course Data to Firebase';btn.style.background='#16a34a';}
+  }).catch(function(e){
+    alert('Save failed: '+e.message);
+    if(btn){btn.textContent='Save Course Data to Firebase';btn.style.background='#16a34a';}
+  });
+}
+
+function adminClearCourseForm(){
+  AC={course:'',tee:'yellow',pars:DPARS?DPARS.slice():Array(18).fill(4),si:DSI?DSI.slice():Array(18).fill(0).map(function(_,i){return i+1;}),yds:Array(18).fill(0),slope:113,cr:0};
+  var inp=document.getElementById('adminCourseIn');if(inp)inp.value='';
+  var form=document.getElementById('adminCourseForm');if(form)form.style.display='none';
+  var info=document.getElementById('adminCardInfo');if(info)info.style.display='none';
+  var tb=document.getElementById('adminTeeBtns');if(tb)tb.innerHTML='';
+  ['adminYdsPaste','adminParPaste','adminSiPaste'].forEach(function(id){var e=document.getElementById(id);if(e)e.value='';});
+}
+
+function adminLoadArchived(){
+  var list=document.getElementById('adminArchivedList');
+  if(!list)return;
+  list.innerHTML='<div style="font-size:13px;color:#4a5a7a">Loading archived rounds...</div>';
+  fbGet('archived_rounds').then(function(d){
+    if(!d||!Object.keys(d).length){
+      list.innerHTML='<div style="font-size:13px;color:#9ca3af;padding:12px 0">No archived rounds found.</div>';return;
+    }
+    var rounds=Object.entries(d).map(function(e){return{code:e[0],data:e[1]};})
+      .sort(function(a,b){return(b.data.completedAt||b.data.ts||0)-(a.data.completedAt||a.data.ts||0);});
+    list.innerHTML=rounds.map(function(r){
+      var d=r.data;
+      var date=d.completedAt?new Date(d.completedAt).toLocaleDateString('en-GB',{day:'numeric',month:'short',year:'numeric'}):'Unknown';
+      var course=(d.course||'Golf Round').split(',')[0];
+      var players=(d.names||[]).slice(0,d.np||0).join(', ')||((d.np||0)+' players');
+      return'<div style="background:#fff;border:2px solid #e5e7eb;border-left:4px solid #0d2d6e;border-radius:8px;padding:12px 14px;margin-bottom:8px">'
+        +'<div style="display:flex;justify-content:space-between;flex-wrap:wrap;gap:4px">'
+        +'<div><div style="font-weight:700;font-size:14px;color:#0d2d6e">'+escHtml(course)+'</div>'
+        +'<div style="font-size:12px;color:#6b7280;margin-top:2px">'+date+' &middot; '+(d.mode==='stableford'?'Stableford':'Stroke play')+'</div>'
+        +'<div style="font-size:12px;color:#4a5a7a;margin-top:2px">'+escHtml(players)+'</div></div>'
+        +'<div style="font-family:monospace;font-size:13px;font-weight:700;color:#c8102e;letter-spacing:2px">'+r.code+'</div>'
+        +'</div>'
+        +'<div style="display:flex;gap:8px;margin-top:10px">'
+        +'<button class="btn-sm" style="flex:1" onclick="viewArchived(\''+r.code+'\')">View</button>'
+        +'<button class="btn-sm" style="background:#c8102e;color:#fff;border-color:#c8102e;flex:1" onclick="adminDeleteArchived(\''+r.code+'\',\''+escHtml(course)+'\',event)">Delete</button>'
+        +'</div></div>';
+    }).join('');
+  }).catch(function(){list.innerHTML='<div style="font-size:13px;color:#c8102e">Could not load.</div>';});
+}
+
+function adminDeleteArchived(code,courseName,evt){
+  if(evt)evt.stopPropagation();
+  if(!confirm('Permanently delete archived round '+code+' ('+courseName+')?\n\nThis cannot be undone.'))return;
+  var btn=evt&&evt.target;if(btn){btn.textContent='Deleting...';btn.style.opacity='0.6';}
+  fbDelete('archived_rounds/'+code).then(function(){
+    var row=btn&&btn.closest('div[style*="border-left"]');
+    if(row)row.remove();
+  }).catch(function(e){alert('Delete failed: '+e.message);if(btn){btn.textContent='Delete';btn.style.opacity='1';}});
 }
 function adminJoin(code){
   fbGet('rounds/'+code).then(function(d){
