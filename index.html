@@ -1855,7 +1855,7 @@ function buildTeeBtns(){
     b.style.color=t===S.tee?'#fff':(t==='yellow'?'#ca8a04':t==='white'?'#6b7280':t==='red'?'#dc2626':t==='blue'?'#2563eb':'#111');
     if(t===S.tee){b.style.background=t==='yellow'?'#ca8a04':t==='white'?'#6b7280':t==='red'?'#dc2626':t==='blue'?'#2563eb':'#111';}
     b.textContent=t.charAt(0).toUpperCase()+t.slice(1);
-    b.onclick=function(){S.tee=t;buildTeeBtns();};
+    b.onclick=function(){S.tee=t;buildTeeBtns();if(S.course)loadCourseCard(S.course);};
     el.appendChild(b);
   });
 }
@@ -1869,7 +1869,11 @@ function loadCourseCard(name){
   for(var key in KNOWN_CARDS){
     if(k.indexOf(key)>=0||key.indexOf(k)>=0){
       var teeData=KNOWN_CARDS[key][S.tee]||KNOWN_CARDS[key].yellow||KNOWN_CARDS[key].white;
-      if(teeData){S.pars=teeData.par.slice();S.si=teeData.si.slice();buildSetup();
+      if(teeData){S.pars=teeData.par.slice();S.si=teeData.si.slice();
+        if(teeData.yds&&teeData.yds.some(function(y){return y>0}))S.yds=teeData.yds.slice();
+        if(teeData.slope){S.slope=teeData.slope;var slEl=$('setupSlope');if(slEl)slEl.value=teeData.slope;}
+        if(teeData.cr){S.cr=teeData.cr;var crEl=$('setupCR');if(crEl)crEl.value=teeData.cr;}
+        buildSetup();updateHcpPctLabel();
         ci.textContent='Scorecard loaded for '+name.split(',')[0]+' ('+S.tee+' tees)!';
         ci.style.borderLeftColor='#16a34a';ci.style.background='#f0fdf4';ci.style.color='#166534';return;}
     }
@@ -1878,8 +1882,18 @@ function loadCourseCard(name){
   var cardKey=name.toLowerCase().replace(/[^a-z0-9]/g,'_').substring(0,80)+'__'+S.tee;
   fbGet('scorecards/'+cardKey).then(function(d){
     if(d&&d.par&&d.si&&d.par.length===18&&d.si.length===18){
-      S.pars=d.par.slice();S.si=d.si.slice();if(d.yds&&d.yds.some(function(y){return y>0}))S.yds=d.yds.slice();if(d.slope)S.slope=d.slope;if(d.cr)S.cr=d.cr;buildSetup();
-      ci.textContent='Scorecard loaded for '+name.split(',')[0]+' ('+S.tee+' tees) ✓ community verified';
+      S.pars=d.par.slice();S.si=d.si.slice();
+      if(d.yds&&d.yds.some(function(y){return y>0}))S.yds=d.yds.slice();
+      if(d.slope){S.slope=d.slope;var slEl=$('setupSlope');if(slEl)slEl.value=d.slope;}
+      if(d.cr){S.cr=d.cr;var crEl=$('setupCR');if(crEl)crEl.value=d.cr;}
+      var parTotal=S.pars.reduce(function(a,b){return a+b},0);
+      var cpEl=$('setupCoursePar');if(cpEl)cpEl.value=parTotal;
+      buildSetup();updateHcpPctLabel();
+      var loadedParts=[];
+      if(d.yds&&d.yds.some(function(y){return y>0}))loadedParts.push('yards');
+      if(d.slope)loadedParts.push('slope '+d.slope);
+      if(d.cr)loadedParts.push('CR '+d.cr);
+      ci.textContent='Scorecard loaded for '+name.split(',')[0]+' ('+S.tee+' tees) ✓'+(loadedParts.length?' — '+loadedParts.join(', '):'');
       ci.style.borderLeftColor='#16a34a';ci.style.background='#f0fdf4';ci.style.color='#166534';
     } else {
       loadCourseCardFromAPI(name,ci);
