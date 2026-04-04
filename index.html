@@ -1302,6 +1302,7 @@ button[onclick*="startFromComp"],
   <label>Number of players</label>
   <div class="row" id="compNpRow"></div>
   <label>Players & handicaps</label>
+  <button id="refreshHcpBtn" onclick="refreshCompHcps()" style="display:none;width:100%;padding:10px;background:#fff;border:2px solid #16a34a;color:#16a34a;font-size:13px;font-weight:700;border-radius:6px;cursor:pointer;margin-bottom:8px">&#8635; Refresh HCPs from Player Profiles</button>
   <div id="compPFields"></div>
   <div class="phcp-panel" style="margin-bottom:10px"><h4>Course Rating &amp; Slope <span class="phcp-badge">Playing HCP</span></h4><div class="phcp-row"><div><label>Slope</label><input id="compSlope" type="number" min="55" max="155" placeholder="113" value="113"/></div><div><label>Course Rating</label><input id="compCR" type="number" min="50" max="85" step="0.1" placeholder="e.g. 69.1"/></div><div><label>Par</label><input id="compPar" type="number" min="60" max="80" placeholder="72" value="72"/></div></div><div class="phcp-note">Used to calculate each player's Playing HCP for scorecards.</div></div>
 <label>Notes</label>
@@ -2735,13 +2736,54 @@ function buildCompNpRow(){
   });
 }
 
+function refreshCompHcps(){
+  var rows=document.querySelectorAll('#compPFields .prow');
+  var btn=document.getElementById('refreshHcpBtn');
+  if(btn){btn.textContent='Refreshing...';btn.style.opacity='0.6';}
+  var updated=0;
+  var total=0;
+  rows.forEach(function(row){
+    var sel=row.querySelector('select.cpname');
+    var hcpIn=row.querySelector('.cphcp');
+    if(!sel||!hcpIn)return;
+    var name=sel.dataset.customVal||sel.value;
+    if(!name||name==='__custom__'||name==='')return;
+    total++;
+    var profKey=name.toLowerCase().replace(/[^a-z0-9]/g,'_');
+    fbGet('rogs_profiles/'+profKey).then(function(d){
+      if(d&&d.hcp!=null){
+        hcpIn.value=d.hcp;
+        ROGS_HCPS[profKey]=d.hcp;
+        hcpIn.style.background='#f0fdf4';
+        hcpIn.style.borderColor='#16a34a';
+        setTimeout(function(){hcpIn.style.background='';hcpIn.style.borderColor='';},2000);
+        updated++;
+      } else {
+        var q=getROGSHcp(name);
+        if(q){hcpIn.value=q;updated++;}
+      }
+      total--;
+      if(total===0){
+        if(btn){btn.textContent='\u21BB Refresh HCPs from Player Profiles';btn.style.opacity='1';}
+        var msg=document.getElementById('compErr');
+        if(msg){
+          msg.textContent='HCPs refreshed from profiles ('+updated+' updated)';
+          msg.style.cssText='display:block;color:#16a34a;background:#f0fdf4;border-left-color:#16a34a';
+          setTimeout(function(){msg.style.display='none';},3000);
+        }
+      }
+    }).catch(function(){total--;});
+  });
+  if(total===0&&btn){btn.textContent='\u21BB Refresh HCPs from Player Profiles';btn.style.opacity='1';}
+}
 function buildCompPFields(){
   var pf=$('compPFields');
   pf.innerHTML='<div class="prow" style="margin-bottom:2px"><span style="font-size:11px;color:#9ca3af;font-weight:700;text-transform:uppercase">Name</span><span style="font-size:11px;color:#9ca3af;font-weight:700;text-align:center;text-transform:uppercase">HCP</span></div>';
   for(var i=0;i<COMP_NP;i++){
     var row=document.createElement('div');row.className='prow';
     var existingName=(EDIT_COMP_ID&&window._editComp&&window._editComp.names)?window._editComp.names[i]||'':'';
-    var existingHcp=(EDIT_COMP_ID&&window._editComp&&window._editComp.hcps)?window._editComp.hcps[i]||0:getROGSHcp(existingName);
+    var _sh=(EDIT_COMP_ID&&window._editComp&&window._editComp.hcps)?window._editComp.hcps[i]:null;
+    var existingHcp=(_sh!=null&&_sh>0)?_sh:(existingName?getROGSHcp(existingName):0);
     var sel=document.createElement('select');
     sel.dataset.ci=i;sel.className='cpname';sel.style.margin='0';
     var blankOpt=document.createElement('option');blankOpt.value='';blankOpt.textContent='-- Select player --';sel.appendChild(blankOpt);
@@ -2815,6 +2857,7 @@ function openEditComp(id,comp){
   $('deleteCompBtn').style.display='block';
   setCompMode(COMP_MODE);
   buildCompNpRow();buildCompPFields();
+  var _rb=document.getElementById('refreshHcpBtn');if(_rb)_rb.style.display='block';
   show('p-comp');
 }
 
