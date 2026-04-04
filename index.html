@@ -15,6 +15,29 @@ h1{color:#0d2d6e;font-size:21px;margin:0 0 5px}
 .badge.done{background:#16a34a}.badge.skip{background:#d97706}.badge.fail{background:#c8102e}
 .flow{background:#f0f4ff;border-left:4px solid #0d2d6e;border-radius:8px;padding:12px;margin-bottom:14px;font-size:12px;color:#374151;line-height:1.9}
 .flow b{color:#0d2d6e}
+
+
+/*ROGS-GROUPS-V2*/
+#group-summary {
+  display: none;
+  background: #f0f4ff;
+  border: 2px solid #0d2d6e;
+  border-radius: 10px;
+  padding: 12px 14px;
+  margin: 12px 0;
+}
+#group-banner {
+  position: sticky;
+  top: 0;
+  z-index: 50;
+}
+/* Dim non-group player columns in scoring */
+.score-col-hidden {
+  opacity: 0.3;
+  pointer-events: none;
+}
+/*END-ROGS-GROUPS-V2*/
+
 </style></head><body><div class="card">
 <h1>&#128101; Groups Feature</h1>
 <div class="flow">
@@ -43,7 +66,7 @@ h1{color:#0d2d6e;font-size:21px;margin:0 0 5px}
 </div>
 <script>
 var NEW_JS="\n// ============================================================\n// ROGS GROUPS - Simple version\n// Groups auto-assigned in setup (max 4 per group)\n// When joining, player's group determined by their player index\n// They can edit all scores for players in their group\n// ============================================================\n\nvar _myGroup = null;       // group index this device is in (0,1,2...)\nvar _myGroupPlayers = [];  // player indices in my group\nvar _roundGroups = null;   // full groups data from Firebase\n\n// Called in round setup: auto-divide players into groups of 4\n// Returns groups object: { \"0\": [0,1,2,3], \"1\": [4,5,6,7], ... }\nfunction autoMakeGroups(names) {\n  var active = [];\n  for (var i = 0; i < names.length; i++) {\n    if (names[i] && names[i].trim()) active.push(i);\n  }\n  var groups = {};\n  var gi = 0;\n  for (var j = 0; j < active.length; j++) {\n    if (!groups[gi]) groups[gi] = [];\n    groups[gi].push(active[j]);\n    if (groups[gi].length === 4) gi++;\n  }\n  return groups;\n}\n\n// Save groups to Firebase alongside scorecard\nfunction saveRoundGroups(code, names) {\n  var groups = autoMakeGroups(names);\n  return fbPut('scorecards/' + code + '/groups', groups);\n}\n\n// After joining and selecting a player, load their group\nfunction loadMyGroup(code, playerIdx) {\n  fbGet('scorecards/' + code + '/groups').then(function(groups) {\n    _roundGroups = groups;\n    if (!groups) {\n      // No groups set  can edit all players\n      _myGroup = 0;\n      _myGroupPlayers = [];\n      for (var i = 0; i < 16; i++) _myGroupPlayers.push(i);\n      return;\n    }\n    // Find which group this player is in\n    var gKeys = Object.keys(groups);\n    for (var gi = 0; gi < gKeys.length; gi++) {\n      var members = groups[gKeys[gi]];\n      for (var m = 0; m < members.length; m++) {\n        if (members[m] === playerIdx) {\n          _myGroup = parseInt(gKeys[gi]);\n          _myGroupPlayers = members;\n          updateScoringGroupUI();\n          return;\n        }\n      }\n    }\n    // Player not in any group - give full access\n    _myGroup = 0;\n    _myGroupPlayers = [];\n    for (var i = 0; i < 16; i++) _myGroupPlayers.push(i);\n  });\n}\n\n// Can this device edit scores for a given player index?\nfunction canEditPlayerScore(playerIdx) {\n  if (!_roundGroups) return true; // no groups = free for all\n  if (window._isAdmin) return true; // admin can edit all\n  if (_myGroupPlayers.length === 0) return true;\n  return _myGroupPlayers.indexOf(playerIdx) !== -1;\n}\n\n// Update scoring UI to reflect group restrictions\nfunction updateScoringGroupUI() {\n  if (!_roundGroups) return;\n  // Add a banner showing which group this device is in\n  var banner = document.getElementById('group-banner');\n  if (!banner) {\n    banner = document.createElement('div');\n    banner.id = 'group-banner';\n    banner.style.cssText = 'background:#0d2d6e;color:#fff;font-size:12px;font-weight:700;text-align:center;padding:6px 12px;letter-spacing:.3px';\n    var playPage = document.getElementById('p-play');\n    if (playPage) {\n      var topbar = playPage.querySelector('.topbar');\n      if (topbar && topbar.nextSibling) {\n        playPage.insertBefore(banner, topbar.nextSibling);\n      } else if (topbar) {\n        topbar.appendChild(banner);\n      }\n    }\n  }\n  banner.textContent = 'Group ' + (_myGroup + 1) + ' scoring: ' +\n    _myGroupPlayers.map(function(i){ return window.S && S.names && S.names[i] ? S.names[i].split(' ')[0] : 'P'+(i+1); }).join(', ');\n\n  // Show group setup info in setup page\n  showGroupSummary();\n}\n\n// Show group breakdown in the setup page after players selected\nfunction showGroupSummary() {\n  var el = document.getElementById('group-summary');\n  if (!el || !window.S || !S.names) return;\n  var groups = autoMakeGroups(S.names);\n  var gKeys = Object.keys(groups);\n  if (gKeys.length <= 1) { el.style.display = 'none'; return; }\n  el.style.display = 'block';\n  var html = '<div style=\"font-size:11px;font-weight:700;color:#0d2d6e;text-transform:uppercase;letter-spacing:.6px;margin-bottom:8px\">Auto Groups (max 4)</div>';\n  gKeys.forEach(function(gi) {\n    var members = groups[gi];\n    html += '<div style=\"background:#fff;border:2px solid #0d2d6e;border-left:4px solid #c8102e;border-radius:8px;padding:8px 12px;margin-bottom:6px\">';\n    html += '<strong style=\"font-size:13px;color:#0d2d6e\">Group ' + (parseInt(gi)+1) + '</strong> ';\n    members.forEach(function(pi) {\n      if (S.names[pi]) {\n        html += '<span style=\"display:inline-block;background:#eff6ff;border-radius:4px;padding:2px 8px;margin:2px;font-size:12px;font-weight:600;color:#0d2d6e\">' + escHtml(S.names[pi]) + '</span>';\n      }\n    });\n    html += '</div>';\n  });\n  el.innerHTML = html;\n}\n";
-var NEW_CSS="\n/*ROGS-GROUPS-V2*/\n#group-summary {\n  display: none;\n  background: #f0f4ff;\n  border: 2px solid #0d2d6e;\n  border-radius: 10px;\n  padding: 12px 14px;\n  margin: 12px 0;\n}\n#group-banner {\n  position: sticky;\n  top: 0;\n  z-index: 50;\n}\n/* Dim non-group player columns in scoring */\n.score-col-hidden {\n  opacity: 0.3;\n  pointer-events: none;\n}\n/*END-ROGS-GROUPS-V2*/\n";
+var NEW_CSS="\n\n";
 
 function badge(id,t,tp){var e=document.getElementById(id);e.textContent=t;e.className='badge '+(tp||'');}
 function setStatus(m,t){var e=document.getElementById('status');e.textContent=m;e.className='status '+(t||'info');}
