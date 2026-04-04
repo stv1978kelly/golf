@@ -1455,11 +1455,6 @@ button[onclick*="startFromComp"],
     <div class="row" id="teeBtns"></div>
     <button class="btn-sm" style="margin-bottom:8px" onclick="reloadWithTee()">↻ Reload scorecard for this tee</button>
   </div>
-  <label>Scoring mode</label>
-  <div class="row">
-    <button id="mStroke" onclick="setMode('strokeplay')" style="padding:8px 16px;font-size:13px;font-weight:700;border:2.5px solid #0d2d6e;border-radius:6px;cursor:pointer;background:#0d2d6e;color:#fff">Stroke play</button>
-    <button id="mStable" onclick="setMode('stableford')" style="padding:8px 16px;font-size:13px;font-weight:700;border:2.5px solid #0d2d6e;border-radius:6px;cursor:pointer;background:#fff;color:#0d2d6e">Stableford</button>
-  </div>
   <div style="background:#eff6ff;border:2px solid #0d2d6e;border-radius:8px;padding:14px 16px;margin:14px 0 10px">
     <div style="font-size:11px;font-weight:700;color:#0d2d6e;text-transform:uppercase;letter-spacing:.6px;margin-bottom:10px">Course Rating &amp; Slope</div>
     <div style="display:flex;gap:8px;margin-bottom:12px">
@@ -1469,17 +1464,20 @@ button[onclick*="startFromComp"],
     </div>
     <label style="margin-top:0;font-size:11px;font-weight:700;color:#0d2d6e;text-transform:uppercase;letter-spacing:.6px">HCP Allowance %</label>
     <select id="pctSelect" onchange="setPctFromSelect(this.value)" style="width:100%;padding:11px 12px;border:2px solid #0d2d6e;font-size:13px;font-weight:600;color:#0d2d6e;background:#fff;margin-bottom:6px">
-      <optgroup label="Individual">
-        <option value="95" selected>Individual Stableford / Par / Bogey — 95%</option>
-        <option value="100i">Individual Stroke Play — 100%</option>
-        <option value="90">Individual Stroke Play (club variant) — 90%</option>
-        <option value="85">Individual Stroke Play (club variant) — 85%</option>
+      <optgroup label="Individual Stableford">
+        <option value="stab95" selected>Individual Stableford — 95%</option>
+        <option value="stab100">Individual Stableford — 100%</option>
+      </optgroup>
+      <optgroup label="Individual Stroke Play">
+        <option value="stroke100">Individual Stroke Play — 100%</option>
+        <option value="stroke90">Individual Stroke Play — 90%</option>
+        <option value="stroke85">Individual Stroke Play — 85%</option>
       </optgroup>
       <optgroup label="Pairs">
-        <option value="85p">Fourball Betterball Stableford / Stroke — 85%</option>
+        <option value="85p">Fourball Betterball — 85%</option>
         <option value="90p">Fourball Match Play — 90%</option>
-        <option value="50f">Foursomes Alternate Shot — 50% combined</option>
-        <option value="64g">Greensomes — 60% low + 40% high</option>
+        <option value="50f">Foursomes Alternate Shot — 50%</option>
+        <option value="64g">Greensomes — 60%/40%</option>
       </optgroup>
       <optgroup label="Team (4 Players)">
         <option value="75">Best 1 of 4 — 75%</option>
@@ -1672,8 +1670,8 @@ function fbGet(p){return fetch(FB+'/'+p+'.json').then(function(r){if(!r.ok)throw
 function fbPut(p,d){return fetch(FB+'/'+p+'.json',{method:'PUT',body:JSON.stringify(d)}).then(function(r){if(!r.ok)throw new Error(r.status);return r.json()})}
 function fbPatch(p,d){return fetch(FB+'/'+p+'.json',{method:'PATCH',body:JSON.stringify(d)}).then(function(r){if(!r.ok)throw new Error(r.status);return r.json()})}
 function fbDelete(p){return fetch(FB+'/'+p+'.json',{method:'DELETE'}).then(function(r){if(!r.ok)throw new Error(r.status)})}
-var PCT_NUMS={'95':95,'100i':100,'90':90,'85':85,'85p':85,'90p':90,'50f':50,'64g':64,'75':75,'85t':85,'100t':100};
-var PCT_LABELS={'95':'Individual Stableford/Par/Bogey: 95%','100i':'Individual Stroke Play: 100%','90':'Individual Stroke (club): 90%','85':'Individual Stroke (club): 85%','85p':'Fourball Betterball: 85%','90p':'Fourball Match Play: 90%','50f':'Foursomes Alt Shot: 50% combined','64g':'Greensomes: 60% low + 40% high','75':'Best 1 of 4: 75%','85t':'Best 2 of 4: 85%','100t':'Best 3/4 of 4: 100%'};
+var PCT_NUMS={'stab95':95,'stab100':100,'stroke100':100,'stroke90':90,'stroke85':85,'85p':85,'90p':90,'50f':50,'64g':64,'75':75,'85t':85,'100t':100};
+var PCT_LABELS={'stab95':'Individual Stableford: 95%','stab100':'Individual Stableford: 100%','stroke100':'Individual Stroke Play: 100%','stroke90':'Individual Stroke Play: 90%','stroke85':'Individual Stroke Play: 85%','85p':'Fourball Betterball: 85%','90p':'Fourball Match Play: 90%','50f':'Foursomes Alt Shot: 50%','64g':'Greensomes: 60%/40%','75':'Best 1 of 4: 75%','85t':'Best 2 of 4: 85%','100t':'Best 3/4 of 4: 100%'};
 
 function getHcpAllowancePct(mode){if(!mode)return 100;var m=(mode+'').toLowerCase();if(m.indexOf('fourball')!==-1||m.indexOf('4ball')!==-1){return(m.indexOf('stroke')!==-1||m.indexOf('medal')!==-1)?90:85;}if(m.indexOf('bogey')!==-1)return 100;if(m.indexOf('stroke')!==-1||m.indexOf('medal')!==-1)return 100;if(m.indexOf('stableford')!==-1)return 95;return 100;}
 
@@ -1684,22 +1682,28 @@ function setPct(p){S.pct=p;updateHcpPctLabel();}
 function setPctFromSelect(val){
   var p=PCT_NUMS[val]||95;
   S.pct=p;S.pctKey=val;
+  S.mode=(val.indexOf('stroke')===0)?'strokeplay':'stableford';
   updateHcpPctLabel();
 }
 
 function updateHcpPctLabel(){
   var el=document.getElementById('pctLabel');
   if(!el)return;
-  var slope=S.slope||113,pct=S.pct||95,key=S.pctKey||'95';
+  var slope=S.slope||113,pct=S.pct||95,key=S.pctKey||'stab95';
   var desc=PCT_LABELS[key]||(pct+'% of Course Handicap');
-  el.innerHTML='<strong>'+desc+'</strong><div style="font-size:11px;color:#6b7280;margin-top:3px">Playing HCP = Index x ('+slope+'/113) + (CR - Par) x '+pct+'%</div>';
+  var isStroke=key.indexOf('stroke')===0;
+  var modeStr=isStroke?'Stroke Play':'Stableford';
+  var modeCol=isStroke?'#0d2d6e':'#16a34a';
+  el.innerHTML='<span style="display:inline-block;background:'+modeCol+';color:#fff;font-size:11px;font-weight:700;padding:2px 8px;border-radius:4px;margin-bottom:4px">'+modeStr+'</span>'
+    +'<div style="font-weight:700;margin-bottom:2px">'+desc+'</div>'
+    +'<div style="font-size:11px;color:#6b7280">Playing HCP = Index x ('+slope+'/113) + (CR - Par) x '+pct+'%</div>';
 }
 
 function setMode(m){
   S.mode=m;
   var stroke=document.getElementById('mStroke'),stable=document.getElementById('mStable');
-  if(stroke){stroke.style.background=m==='strokeplay'?'#0d2d6e':'#fff';stroke.style.color=m==='strokeplay'?'#fff':'#0d2d6e';}
-  if(stable){stable.style.background=m==='stableford'?'#0d2d6e':'#fff';stable.style.color=m==='stableford'?'#fff':'#0d2d6e';}
+  if(stroke){stroke.style.cssText='flex:1;padding:10px 16px;font-size:14px;font-weight:700;border:2.5px solid #0d2d6e;border-radius:8px;cursor:pointer;pointer-events:auto;background:'+(m==='strokeplay'?'#0d2d6e':'#fff')+';color:'+(m==='strokeplay'?'#fff':'#0d2d6e');}
+  if(stable){stable.style.cssText='flex:1;padding:10px 16px;font-size:14px;font-weight:700;border:2.5px solid #0d2d6e;border-radius:8px;cursor:pointer;pointer-events:auto;background:'+(m==='stableford'?'#0d2d6e':'#fff')+';color:'+(m==='stableford'?'#fff':'#0d2d6e');}
   var sel=document.getElementById('pctSelect');
   if(sel){sel.value=m==='stableford'?'95':'100i';setPctFromSelect(sel.value);}
   else setPct(m==='stableford'?95:100);
@@ -2598,14 +2602,17 @@ function renderLB(){
     netScore=gross-playing;
     if(played)stats.push({pi:pi,name:R.names[pi]||'P'+(pi+1),gross:gross,stable:stable,played:played,toPar:toPar,hcp:hcpIdx,playing:playing,netToPar:netScore-par_total});
   }
-  stats.sort(function(a,b){return R.mode==='stableford'?b.stable-a.stable:a.toPar-b.toPar});
+  stats.sort(function(a,b){return R.mode==='stableford'?b.stable-a.stable:a.netToPar-b.netToPar});
   var lbc=$('lbContent');
   if(!stats.length){lbc.innerHTML='<p style="color:#9ca3af;font-size:14px;padding:1rem 0">No scores yet.</p>';$('lbBanner').style.display='none';$('emailBox').style.display='none';return}
   lbc.innerHTML=stats.map(function(p,i){
     var sc=R.mode==='stableford'?p.stable:p.gross;
-    var netDisp=R.mode==='stableford'?p.stable+'pts':(p.netToPar===0?'E':p.netToPar>0?'+'+p.netToPar:String(p.netToPar));
-    var sub=R.mode==='stableford'?'pts':(p.toPar===0?'E':p.toPar>0?'+'+p.toPar:p.toPar);
-    var sc2=R.mode==='stableford'?(p.stable>=36?'#15803d':p.stable>=30?'#0d2d6e':'#c8102e'):(p.toPar<0?'#15803d':p.toPar>0?'#c8102e':'#4a5a7a');
+    var sub=R.mode==='stableford'
+      ?(p.stable>0?p.stable+'pts':'–')
+      :(p.netToPar===0?'E net':p.netToPar>0?'net +'+p.netToPar:'net '+p.netToPar);
+    var sc2=R.mode==='stableford'
+      ?(p.stable>=36?'#15803d':p.stable>=30?'#0d2d6e':'#c8102e')
+      :(p.netToPar<0?'#15803d':p.netToPar>0?'#c8102e':'#4a5a7a');
     return'<div class="lbrow'+(i===0?' top':'')+'">'+'<div class="rank">'+((['1st','2nd','3rd'][i])||((i+1)+'th'))+'</div>'+'<div style="flex:1"><div style="font-weight:700;font-size:15px;color:#0d2d6e">'+p.name+'</div><div style="font-size:12px;color:#4a5a7a">HCP '+p.hcp+' · '+p.played+' holes</div></div>'+'<div class="lbscore"><div class="big">'+sc+'</div><div style="font-size:13px;font-weight:700;color:'+sc2+'">'+sub+'</div></div></div>';
   }).join('');
   $('lbBanner').style.display=IS_ARCHIVED?'none':'block';
@@ -2624,7 +2631,7 @@ function buildStats(){
     });
     if(played)stats.push({pi:pi,name:R.names[pi]||'P'+(pi+1),hcp:hcp,gross:gross,stable:stable,played:played,toPar:toPar,out:out,inB:inB,outStable:outStable,inStable:inStable});
   }
-  stats.sort(function(a,b){return R.mode==='stableford'?b.stable-a.stable:a.toPar-b.toPar});
+  stats.sort(function(a,b){return R.mode==='stableford'?b.stable-a.stable:a.netToPar-b.netToPar});
   return stats;
 }
 
@@ -3197,7 +3204,7 @@ var COMP_TEE='yellow';
 var COMP_PCT_KEY='95';
 var COMP_PCT=95;
 var COMP_GROUPS={};
-var COMP_PCT_NUMS={'95':95,'100':100,'90':90,'85':85,'75':75,'100m':100,'85p':85,'90p':90,'50f':50,'64g':64,'85t':85,'100t':100};
+var COMP_PCT_NUMS={'stab95':95,'stab100':100,'stroke100':100,'stroke90':90,'stroke85':85,'85p':85,'90p':90,'50f':50,'64g':64,'75':75,'85t':85,'100t':100};
 var COMP_PCT_LABELS={
   '95':'Individual Stableford/Par/Bogey: 95%',
   '100':'Individual Stroke Play: 100%',
@@ -3258,6 +3265,7 @@ function compAutoLoadCourseData(course){
 function compSetPct(val){
   COMP_PCT_KEY=val;
   COMP_PCT=COMP_PCT_NUMS[val]||95;
+  COMP_MODE=(val.indexOf('stroke')===0)?'strokeplay':'stableford';
   compUpdatePctLabel();
 }
 
