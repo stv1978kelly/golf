@@ -1734,6 +1734,13 @@ function renderGroupEntry(){
   var playerLabel=document.getElementById('playerLabel');
   if(!el)return;
   var hasGroup=window._roundGroups&&window._myGroupPlayers&&window._myGroupPlayers.length>0;
+  // If round has groups but we haven't selected our player yet - show picker
+  if(!IS_ARCHIVED&&!hasGroup&&R&&R.groups&&Object.keys(R.groups).length>0&&!window._roundGroups){
+    el.style.display='block';
+    if(playerLabel)playerLabel.style.display='none';
+    el.innerHTML='<div style="background:#0d2d6e;color:#fff;font-size:13px;font-weight:700;padding:12px 14px;border-radius:8px;margin-bottom:8px;text-align:center">Tap your name above to activate your group scoring</div>';
+    return;
+  }
   if(!hasGroup||IS_ARCHIVED){
     el.style.display='none';
     if(playerLabel)playerLabel.style.display='block';
@@ -2166,7 +2173,18 @@ function startPlay(){
   $('playMeta').textContent=R.np+' players · Par '+R.pars.reduce(function(a,b){return a+b},0)+' · '+(R.mode==='stableford'?'Stableford':'Stroke play')+(IS_ARCHIVED?' · ARCHIVED':'');
   $('completeBtn').style.display=IS_ARCHIVED?'none':'inline-block';
   show('p-play');renderAll();
-  if(!IS_ARCHIVED)startPoll();
+  if(!IS_ARCHIVED){
+    startPoll();
+    // Auto-detect player from profile name
+    var lastPlayer=localStorage.getItem('rogs_profile_name')||'';
+    if(lastPlayer&&R.groups){
+      var pi=R.names.indexOf(lastPlayer);
+      if(pi!==-1){AP=pi;renderPBtns();renderHBtns();renderEntry();loadMyGroup(RC,pi);}
+    } else if(R.groups){
+      // Show group selector prompt
+      renderGroupEntry();
+    }
+  }
   else{$('liveDisp').className='archived-badge';$('liveDisp').textContent='📁 Archived';$('timeDisp').textContent=R.completedAt?new Date(R.completedAt).toLocaleDateString('en-GB'):'';}
 }
 function startPoll(){
