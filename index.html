@@ -1206,29 +1206,60 @@ button[onclick*="startFromComp"],
     </div>
     <div class="stripe"></div>
   </div>
-  <label>Your name</label>
-  <select id="profileName" onchange="profileNameChanged()">
-    <option value="">-- Select your name --</option>
-  </select>
-  <label>Handicap Index</label>
-  <div style="display:flex;gap:8px;align-items:flex-start">
-    <input id="profileHcp" type="number" min="0" max="54" step="0.1" placeholder="e.g. 12.4" style="flex:1;margin-bottom:0"/>
-    <button class="btn-sm" onclick="profileSaveHcp()" style="margin-top:0;height:44px">Save HCP</button>
+
+  <!-- Step 1: Pick or type a name -->
+  <div id="profileStep1" style="margin-bottom:4px">
+    <div style="background:#eff6ff;border:2px solid #0d2d6e;border-radius:8px;padding:14px 16px;margin-bottom:14px">
+      <div style="font-size:11px;font-weight:700;color:#0d2d6e;text-transform:uppercase;letter-spacing:.6px;margin-bottom:10px">Select Your Name</div>
+      <input id="profileSearchIn" placeholder="Search for your name..." oninput="profileSearch(this.value)"
+        style="width:100%;padding:11px 12px;border:2px solid #0d2d6e;font-size:14px;margin-bottom:6px"/>
+      <div id="profileSearchList" style="background:#fff;border:2px solid #0d2d6e;border-top:none;border-radius:0 0 6px 6px;max-height:200px;overflow-y:auto;display:none"></div>
+      <div style="text-align:center;margin:8px 0;font-size:12px;color:#9ca3af">— or —</div>
+      <button onclick="profileUseCustomName()" style="width:100%;padding:10px;background:#fff;border:2px solid #0d2d6e;color:#0d2d6e;font-size:13px;font-weight:700;border-radius:6px;cursor:pointer">+ My name is not in the list</button>
+    </div>
   </div>
-  <label>WHS Certificate Number <span style="font-size:11px;color:#9ca3af;font-weight:400">(optional)</span></label>
-  <input id="profileCertNo" placeholder="e.g. 12345678" maxlength="20"/>
-  <div id="profileHcpStatus" style="font-size:12px;color:#4a5a7a;margin-top:-6px;margin-bottom:10px"></div>
-  <label>Profile PIN <span style="font-size:11px;color:#9ca3af;font-weight:400">(lock your profile)</span></label>
-  <div style="display:flex;gap:8px;align-items:flex-start">
-    <input id="profilePinNew" type="password" maxlength="4" placeholder="4-digit PIN" style="flex:1;margin-bottom:0;letter-spacing:6px;font-size:18px"/>
-    <button class="btn-sm" onclick="profileSavePin()" style="height:44px">Set PIN</button>
+
+  <!-- Custom name input (hidden by default) -->
+  <div id="profileCustomDiv" style="display:none;margin-bottom:14px">
+    <div style="background:#fff7ed;border:2px solid #d97706;border-radius:8px;padding:14px 16px">
+      <div style="font-size:11px;font-weight:700;color:#d97706;text-transform:uppercase;letter-spacing:.6px;margin-bottom:8px">Enter Your Name</div>
+      <input id="profileCustomIn" placeholder="Type your full name..." style="margin-bottom:8px"/>
+      <button onclick="profileSelectCustom()" style="width:100%;padding:10px;background:#d97706;border:none;color:#fff;font-size:13px;font-weight:700;border-radius:6px;cursor:pointer">Use This Name →</button>
+      <button onclick="document.getElementById('profileCustomDiv').style.display='none'" style="width:100%;padding:8px;background:#fff;border:2px solid #9ca3af;color:#6b7280;font-size:12px;font-weight:700;border-radius:6px;cursor:pointer;margin-top:6px">Cancel</button>
+    </div>
   </div>
-  <div id="profilePinStatus" style="font-size:12px;color:#4a5a7a;margin-top:4px;margin-bottom:10px"></div>
-  <button class="btn btn-dark" onclick="profileSaveAll()" style="margin-top:12px">Save Profile</button>
-  <div id="profileMsg" style="display:none;margin-top:8px"></div>
-  <div class="embox" style="margin-top:16px">
-    <div style="font-size:13px;font-weight:700;color:#0d2d6e;margin-bottom:6px">About your profile</div>
-    <div style="font-size:12px;color:#4a5a7a;line-height:1.6">Your handicap and certificate number are saved to the ROGS database. Your HCP auto-fills when you're selected in any round setup. The PIN protects your profile from others changing your details.</div>
+
+  <!-- Step 2: Profile form (shown after name selected) -->
+  <div id="profileForm" style="display:none">
+    <div style="background:#0d2d6e;color:#fff;border-radius:8px;padding:12px 14px;margin-bottom:14px;display:flex;justify-content:space-between;align-items:center">
+      <div>
+        <div style="font-size:15px;font-weight:700" id="profileSelectedName"></div>
+        <div style="font-size:11px;color:#93b4e0;margin-top:2px" id="profileSelectedSub"></div>
+      </div>
+      <button onclick="profileChangeName()" style="padding:6px 12px;background:rgba(255,255,255,0.15);border:1.5px solid rgba(255,255,255,0.4);color:#fff;font-size:12px;font-weight:700;border-radius:6px;cursor:pointer">Change</button>
+    </div>
+
+    <div style="background:#fff;border:2px solid #0d2d6e;border-radius:8px;padding:14px 16px;margin-bottom:14px">
+      <div style="font-size:11px;font-weight:700;color:#0d2d6e;text-transform:uppercase;letter-spacing:.6px;margin-bottom:10px">Handicap &amp; Certificate</div>
+      <label style="margin-top:0">Handicap Index</label>
+      <input id="profileHcp" type="number" min="0" max="54" step="0.1" placeholder="e.g. 12.4"/>
+      <label>WHS Certificate Number <span style="font-size:11px;color:#9ca3af;font-weight:400">(optional)</span></label>
+      <input id="profileCertNo" placeholder="e.g. 12345678" maxlength="20"/>
+      <div id="profileHcpStatus" style="font-size:12px;color:#4a5a7a;margin-top:4px"></div>
+    </div>
+
+    <div style="background:#fff;border:2px solid #0d2d6e;border-radius:8px;padding:14px 16px;margin-bottom:14px">
+      <div style="font-size:11px;font-weight:700;color:#0d2d6e;text-transform:uppercase;letter-spacing:.6px;margin-bottom:10px">Profile PIN <span style="font-size:11px;color:#9ca3af;font-weight:400;text-transform:none">(protects your profile)</span></div>
+      <div style="display:flex;gap:8px">
+        <input id="profilePinNew" type="password" maxlength="4" placeholder="4-digit PIN" style="flex:1;margin-bottom:0;letter-spacing:6px;font-size:18px"/>
+        <input id="profilePinConfirm" type="password" maxlength="4" placeholder="Confirm" style="flex:1;margin-bottom:0;letter-spacing:6px;font-size:18px"/>
+      </div>
+      <div id="profilePinStatus" style="font-size:12px;color:#4a5a7a;margin-top:6px"></div>
+      <div style="font-size:11px;color:#9ca3af;margin-top:4px">Leave blank to keep existing PIN. Set 0000 to remove PIN.</div>
+    </div>
+
+    <button class="btn btn-dark" onclick="profileSaveAll()" style="margin-top:4px">Save Profile</button>
+    <div id="profileMsg" style="display:none;margin-top:8px"></div>
   </div>
 </div>
 
@@ -3205,61 +3236,53 @@ function renderH2H(data) {
 // ── Player Profiles ──────────────────────────────────────────────────────────
 var _profilePin='';
 var _profileMode='enter'; // 'enter'|'set'
-var _profilePlayer=null;  // currently loaded profile name
+var _profilePlayer=null;
 var _profileUnlocked=false;
+var _profileMode='enter';
 
 function openProfile(){
-  // Check if a profile is stored locally
+  // Reset to search step
+  profileChangeName();
+  // Pre-fill search if we have a locally stored name
   var last=localStorage.getItem('rogs_profile_name')||'';
   if(last){
-    // Try to load — if PIN protected, ask for PIN
-    fbGet('rogs_profiles/'+profileKey(last)).then(function(d){
-      if(d&&d.pin){
-        _profilePlayer=last;_profileMode='enter';
-        $('profilePinTitle').textContent='Enter Profile PIN';
-        $('profilePinMsg').textContent='PIN required for '+last;
-        $('profilePinErr').textContent='';
-        profilePinReset();show('p-profile-pin');
-      } else {
-        loadProfilePage(last,d||{});
-      }
-    }).catch(function(){loadProfilePage(last,{});});
-  } else {
-    loadProfilePage('',{});
+    var sin=document.getElementById('profileSearchIn');
+    if(sin)sin.value=last;
+    profileSearch(last);
   }
+  show('p-profile');
 }
 
 function profileKey(name){return name.replace(/[^a-z0-9]/gi,'_').toLowerCase();}
 
-function loadProfilePage(name,data){
-  _profilePlayer=name;_profileUnlocked=true;
-  // Populate name dropdown
-  var sel=$('profileName');sel.innerHTML='<option value="">-- Select your name --</option>';
-  ROGS_PLAYERS.forEach(function(n){
-    var opt=document.createElement('option');opt.value=n;opt.textContent=n;
-    if(n===name)opt.selected=true;
-    sel.appendChild(opt);
-  });
-  $('profileHcp').value=data.hcp!=null?data.hcp:'';
-  $('profileCertNo').value=data.certNo||'';
-  $('profilePinNew').value='';
-  $('profileHcpStatus').textContent=data.certNo?'Certificate: '+data.certNo:'';
-  $('profilePinStatus').textContent=data.pin?'PIN is set ✓':'No PIN set';
-  $('profileMsg').style.display='none';
-  $('profilePageName').textContent=name?name+' — Profile':'My Profile';
-  show('p-profile');
+function profileSearch(q){
+  var list=document.getElementById('profileSearchList');
+  if(!list)return;
+  var lq=(q||'').trim().toLowerCase();
+  if(!lq){list.style.display='none';return;}
+  var matches=ROGS_PLAYERS.filter(function(n){return n.toLowerCase().indexOf(lq)>=0;}).slice(0,15);
+  if(!matches.length){
+    list.innerHTML='<div style="padding:10px 12px;font-size:13px;color:#9ca3af">No match  use "My name is not in the list" below</div>';
+    list.style.display='block';return;
+  }
+  list.innerHTML=matches.map(function(n){
+    return'<div onclick="profileSelectName(\''+escHtml(n)+'\')" style="padding:10px 12px;cursor:pointer;font-size:14px;font-weight:600;color:#0d2d6e;border-bottom:1px solid #e5e7eb" onmouseover="this.style.background=\'#eff6ff\'" onmouseout="this.style.background=\'\'">'+escHtml(n)+'</div>';
+  }).join('');
+  list.style.display='block';
 }
 
-function profileNameChanged(){
-  var name=$('profileName').value;
-  if(!name)return;
-  localStorage.setItem('rogs_profile_name',name);
+function profileSelectName(name){
+  // Close search list
+  var list=document.getElementById('profileSearchList');
+  if(list)list.style.display='none';
+  var sin=document.getElementById('profileSearchIn');
+  if(sin)sin.value=name;
+  // Check if PIN protected
   fbGet('rogs_profiles/'+profileKey(name)).then(function(d){
-    if(d&&d.pin&&name!==_profilePlayer){
-      // Need PIN to switch to this profile
+    if(d&&d.pin){
       _profilePlayer=name;_profileMode='enter';
-      $('profilePinTitle').textContent='Enter Profile PIN';
-      $('profilePinMsg').textContent='PIN required for '+name;
+      $('profilePinTitle').textContent='Enter PIN for '+name;
+      $('profilePinMsg').textContent='This profile is PIN protected';
       $('profilePinErr').textContent='';
       profilePinReset();show('p-profile-pin');
     } else {
@@ -3268,50 +3291,112 @@ function profileNameChanged(){
   }).catch(function(){loadProfilePage(name,{});});
 }
 
-function profileSaveHcp(){
-  var name=$('profileName').value;
-  var hcp=parseFloat($('profileHcp').value);
-  if(!name){alert('Please select your name first.');return;}
-  if(isNaN(hcp)){alert('Please enter a valid handicap.');return;}
-  saveROGSHcp(name,hcp);
-  $('profileHcpStatus').textContent='HCP '+hcp+' saved ✓';
-  $('profileHcpStatus').style.color='#15803d';
-  setTimeout(function(){$('profileHcpStatus').style.color='';},2000);
+function profileUseCustomName(){
+  document.getElementById('profileCustomDiv').style.display='block';
+  var inp=document.getElementById('profileCustomIn');
+  if(inp)inp.focus();
 }
 
-function profileSavePin(){
-  var pin=$('profilePinNew').value.trim();
-  if(pin.length!==4||isNaN(pin)){alert('PIN must be exactly 4 digits.');return;}
-  $('profilePinStatus').textContent='PIN will be saved with your profile ✓';
-  $('profilePinStatus').style.color='#15803d';
+function profileSelectCustom(){
+  var name=(document.getElementById('profileCustomIn').value||'').trim();
+  if(!name){alert('Please enter your name.');return;}
+  document.getElementById('profileCustomDiv').style.display='none';
+  // Check if exists in db
+  fbGet('rogs_profiles/'+profileKey(name)).then(function(d){
+    if(d&&d.pin){
+      _profilePlayer=name;_profileMode='enter';
+      $('profilePinTitle').textContent='Enter PIN for '+name;
+      $('profilePinMsg').textContent='This profile is PIN protected';
+      $('profilePinErr').textContent='';
+      profilePinReset();show('p-profile-pin');
+    } else {
+      loadProfilePage(name,d||{});
+    }
+  }).catch(function(){loadProfilePage(name,{});});
 }
+
+function profileChangeName(){
+  _profilePlayer=null;_profileUnlocked=false;
+  var step1=document.getElementById('profileStep1');
+  var form=document.getElementById('profileForm');
+  var custom=document.getElementById('profileCustomDiv');
+  var sin=document.getElementById('profileSearchIn');
+  if(step1)step1.style.display='block';
+  if(form)form.style.display='none';
+  if(custom)custom.style.display='none';
+  if(sin)sin.value='';
+  var list=document.getElementById('profileSearchList');
+  if(list)list.style.display='none';
+  $('profilePageName').textContent='My Profile';
+}
+
+function loadProfilePage(name,data){
+  _profilePlayer=name;_profileUnlocked=true;
+  localStorage.setItem('rogs_profile_name',name);
+  // Hide step1, show form
+  var step1=document.getElementById('profileStep1');
+  var form=document.getElementById('profileForm');
+  if(step1)step1.style.display='none';
+  if(form)form.style.display='block';
+  // Show selected name banner
+  var nameEl=document.getElementById('profileSelectedName');
+  var subEl=document.getElementById('profileSelectedSub');
+  if(nameEl)nameEl.textContent=name;
+  if(subEl)subEl.textContent=data.pin?'PIN protected ':(data.hcp!=null?'HCP '+data.hcp:'New profile');
+  // Fill fields
+  $('profileHcp').value=data.hcp!=null?data.hcp:'';
+  $('profileCertNo').value=data.certNo||'';
+  $('profilePinNew').value='';
+  $('profilePinConfirm').value='';
+  $('profileHcpStatus').textContent=data.certNo?'Certificate: '+data.certNo:'';
+  $('profilePinStatus').textContent=data.pin?'PIN is set  enter new PIN to change, or 0000 to remove':'No PIN set';
+  $('profileMsg').style.display='none';
+  $('profilePageName').textContent=name+'  Profile';
+  show('p-profile');
+}
+
+function profileSaveHcp(){} // kept for compatibility
+
+function profileSavePin(){} // kept for compatibility
 
 function profileSaveAll(){
-  var name=$('profileName').value;
-  if(!name){
-    var m=$('profileMsg');m.textContent='Please select your name.';m.className='warn';m.style.display='block';return;
+  if(!_profilePlayer||!_profileUnlocked){
+    var m=$('profileMsg');m.textContent='Please select your name first.';m.className='warn';m.style.display='block';return;
   }
-  var hcp=parseFloat($('profileHcp').value)||0;
+  var name=_profilePlayer;
+  var hcp=parseFloat($('profileHcp').value);
+  if(isNaN(hcp)){var m=$('profileMsg');m.textContent='Please enter a valid handicap.';m.className='warn';m.style.display='block';return;}
   var certNo=$('profileCertNo').value.trim();
-  var pin=$('profilePinNew').value.trim();
-  var data={name:name,hcp:hcp,certNo:certNo,updated:Date.now()};
-  if(pin.length===4&&!isNaN(pin))data.pin=pin;
-  else {
-    // Keep existing pin
-    var existing=null;
-    fbGet('rogs_profiles/'+profileKey(name)).then(function(d){if(d&&d.pin)data.pin=d.pin;});
+  var pin1=$('profilePinNew').value.trim();
+  var pin2=$('profilePinConfirm').value.trim();
+  // Validate PIN
+  if(pin1||pin2){
+    if(pin1!==pin2){var m=$('profileMsg');m.textContent='PINs do not match.';m.className='warn';m.style.display='block';return;}
+    if(pin1.length!==4||isNaN(pin1)){var m=$('profileMsg');m.textContent='PIN must be exactly 4 digits.';m.className='warn';m.style.display='block';return;}
   }
+  var data={name:name,hcp:hcp,certNo:certNo,updated:Date.now()};
+  if(pin1==='0000'){
+    data.pin=null; // remove pin
+  } else if(pin1){
+    data.pin=pin1;
+  }
+  // Save HCP to rogs_hcps for quick lookup
   saveROGSHcp(name,hcp);
-  localStorage.setItem('rogs_profile_name',name);
   fbPut('rogs_profiles/'+profileKey(name),data).then(function(){
     var m=$('profileMsg');
-    m.textContent='Profile saved! ✓';m.className='ok';m.style.display='block';
-    $('profilePageName').textContent=name+' — Profile';
+    m.innerHTML='<span style="color:#15803d;font-weight:700"> Profile saved for '+escHtml(name)+'</span>';
+    m.style.display='block';
+    m.className='ok';
+    var subEl=document.getElementById('profileSelectedSub');
+    if(subEl)subEl.textContent=data.pin?'PIN protected ':'HCP '+hcp;
+    $('profilePinNew').value='';$('profilePinConfirm').value='';
+    $('profilePinStatus').textContent=data.pin?'PIN is set':'No PIN set';
     setTimeout(function(){m.style.display='none';},3000);
   }).catch(function(e){
-    var m=$('profileMsg');m.textContent='Error saving: '+e.message;m.className='warn';m.style.display='block';
+    var m=$('profileMsg');m.textContent='Save failed: '+e.message;m.className='warn';m.style.display='block';
   });
 }
+
 
 // Profile PIN pad
 var _ppVal='';
