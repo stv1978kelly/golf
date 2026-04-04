@@ -1337,6 +1337,7 @@ button[onclick*="startFromComp"],
   <div class="row" id="compNpRow" style="display:none"></div>
   <label>Players & handicaps</label>
   <div id="compPFields"></div>
+  <div id="comp-group-editor" style="display:none;background:#f0f4ff;border:2px solid #0d2d6e;border-radius:10px;padding:12px 14px;margin:12px 0"></div>
   <div style="background:#eff6ff;border:2px solid #0d2d6e;border-radius:8px;padding:14px 16px;margin:10px 0">
     <div style="font-size:11px;font-weight:700;color:#0d2d6e;text-transform:uppercase;letter-spacing:.6px;margin-bottom:10px">Tee Colour</div>
     <div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:12px" id="compTeeBtns"></div>
@@ -3032,6 +3033,83 @@ function buildCompNpRow(){
   });
 }
 
+// Comp groups - separate from S.groups used in setup
+var COMP_GROUPS={};
+
+function buildCompGroupEditor(){
+  var el=document.getElementById('comp-group-editor');
+  if(!el)return;
+  if(COMP_NP<=4){el.style.display='none';return;}
+  el.style.display='block';
+  // Auto-init if empty or wrong size
+  var total=0;
+  Object.keys(COMP_GROUPS).forEach(function(k){total+=(COMP_GROUPS[k]||[]).length;});
+  if(total!==COMP_NP)COMP_GROUPS=compAutoMakeGroups(COMP_NP);
+  renderCompGroupEditor();
+}
+
+function compAutoMakeGroups(np){
+  var groups={};var gi=0;
+  for(var i=0;i<np;i++){
+    if(!groups[gi])groups[gi]=[];
+    groups[gi].push(i);
+    if(groups[gi].length===4)gi++;
+  }
+  return groups;
+}
+
+function renderCompGroupEditor(){
+  var el=document.getElementById('comp-group-editor');
+  if(!el)return;
+  var groups=COMP_GROUPS;
+  var gKeys=Object.keys(groups).sort(function(a,b){return parseInt(a)-parseInt(b);});
+  var gcols=['#c8102e','#16a34a','#7c3aed','#d97706','#0891b2'];
+  var html='<div style="font-size:11px;font-weight:700;color:#0d2d6e;text-transform:uppercase;letter-spacing:.6px;margin-bottom:10px">Groups (drag players to move)</div>';
+  gKeys.forEach(function(gi,gIdx){
+    var members=groups[gi]||[];
+    var col=gcols[gIdx%gcols.length];
+    html+='<div data-gi="'+gi+'" style="background:#fff;border:2px solid '+col+';border-left:5px solid '+col+';border-radius:8px;padding:10px 12px;margin-bottom:8px;min-height:48px" '
+      +'ondragover="event.preventDefault()" ondrop="compDropToGroup(event,'+gi+')">'
+      +'<div style="font-size:12px;font-weight:700;color:'+col+';margin-bottom:6px">Group '+(gIdx+1)+'</div>';
+    members.forEach(function(pi){
+      var name=getCompPlayerName(pi);
+      html+='<div draggable="true" ondragstart="window._compDragPi='+pi+';event.dataTransfer.effectAllowed=\'move\'" '
+        +'style="display:inline-flex;align-items:center;gap:5px;background:#eff6ff;border:1.5px solid #0d2d6e;border-radius:4px;padding:4px 10px;margin:2px 3px;font-size:12px;font-weight:600;color:#0d2d6e;cursor:grab">'
+        +'<span style="font-size:10px;opacity:.5">&#9776;</span>'+escHtml(name)+'</div>';
+    });
+    html+='</div>';
+  });
+  el.innerHTML=html;
+}
+
+function getCompPlayerName(pi){
+  var pf=document.getElementById('compPFields');
+  if(!pf)return'Player '+(pi+1);
+  var sels=pf.querySelectorAll('select.cpname');
+  var sel=sels[pi];
+  if(!sel)return'Player '+(pi+1);
+  var val=sel.dataset.customVal?sel.dataset.customVal:sel.value;
+  return val&&val!=='__custom__'?val:'Player '+(pi+1);
+}
+
+window._compDragPi=null;
+function compDropToGroup(e,targetGi){
+  e.preventDefault();
+  var pi=window._compDragPi;
+  if(pi===null||pi===undefined)return;
+  window._compDragPi=null;
+  var groups=COMP_GROUPS;
+  Object.keys(groups).forEach(function(gi){groups[gi]=(groups[gi]||[]).filter(function(p){return p!==pi;});});
+  if(!groups[targetGi])groups[targetGi]=[];
+  groups[targetGi].push(pi);
+  // Reindex
+  var newG={};var idx=0;
+  Object.keys(groups).sort(function(a,b){return parseInt(a)-parseInt(b);}).forEach(function(gi){
+    if(groups[gi].length>0){newG[idx]=groups[gi];idx++;}
+  });
+  COMP_GROUPS=newG;
+  renderCompGroupEditor();
+}
 function buildCompPFields(){
   var pf=$('compPFields');
   pf.innerHTML='<div class="prow" style="margin-bottom:2px"><span style="font-size:11px;color:#9ca3af;font-weight:700;text-transform:uppercase">Name</span><span style="font-size:11px;color:#9ca3af;font-weight:700;text-align:center;text-transform:uppercase">HCP</span></div>';
@@ -3070,10 +3148,11 @@ function buildCompPFields(){
     };
     row.appendChild(sel);row.appendChild(hcpIn);pf.appendChild(row);
   }
+  buildCompGroupEditor();
 }
 
 function openNewComp(){
-  EDIT_COMP_ID=null;COMP_NP=4;COMP_MODE='strokeplay';COMP_TEE='yellow';COMP_PCT_KEY='95';COMP_PCT=95;window._editComp=null;
+  EDIT_COMP_ID=null;COMP_NP=4;COMP_MODE='strokeplay';COMP_TEE='yellow';COMP_PCT_KEY='95';COMP_PCT=95;COMP_GROUPS={};window._editComp=null;
   $('compPageTitle').textContent='Add competition';
   $('compName').value='';
   $('compDate').value='';
@@ -3092,6 +3171,7 @@ function openEditComp(id,comp){
   EDIT_COMP_ID=id;COMP_NP=comp.np||4;COMP_MODE=comp.mode||'strokeplay';window._editComp=comp;
   COMP_TEE=comp.compTee||comp.tee||'yellow';
   COMP_PCT_KEY=comp.pctKey||'95';COMP_PCT=COMP_PCT_NUMS[COMP_PCT_KEY]||comp.pct||95;
+  COMP_GROUPS=comp.groups||{};
   $('compPageTitle').textContent='Edit competition';
   $('compName').value=comp.name||'';
   $('compDate').value=comp.date||'';
@@ -3119,7 +3199,7 @@ function saveComp(){
   var names=[],hcps=[];
   document.querySelectorAll('.cpname').forEach(function(el){names.push(el.dataset.customVal||el.value||('Player '+(parseInt(el.dataset.ci)+1)))});
   document.querySelectorAll('.cphcp').forEach(function(el){hcps.push(parseInt(el.value)||0)});
-  var comp={name:name,date:date,tee:$('compTee').value.trim(),compTee:COMP_TEE,course:course,mode:COMP_MODE,np:COMP_NP,pct:COMP_PCT,pctKey:COMP_PCT_KEY,names:names.slice(0,COMP_NP),hcps:hcps.slice(0,COMP_NP),notes:$('compNotes').value,slope:$('compSlope').value,cr:$('compCR').value,par:$('compPar').value,url:$('compUrl').value.trim(),created:Date.now()};
+  var comp={name:name,date:date,tee:$('compTee').value.trim(),compTee:COMP_TEE,course:course,mode:COMP_MODE,np:COMP_NP,pct:COMP_PCT,pctKey:COMP_PCT_KEY,groups:(COMP_NP>4?COMP_GROUPS:null),names:names.slice(0,COMP_NP),hcps:hcps.slice(0,COMP_NP),notes:$('compNotes').value,slope:$('compSlope').value,cr:$('compCR').value,par:$('compPar').value,url:$('compUrl').value.trim(),created:Date.now()};
   var id=EDIT_COMP_ID||(Date.now().toString(36));
   fbPut('comps/'+id,comp).then(function(){
     show('p-diary');loadDiary();
@@ -3714,7 +3794,7 @@ function launchComp(id){
       hcps:(c.hcps||[]).slice(0,c.np||4),
       pars:DPARS.slice(),si:DSI.slice(),yds:[],
       slope:parseFloat(c.slope)||113,cr:parseFloat(c.cr)||0,
-      pct:c.pct||95,pctKey:c.pctKey||'95',
+      pct:c.pct||95,pctKey:c.pctKey||'95',groups:c.groups||null,
       scores:Array(16).fill(0).map(function(){return Array(18).fill(0)}),
       ts:Date.now(),status:'live',compName:c.name};
     fbPut('rounds/'+code,r).then(function(){
