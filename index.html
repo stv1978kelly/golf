@@ -1830,9 +1830,25 @@ if(!existing){
 }
 return;
         }
-        S.names[pi]=this.value;
-        S.hcps[pi]=getROGSHcp(this.value);
-        buildSetup();
+        var selName=this.value;
+        S.names[pi]=selName;
+        // Try profile first for most up-to-date HCP
+        var quickHcp=getROGSHcp(selName);
+        if(quickHcp){
+          S.hcps[pi]=quickHcp;buildSetup();
+        } else {
+          // Check rogs_profiles in Firebase
+          var profKey=selName.toLowerCase().replace(/[^a-z0-9]/g,'_');
+          fbGet('rogs_profiles/'+profKey).then(function(d){
+            if(d&&d.hcp!=null){
+              S.hcps[pi]=d.hcp;
+              ROGS_HCPS[profKey]=d.hcp; // cache it
+            } else {
+              S.hcps[pi]=0;
+            }
+            buildSetup();
+          }).catch(function(){S.hcps[pi]=0;buildSetup();});
+        }
       };
     })(i,sel);
     var hcpIn=document.createElement('input');
@@ -2743,7 +2759,20 @@ function buildCompPFields(){
           return;
         }
         var hcpSib=this.parentNode.querySelector('.cphcp');
-        if(hcpSib)hcpSib.value=getROGSHcp(this.value);
+        var selValComp=this.value;
+        var quickHcpComp=getROGSHcp(selValComp);
+        if(quickHcpComp&&hcpSib){
+          hcpSib.value=quickHcpComp;
+        } else {
+          // Check rogs_profiles
+          var profKeyComp=selValComp.toLowerCase().replace(/[^a-z0-9]/g,'_');
+          fbGet('rogs_profiles/'+profKeyComp).then(function(d){
+            if(d&&d.hcp!=null&&hcpSib){
+              hcpSib.value=d.hcp;
+              ROGS_HCPS[profKeyComp]=d.hcp;
+            }
+          }).catch(function(){});
+        }
         delete this.dataset.customVal;
       };
     })(sel);
@@ -2950,7 +2979,17 @@ fbGet('rogs_profiles').then(function(profiles){
 // Stored HCPs — players update their own via the picker
 var ROGS_HCPS = {};
 function loadROGSHcps(){
-  fbGet('rogs_hcps').then(function(d){if(d&&typeof d==='object')ROGS_HCPS=d;}).catch(function(){});
+  // Load both quick hcps AND full profiles into ROGS_HCPS
+  fbGet('rogs_hcps').then(function(d){if(d&&typeof d==='object')ROGS_HCPS=Object.assign({},d,ROGS_HCPS);}).catch(function(){});
+  fbGet('rogs_profiles').then(function(d){
+    if(!d||typeof d!=='object')return;
+    Object.keys(d).forEach(function(k){
+      var p=d[k];
+      if(p&&p.hcp!=null&&p.hcp!==0){
+        ROGS_HCPS[k]=p.hcp;
+      }
+    });
+  }).catch(function(){});
 }
 function saveROGSHcp(name,hcp){
   var key=name.replace(/[^a-z0-9]/gi,'_');
