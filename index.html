@@ -1799,6 +1799,14 @@ function renderGroupEntry(){
   var el=document.getElementById('group-entry-view');
   var playerLabel=document.getElementById('playerLabel');
   if(!el)return;
+  // Auto-fill par for all group members on current hole
+  if(!IS_ARCHIVED&&window._myGroupPlayers&&window._myGroupPlayers.length&&R&&R.pars){
+    var changed=false;
+    window._myGroupPlayers.map(Number).forEach(function(pi){
+      if(pi<R.np&&!R.scores[pi][AH]){R.scores[pi][AH]=R.pars[AH];changed=true;}
+    });
+    if(changed){R.ts=Date.now();fbPatch('rounds/'+RC,{scores:R.scores,ts:R.ts}).catch(function(){});}
+  }
   var hasGroup=window._roundGroups&&window._myGroupPlayers&&window._myGroupPlayers.length>0;
   // If round has groups but player not yet identified
   var hasRoundGroups=window._roundGroups&&Object.keys(window._roundGroups).length>0;
