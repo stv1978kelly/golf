@@ -2424,8 +2424,16 @@ function renderEntry(){
   $('prevBtn').style.display=AH>0?'block':'none';$('nextBtn').style.display=AH<17?'block':'none';
 }
 function adj(d){if(IS_ARCHIVED)return;var c=R.scores[AP][AH]||0;setVal(Math.max(1,Math.min(15,c+d)))}
-function prevH(){if(AH>0){AH--;renderHBtns();renderEntry()}}
-function nextH(){if(AH<17){AH++;renderHBtns();renderEntry()}}
+function autoFillPar(){
+  if(IS_ARCHIVED||!R||!R.pars)return;
+  if(!R.scores[AP][AH]){
+    R.scores[AP][AH]=R.pars[AH];
+    R.ts=Date.now();
+    fbPatch('rounds/'+RC,{scores:R.scores,ts:R.ts}).catch(function(){});
+  }
+}
+function prevH(){if(AH>0){AH--;autoFillPar();renderHBtns();renderEntry();renderSC();}}
+function nextH(){if(AH<17){AH++;autoFillPar();renderHBtns();renderEntry();renderSC();}}
 function setVal(v){
   if(IS_ARCHIVED)return;
   if(!canEditPlayerScore(AP)){
