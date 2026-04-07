@@ -1562,19 +1562,7 @@ button[onclick*="startFromComp"],
         <div class="sbig" id="eBig">—</div>
         <button class="pm" onclick="adj(1)">+</button>
       </div>
-      <div class="nrow">
-        <button class="nbtn" onclick="setVal(1)">1</button>
-        <button class="nbtn" onclick="setVal(2)">2</button>
-        <button class="nbtn" onclick="setVal(3)">3</button>
-        <button class="nbtn" onclick="setVal(4)">4</button>
-        <button class="nbtn" onclick="setVal(5)">5</button>
-        <button class="nbtn" onclick="setVal(6)">6</button>
-        <button class="nbtn" onclick="setVal(7)">7</button>
-        <button class="nbtn" onclick="setVal(8)">8</button>
-        <button class="nbtn" onclick="setVal(9)">9</button>
-        <button class="nbtn" onclick="setVal(10)">10</button>
-        <button class="nbtn" style="color:#9ca3af" onclick="setVal(0)">Clear</button>
-      </div>
+      <div class="nrow" id="nBtns"></div>
     </div>
     <div style="display:flex;gap:8px">
       <button class="btn btn-white" id="prevBtn" onclick="prevH()" style="display:none">← Prev</button>
@@ -2409,7 +2397,30 @@ function renderEntry(){
   $('eBig').textContent=s||'—';
   var lb=sLabel(s,par),pts=sbPts(s,par,hs);
   $('eLabel').innerHTML=s?'<div style="font-size:13px;font-weight:700;color:'+lb.c+'">'+lb.t+'</div>'+(R.mode==='stableford'?'<div style="font-size:12px;color:#4a5a7a">'+pts+' pts</div>':''):'';
-  document.querySelectorAll('.nbtn').forEach(function(b){b.classList.toggle('on',parseInt(b.textContent)===s)});
+  // Build score buttons dynamically with par highlighted
+  var nb=document.getElementById('nBtns');
+  if(nb){
+    nb.innerHTML='';
+    for(var v=1;v<=10;v++){
+      var btn=document.createElement('button');
+      btn.className='nbtn';
+      btn.textContent=v;
+      var isPar=v===par;
+      var isActive=v===s;
+      if(isPar&&!isActive){
+        btn.style.cssText='background:#eff6ff;border:2.5px solid #0d2d6e;color:#0d2d6e;font-weight:900;position:relative';
+        btn.title='Par';
+      }
+      if(isActive) btn.classList.add('on');
+      (function(val){btn.onclick=function(){setVal(val);};})(v);
+      nb.appendChild(btn);
+    }
+    var clr=document.createElement('button');
+    clr.className='nbtn';clr.textContent='Clear';
+    clr.style.color='#9ca3af';
+    clr.onclick=function(){setVal(0);};
+    nb.appendChild(clr);
+  }
   $('prevBtn').style.display=AH>0?'block':'none';$('nextBtn').style.display=AH<17?'block':'none';
 }
 function adj(d){if(IS_ARCHIVED)return;var c=R.scores[AP][AH]||0;setVal(Math.max(1,Math.min(15,c+d)))}
